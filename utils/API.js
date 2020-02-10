@@ -5,15 +5,15 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 06 February 2020 - 20:59:05
+** @Last modified time:		Monday 10 February 2020 - 13:08:28
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
 
-export const	API = 'https://proxy.localhost';
-const	WSAPI = 'wss://proxy.localhost';
-// export const	API = 'https://192.168.0.13:8099';
-// const	WSAPI = 'wss://192.168.0.13:8099';
+// export const	API = 'https://proxy.localhost';
+// const	WSAPI = 'wss://proxy.localhost';
+export const	API = 'http://localhost:8099';
+const	WSAPI = 'ws://localhost:8099';
 
 const	performFetch = (url, method, args, callback) =>
 {

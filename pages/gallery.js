@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 17:48:38
+** @Last modified time:		Monday 10 February 2020 - 14:44:16
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -31,6 +31,10 @@ function Albums(props) {
 
 	useEffectOnce(() => {
 		API.GetMemberPictures().then((e) => {
+			if (!e) {
+				set_pictureList([])
+				return
+			}
 			const	_pictureList = e.map((each) => {
 				each.dateAsKey = convertToMoment(each.originalTime)
 				return each
