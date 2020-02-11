@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 07 February 2020 - 10:59:11
+** @Last modified time:		Tuesday 11 February 2020 - 00:16:26
 *******************************************************************************/
 
 import	React							from	'react';
@@ -48,7 +48,6 @@ export default class MyApp extends App {
 			isDragNDrop: false
 		};
 	}
-	
 
 	onLoginMember = (email, password) => {
 		API.LoginMember({email, password}).then((e) => {

@@ -5,7 +5,7 @@
 ** @Filename:				PictureLightroom.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 15:16:54
+** @Last modified time:		Tuesday 11 February 2020 - 17:38:22
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -136,7 +136,7 @@ function	PictureLightroom(props) {
 			}, 400);
 		}
 	}
-	const		hasNext = () => index + 1 <= props.list.length;
+	const		hasNext = () => index + 1 < props.list.length;
 	function	onClickNext() {
 		if (hasNext()) {
 			set_shouldPushSideRight(true);

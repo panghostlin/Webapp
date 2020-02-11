@@ -5,13 +5,12 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 18:21:58
+** @Last modified time:		Tuesday 11 February 2020 - 17:37:20
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
-import	styled, {css, keyframes}		from	'styled-components';
+import	styled							from	'styled-components';
 import	PhotoCardWidth					from	'./PhotoCardWidth';
-import	PhotoCard						from	'./PhotoCard';
 import	{PerDayInfiniteList}			from	'./InfiniteList';
 import	AlbumSelectionModal				from	'./AlbumSelectionModal';
 import	ToastUpload						from	'./ToastUpload';
@@ -77,7 +76,7 @@ const	StyledDate = styled.div`
 	}
 
 `;
-
+  
 function	Uploader(props) {
 	const	[uploader, set_uploader] = useState(false);
 	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
@@ -93,31 +92,36 @@ function	Uploader(props) {
 
 		reader.readAsDataURL(file);
 		reader.onload = event => {
+
 			const img = new Image();
 			img.src = event.target.result;
 			img.name = fileName;
 			img.onload = (e) => {
-				const	imageOriginalWidth = e.target.width
-				const	imageOriginalHeight = e.target.height
+				if (e.target.width * e.target.height > 16000000) {
+					const	imageOriginalWidth = e.target.width
+					const	imageOriginalHeight = e.target.height
 
-				const	hvRatio = imageOriginalWidth / imageOriginalHeight
-				const	vhRatio = imageOriginalHeight / imageOriginalWidth
+					const	hvRatio = imageOriginalWidth / imageOriginalHeight
+					const	vhRatio = imageOriginalHeight / imageOriginalWidth
 
-				const	imageHvRatio = 16000000 * hvRatio
-				const	imageVhRatio = 16000000 * vhRatio
+					const	imageHvRatio = 16000000 * hvRatio
+					const	imageVhRatio = 16000000 * vhRatio
 
-				const	newWidth = Math.sqrt(imageHvRatio)
-				const	newHeight = Math.sqrt(imageVhRatio)
+					const	newWidth = Math.sqrt(imageHvRatio)
+					const	newHeight = Math.sqrt(imageVhRatio)
 
-				const canvas = document.createElement('canvas');
-				canvas.width = newWidth;
-				canvas.height = newHeight;
+					const canvas = document.createElement('canvas');
+					canvas.width = newWidth;
+					canvas.height = newHeight;
 
-				const ctx = canvas.getContext('2d');
-				ctx.drawImage(img, 0, 0, newWidth, newHeight);
+					const ctx = canvas.getContext('2d');
+					ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-				const	base64 = canvas.toDataURL(file.type);
-				canvas.toBlob((blob) => callback(blob, base64), file.type, 0.85);
+					const	base64 = canvas.toDataURL(file.type);
+					canvas.toBlob((blob) => callback(blob, base64), file.type, 0.85);
+				} else {
+					callback(file, event.target.result);
+				}
 			},
 			reader.onerror = error => console.log(error);
 		};
@@ -150,8 +154,10 @@ function	Uploader(props) {
 		CreatePictureThumbnail(file)
 		PictureCompress(file, (resizedFile) => {
 			set_uploader(true)
-			resizedFile.name = file.name
-			resizedFile.lastModified = file.lastModified
+			if (!(resizedFile instanceof File)) {
+				resizedFile.name = file.name
+				resizedFile.lastModified = file.lastModified
+			}
 			API.WSCreateChunkPicture(resizedFile, (UUID) => API.CreateChunkPicture(UUID, resizedFile, props.albumID), (response, currentFile) => {
 				if (response.Step === 4) {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {

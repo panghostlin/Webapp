@@ -1,18 +1,16 @@
 FROM node:12.14.1
 
-# Setting working directory. All the path will be relative to WORKDIR
-WORKDIR /usr/src/webapp
+RUN mkdir /home/app
+WORKDIR /home/app
 
-# Installing dependencies
-COPY package.json ./
-RUN npm install
-
-# Copying source files
-COPY . .
+ADD package*.json ./
+RUN yarn
+ADD . .
 
 # Building app
-RUN npm run build
+# RUN npm run build
 
 # Running the app
-CMD ["npm", "start"]
-EXPOSE 3000
+# CMD ["npm", "start"]
+CMD ["yarn", "run", "dev"]
+EXPOSE 3000 49153

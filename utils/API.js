@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 10 February 2020 - 18:04:57
+** @Last modified time:		Tuesday 11 February 2020 - 17:36:48
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -15,8 +15,8 @@ import fetch from 'isomorphic-unfetch';
 // export const	API = 'http://localhost:8000';
 // const	WSAPI = 'ws://localhost:8000';
 
-export const	API = 'http://panghostlin-proxy:8000';
-const	WSAPI = 'ws://panghostlin-proxy:8000';
+export const	API = `http://${process.env.BACKEND}`;
+const	WSAPI = `ws://${process.env.BACKEND}`;
 
 const	performFetch = (url, method, args, callback) =>
 {
@@ -48,6 +48,7 @@ const	performFetch = (url, method, args, callback) =>
 };
 
 function	send(url, chunk, chunkId, parts, file, UUID, albumID) {
+	console.log(`HELLLLO ? ${process.env.BACKEND}`)
 	return (
 		new Promise((resolve, reject) =>
 		{
@@ -152,9 +153,6 @@ export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 		return
 	}
 
-	// while (true) {
-	// }
-	console.log(`RETURNING`)
 	return socket;
 }
 
