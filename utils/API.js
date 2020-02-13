@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 14:51:08
+** @Last modified time:		Thursday 13 February 2020 - 15:14:24
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -115,10 +115,6 @@ export	const	upload = (url, file, UUID, albumID) => {
 };
 
 
-
-export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null, false);
-export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null, false);
-
 export	const	CreateChunkPicture = (UUID, file, albumID) => upload('uploadPicture/', file, UUID, albumID);
 
 
@@ -169,3 +165,10 @@ export	const	GetAlbum = args => performFetch('albums/get/', 'POST', args, null, 
 export	const	DeleteAlbum = args => performFetch('albums/delete/', 'POST', args, null, false);
 export	const	SetAlbumCover = args => performFetch('albums/set/cover/', 'POST', args, null, false);
 export	const	SetAlbumName = args => performFetch('albums/set/name/', 'POST', args, null, false);
+
+/******************************************************************************
+**	Members
+*****************************************************************************/
+export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null, false);
+export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null, false);
+export	const	CheckMember = args => performFetch('checkMember/', 'POST', args, null, false);

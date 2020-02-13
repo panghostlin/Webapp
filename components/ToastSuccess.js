@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 04 February 2020 - 18:27:06
+** @Last modified time:		Thursday 13 February 2020 - 15:36:47
 *******************************************************************************/
 
 import	react, {useEffect, useState}	from	'react';
@@ -98,6 +98,11 @@ function	ToastSuccess(props) {
 				props.onClose();
 			}, 3600);
 		}
+		return () => {
+			clearTimeout(isAnimatedTimeout);
+			clearTimeout(isDisplayedTimeout);
+			clearTimeout(isMountedTimeout);
+		}
 	}, [props.isOpen]);
 
 	useEffect(() => {
@@ -113,6 +118,11 @@ function	ToastSuccess(props) {
 			set_isMounted(false);
 			props.onClose();
 		}, 3600);
+		return () => {
+			clearTimeout(isAnimatedTimeout);
+			clearTimeout(isDisplayedTimeout);
+			clearTimeout(isMountedTimeout);
+		}
 	}, [props.status]);
 
 	if (!isMounted)

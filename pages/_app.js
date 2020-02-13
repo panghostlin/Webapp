@@ -5,10 +5,10 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 11 February 2020 - 00:16:26
+** @Last modified time:		Thursday 13 February 2020 - 15:34:20
 *******************************************************************************/
 
-import	React							from	'react';
+import	React, {useState, useEffect}	from	'react';
 import	App								from	'next/app';
 import	styled, {createGlobalStyle}		from	'styled-components';
 import	* as API						from	'../utils/API';
@@ -38,65 +38,63 @@ const	Header = styled.header`
 	box-shadow: 0 4px 12px rgba(0,0,0,0.2), 0 0 1px rgba(1,0,0,0.2);
 `;
 
-export default class MyApp extends App {
-	constructor(props)
-	{
-		super(props);
+function	MyApp(props) {
+	const	[isReady, set_isReady] = useState(false);
+	const	[member, set_member] = useState(undefined);
+	const	[isDragNDrop, set_isDragNDrop] = useState(false);
 
-		this.state = {
-			member: undefined,
-			isDragNDrop: false
-		};
+	useEffect(() => {onCheckMember()}, [props.router.route])
+
+	async function	onCheckMember() {
+		await API.CheckMember().then((status) => {
+			if (status === false || status === undefined) {
+				set_member(undefined);
+				props.router.push('/')
+			}
+		})
+		set_isReady(true);
 	}
-
-	onLoginMember = (email, password) => {
+	function	onLoginMember(email, password) {
 		API.LoginMember({email, password}).then((e) => {
 			if (e !== false) {
-				this.setState({member: e}, () => console.log(`Success login member`));
-				this.props.router.push('/gallery')
+				set_member(e)
+				props.router.push('/gallery')
 				return;
 			}
 			console.log(`Fail login member`);
 		});
 	}
-	onCreateMember = (email, password, callback) => {
+	function	onCreateMember(email, password, callback) {
 		API.CreateMember({email, password}).then((e) => {
 			if (e !== false) {
-				this.setState({member: e}, () => console.log('Success create member'));
-				this.props.router.push('/gallery')
+				set_member(e)
+				props.router.push('/gallery')
 				return;
 			}
 			console.log(`Fail create member`);
 		});
 	}
 
-
-	render() {
-		const	{Component, pageProps} = this.props;
-
-		return (
-			<div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
-				<GlobalStyle />
-				{this.props.router.route != '/' && <Header>
-					<NavBar router={this.props.router} />
-				</Header>}
-				<div onDragEnter={() => this.setState({isDragNDrop: true})} style={{display: 'flex', flex: 1}}>
-					<Component
-						isDragNDrop={this.state.isDragNDrop}
-						set_isDragNDrop={isDragNDrop => this.setState({isDragNDrop})}
-						element={this.props.element}
-						router={this.props.router}
-						member={this.state.member}
-						onLoginMember={this.onLoginMember}
-						onCreateMember={this.onCreateMember}
-						onDisconnect={() => {
-							this.props.router.push('/').then(() => {
-								this.setState({user: undefined});
-							});
-						}}
-						{...pageProps} />
-				</div>
+	const	{Component, pageProps} = props;
+	return (
+		<div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
+			<GlobalStyle />
+			{props.router.route != '/' && <Header>
+				<NavBar router={props.router} />
+			</Header>}
+			<div onDragEnter={() => set_isDragNDrop(true)} style={{display: 'flex', flex: 1}}>
+				<Component
+					isDragNDrop={isDragNDrop}
+					set_isDragNDrop={set_isDragNDrop}
+					element={props.element}
+					router={props.router}
+					member={member}
+					onLoginMember={onLoginMember}
+					onCreateMember={onCreateMember}
+					{...pageProps} />
 			</div>
-		);
-	}
+		</div>
+	);
 }
+
+export default MyApp;
