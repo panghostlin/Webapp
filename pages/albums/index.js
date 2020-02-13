@@ -5,14 +5,13 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 16:48:12
+** @Last modified time:		Thursday 13 February 2020 - 18:39:30
 *******************************************************************************/
 
-import	React, {useState, useEffect}		from	'react';
+import	React, {useState}					from	'react';
 import	styled								from	'styled-components';
 import	AlbumSelectionModal					from	'../../components/AlbumSelectionModal';
 import	AlbumCard, {AlbumsCardPreviewFake}	from	'../../components/AlbumCard';
-import	{PrimaryButton}						from	'../../components/Buttons';
 import	useEffectOnce						from	'../../hooks/useEffectOnce';
 import	* as API							from	'../../utils/API';
 
@@ -30,7 +29,6 @@ const	AlbumsContainer = styled.div`
 `;
 
 function AlbumList() {
-	const	[update, set_update] = useState(0);
 	const	[albumList, set_albumList] = useState([]);
 	const	[isReady, set_isReady] = useState(false);
 	const	[albumSelectionModal, set_albumSelectionModal] = useState(false);

@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 17:07:56
+** @Last modified time:		Thursday 13 February 2020 - 17:12:12
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -61,7 +61,7 @@ function	MyApp(props) {
 				props.router.push('/gallery')
 				return;
 			}
-			console.log(`Fail login member`);
+			console.log(`Fail login member`)
 		});
 	}
 	function	onCreateMember(email, password, callback) {

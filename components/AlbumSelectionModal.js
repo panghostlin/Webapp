@@ -5,10 +5,10 @@
 ** @Filename:				AlbumSelectionModal.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 06 February 2020 - 19:23:23
+** @Last modified time:		Thursday 13 February 2020 - 18:39:59
 *******************************************************************************/
 
-import	React, {useState, useEffect}	from	'react';
+import	React, {useState}				from	'react';
 import	styled							from	'styled-components';
 import	* as API						from	'../utils/API';
 import	useLockBodyScroll				from	'../hooks/useLockBodyScroll';

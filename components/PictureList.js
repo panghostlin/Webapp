@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 17:06:58
+** @Last modified time:		Thursday 13 February 2020 - 18:15:03
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -92,7 +92,6 @@ function	Uploader(props) {
 
 		reader.readAsDataURL(file);
 		reader.onload = event => {
-
 			const img = new Image();
 			img.src = event.target.result;
 			img.name = fileName;

@@ -5,7 +5,7 @@
 ** @Filename:				PictureLightroom.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 17:05:41
+** @Last modified time:		Thursday 13 February 2020 - 17:54:22
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -25,7 +25,7 @@ const	slideFromLeft = keyframes`0% {opacity: 0;right: 100%;} 100 {opacity: 1;rig
 const	slideFromLeftRule = css`${slideFromLeft} 0.4s;`
 
 const	hideFromSide = keyframes`0% {opacity: 1;} 100 {opacity: 0;}`;
-const	hideFromSideRule = css`${hideFromSide} 0.4s;`
+const	hideFromSideRule = css`${hideFromSide} 0.4s;`;
 
 const	RightPart = styled.div``;
 const	LeftPart = styled.div``;
