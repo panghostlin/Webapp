@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 14:32:34
+** @Last modified time:		Thursday 13 February 2020 - 14:51:08
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -43,7 +43,6 @@ const	performFetch = (url, method, args, callback) =>
 };
 
 function	send(url, chunk, chunkId, parts, file, UUID, albumID) {
-	console.log(`HELLLLO ? ${process.env.BACKEND}`)
 	return (
 		new Promise((resolve, reject) =>
 		{
