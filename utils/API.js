@@ -5,18 +5,13 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 11 February 2020 - 17:36:48
+** @Last modified time:		Thursday 13 February 2020 - 14:32:34
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
 
-// export const	API = 'https://proxy.localhost';
-// const	WSAPI = 'wss://proxy.localhost';
-// export const	API = 'http://localhost:8000';
-// const	WSAPI = 'ws://localhost:8000';
-
-export const	API = `http://${process.env.BACKEND}`;
-const	WSAPI = `ws://${process.env.BACKEND}`;
+export const	API = `https://api.${process.env.BACKEND}`;
+const	WSAPI = `wss://api.${process.env.BACKEND}`;
 
 const	performFetch = (url, method, args, callback) =>
 {
@@ -131,7 +126,7 @@ export	const	CreateChunkPicture = (UUID, file, albumID) => upload('uploadPicture
 export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 	let socket = new WebSocket(`${WSAPI}/ws/uploadPicture/`);
 
-	socket.onopen = function(e) {
+	socket.onopen = function() {
 		// const	response = {Step: 0, UUID: ''}
 		// onMessage(response)
 		// performAction()
@@ -152,6 +147,7 @@ export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 		console.log("Socket closed");
 		return
 	}
+	socket.onerror = (e) => console.warn(e)
 
 	return socket;
 }

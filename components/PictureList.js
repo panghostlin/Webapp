@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 11 February 2020 - 17:37:20
+** @Last modified time:		Tuesday 11 February 2020 - 21:13:06
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -76,7 +76,27 @@ const	StyledDate = styled.div`
 	}
 
 `;
+
+const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+	const byteCharacters = atob(b64Data);
+	const byteArrays = [];
   
+	for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+	  const slice = byteCharacters.slice(offset, offset + sliceSize);
+  
+	  const byteNumbers = new Array(slice.length);
+	  for (let i = 0; i < slice.length; i++) {
+		byteNumbers[i] = slice.charCodeAt(i);
+	  }
+  
+	  const byteArray = new Uint8Array(byteNumbers);
+	  byteArrays.push(byteArray);
+	}
+  
+	const blob = new Blob(byteArrays, {type: contentType});
+	return blob;
+  }
+
 function	Uploader(props) {
 	const	[uploader, set_uploader] = useState(false);
 	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
@@ -117,8 +137,15 @@ function	Uploader(props) {
 					const ctx = canvas.getContext('2d');
 					ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-					const	base64 = canvas.toDataURL(file.type);
-					canvas.toBlob((blob) => callback(blob, base64), file.type, 0.85);
+
+					const	base64 = canvas.toDataURL(file.type).replace(/^data:image\/[a-z]+;base64,/, "");
+					const blob = b64toBlob(base64, file.type, 0.85);
+					callback(blob);
+
+					// canvas.toBlob((blob) => {
+					// 	console.log(blob, base64)
+					// 	callback(blob, base64);
+					// }, file.type, 0.85);
 				} else {
 					callback(file, event.target.result);
 				}
@@ -151,8 +178,9 @@ function	Uploader(props) {
 		}
 
 		const	file = files[index]
-		CreatePictureThumbnail(file)
+		// CreatePictureThumbnail(file)
 		PictureCompress(file, (resizedFile) => {
+			console.log(resizedFile)
 			set_uploader(true)
 			if (!(resizedFile instanceof File)) {
 				resizedFile.name = file.name

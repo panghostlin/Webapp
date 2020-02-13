@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 18:19:30
+** @Last modified time:		Tuesday 11 February 2020 - 19:24:54
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -88,6 +88,7 @@ const	PhotoContainer = styled.div`
 	contain: strict;
 	position: relative;
 	opacity: ${props => `${props.opacity}`};
+	height: 100%;
 	height: -webkit-fill-available;
 	overflow: hidden;
 	border-radius: 4px;
