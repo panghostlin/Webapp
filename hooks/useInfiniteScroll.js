@@ -5,7 +5,7 @@
 ** @Filename:				useInfiniteScroll.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 06 February 2020 - 13:31:24
+** @Last modified time:		Thursday 13 February 2020 - 17:07:35
 *******************************************************************************/
 
 import {useState, useEffect} from "react";
@@ -21,9 +21,7 @@ const useInfiniteScroll = callback => {
 
 	useEffect(() => {
 		if (!isFetching) return;
-		callback(() => {
-			console.log("Loading....");
-		});
+		callback(() => null);
 	}, [isFetching]);
 
 	function handleScroll() {

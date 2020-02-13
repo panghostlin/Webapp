@@ -5,7 +5,7 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 07 February 2020 - 16:10:04
+** @Last modified time:		Thursday 13 February 2020 - 17:06:34
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -62,7 +62,7 @@ function	PerDayInfiniteList(props) {
 			{renderChildrens()}
 		</div>
 	);
-};
+}
 
 const		InfiniteList = React.memo((props) => {
 	const	[_, set_isFetching] = useInfiniteScroll(fetchMoreListItems);

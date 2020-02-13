@@ -5,7 +5,7 @@
 ** @Filename:				PictureLightroom.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 11 February 2020 - 17:38:22
+** @Last modified time:		Thursday 13 February 2020 - 17:05:41
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -79,15 +79,15 @@ const	LightroomImage = styled.img`
 	top: 0;
 	bottom: 0;
 `;
-const	FrontImage = styled(LightroomImage)`
+const	FrontPicture = styled(LightroomImage)`
 	animation: ${props => props.isSide ? hideFromSideRule : 'none'};
 	opacity: ${props => props.isSide ? 0 : 1};
 `;
-const	SideRightImage = styled(LightroomImage)`
+const	NextPicture = styled(LightroomImage)`
 	animation: ${props => props.isLoaded ? slideFromRightRule : 'none'};
 	left: ${props => props.isLoaded ? 0 : `100%`};
 `;
-const	SideLeftImage = styled(LightroomImage)`
+const	PreviousPicture = styled(LightroomImage)`
 	animation: ${props => props.isLoaded ? slideFromLeftRule : 'none'};
 	right: ${props => props.isLoaded ? 0 : `100%`};
 `;
@@ -148,8 +148,12 @@ function	PictureLightroom(props) {
 	}
 
 	function	renderImages() {
+		const	currentPicture = props.list[index];
+		const	previousPicture = props.list[index - 1];
+		const	nextPicture = props.list[index + 1];
+
 		return (<>
-			<FrontImage
+			<FrontPicture
 				key={index}
 				
 				ratio={optionRatio}
@@ -158,24 +162,24 @@ function	PictureLightroom(props) {
 				isLoaded={isLoaded}
 				isSide={shouldPushSideRight || shouldPushSideLeft}
 				onLoad={() => !isLoaded && set_isLoaded(true)}
-				src={`${API.API}/downloadPicture/original/${props.list[index].uri}`} />
+				src={`${API.API}/downloadPicture/original/${currentPicture.uri}`} />
 
-			{hasPrevious() && <SideLeftImage
+			{hasPrevious() && previousPicture && <PreviousPicture
 				key={index - 1}
 				
 				ratio={optionRatio}
 				visible={optionVisible}
 
 				isLoaded={shouldPushSideLeft}
-				src={`${API.API}/downloadPicture/original/${props.list[index - 1].uri}`} />}
-			{hasNext() && <SideRightImage
+				src={`${API.API}/downloadPicture/original/${previousPicture.uri}`} />}
+			{hasNext() && nextPicture && <NextPicture
 				key={index + 1}
 				
 				ratio={optionRatio}
 				visible={optionVisible}
 
 				isLoaded={shouldPushSideRight}
-				src={`${API.API}/downloadPicture/original/${props.list[index + 1].uri}`} />}
+				src={`${API.API}/downloadPicture/original/${nextPicture.uri}`} />}
 		</>);
 	}
 	function	renderNavigation() {
@@ -201,7 +205,7 @@ function	PictureLightroom(props) {
 					<GgRatioOut onClick={() => set_optionRatio('cover')} /> :
 					<GgRatioIn onClick={() => set_optionRatio('contain')} />
 				}
-				<GgTrash onClick={() => props.onDeletePicture(props.list[index])}/>
+				<GgTrash onClick={() => props.onDeletePicture(props.list[index])} />
 			</MenuContainer>
 		)
 	}

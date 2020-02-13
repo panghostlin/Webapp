@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 14:57:38
+** @Last modified time:		Thursday 13 February 2020 - 17:06:58
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -120,8 +120,7 @@ function	Uploader(props) {
 				} else {
 					callback(file, event.target.result);
 				}
-			},
-			reader.onerror = error => console.log(error);
+			}
 		};
 	}
 	function	CreatePictureThumbnail(file) {

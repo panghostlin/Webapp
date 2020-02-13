@@ -3,9 +3,9 @@ FROM node:12.14.1
 RUN mkdir /home/app
 WORKDIR /home/app
 
-ADD package*.json ./
+COPY package*.json ./
 RUN yarn
-ADD . .
+COPY . .
 
 # Building app
 # RUN npm run build
