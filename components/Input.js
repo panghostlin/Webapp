@@ -5,7 +5,7 @@
 ** @Filename:				Input.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 15:39:13
+** @Last modified time:		Friday 14 February 2020 - 17:40:46
 *******************************************************************************/
 
 import styled from 'styled-components';
@@ -29,6 +29,26 @@ const	Input = styled.input`
 	min-height: unset;
 	box-sizing: border-box;
 `;
+const	FakeInput = styled.div`
+	color: #FFFFFF;
+	cursor: pointer;
+	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-size: ${props => props.font || '18px'};
+	width: 100%;
+	margin-bottom: 16px;
+	display: block;
+	min-width: 0;
+	outline: none;
+	background: #00000030;
+	border: none;
+	box-shadow: unset;
+	border-radius: 4px;
+	padding: 12px;
+	padding-right: ${props => (props.full && props.withIcon ? '56px' : 'unset')};
+	min-height: unset;
+	box-sizing: border-box;
+	word-break: break-word;
+`;
 const	InputLabel = styled.p`
 	color: ${props => props.isOk === false && props.value.length > 0 ? '#FE0000' : '#FFFFFF'};
 	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -38,5 +58,5 @@ const	InputLabel = styled.p`
 	padding-left: 3px;
 `;
 
-export {InputLabel};
+export {FakeInput, InputLabel};
 export default Input;
