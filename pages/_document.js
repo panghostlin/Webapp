@@ -5,7 +5,7 @@
 ** @Filename:				_document.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 07 January 2020 - 12:20:24
+** @Last modified time:		Friday 14 February 2020 - 18:38:04
 *******************************************************************************/
 
 
@@ -44,11 +44,11 @@ export default class MyDocument extends Document
 	{
 		return (
 			<html lang={'fr'}>
-				<title>{'Better Piwigo'}</title>
+				<title>{'Panghostlin'}</title>
 				<Head>
 					<link rel={'shortcut icon'} type={'image/x-icon'} href={'/static/images/favicon.ico'} />
 					<meta name={'viewport'} content={'width=device-width, initial-scale=1'} />
-					<meta property='og:title' content='Better Piwigo' />
+					<meta property='og:title' content='Panghostlin' />
 				</Head>
 				<body>
 					<Main />
