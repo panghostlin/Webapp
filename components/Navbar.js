@@ -5,7 +5,7 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 18:21:40
+** @Last modified time:		Friday 14 February 2020 - 16:11:11
 *******************************************************************************/
 
 import	React						from	'react';
@@ -16,6 +16,7 @@ import	GgUpload					from	'../Icons/Upload';
 import	GgClose						from	'../Icons/Cross';
 import	GgAdd						from	'../Icons/Add';
 import	GgTrash						from	'../Icons/Trash';
+import	GgProfile					from	'../Icons/Profile';
 import	GgCoverTemplate				from	'../Icons/CoverTemplate';
 
 const	StyledNavbar = styled.nav`
@@ -91,10 +92,8 @@ const	Text = styled.p`
 	font-size: 16px;
 	color: #FFFFFF;
 `;
-
 const	StyledActionbar = styled(StyledNavbar)`
 	z-index: ${props => props.isEnabled ? 500 : -1};
-	/* opacity: ${props => props.isEnabled ? 1 : 0}; */
 `;
 
 function	NavBar(props) {
@@ -109,8 +108,11 @@ function	NavBar(props) {
 				</MenuItem>
 
 				<SearchBar placeholder={'Rechercher des photos'} />
-				<MenuItem content={'Importer'} noSpaceRight>
+				<MenuItem content={'Importer'}>
 					<GgUpload />
+				</MenuItem>
+				<MenuItem content={'Profil'} noSpaceRight>
+					<GgProfile />
 				</MenuItem>
 			</Menu>
 		</StyledNavbar>
@@ -156,12 +158,3 @@ function	ActionBar(props) {
 
 export {ActionBar};
 export default NavBar;
-
-
-//HEADER : #2E3056
-//BG : #2A2B41
-//BORDERS : #B5B7DF 
-//ICON FULL PAGE : #4A4B6E
-//BORDER SELECTED ; 686A88
-
-// MODAL FULLPAGE == HEADER
