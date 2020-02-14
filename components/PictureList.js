@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 18:15:03
+** @Last modified time:		Friday 14 February 2020 - 01:11:09
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -78,6 +78,7 @@ const	StyledDate = styled.div`
 `;
 
 function	Uploader(props) {
+	const	[update, set_update] = useState(0);
 	const	[uploader, set_uploader] = useState(false);
 	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
 	const	[uploaderLength, set_uploaderLength] = useState(0);
@@ -166,9 +167,16 @@ function	Uploader(props) {
 						URL.revokeObjectURL(currentFile);
 						recursiveUpload(index + 1, files)
 					} else {
+						console.error(`ERROR WITH ${index}`)
 						set_uploaderCurrentStep(0);
 						URL.revokeObjectURL(currentFile);
 						recursiveUpload(index, files)
+
+						// set_uploaderCurrentIndex(index => index + 1);
+						// set_uploaderCurrentStep(0);
+						// set_uploaderUpdate(_prev => _prev + 1);
+						// URL.revokeObjectURL(currentFile);
+						// recursiveUpload(index + 1, files)
 					}
 				} else {
 					set_uploaderCurrentStep(response.Step)

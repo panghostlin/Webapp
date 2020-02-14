@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 15:14:24
+** @Last modified time:		Friday 14 February 2020 - 16:38:30
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -48,7 +48,7 @@ function	send(url, chunk, chunkId, parts, file, UUID, albumID) {
 		{
 			const xhr = new XMLHttpRequest();
 
-			xhr.open('POST', `${API}/${url}/`, true);
+			xhr.open('POST', `${API}/${url}`, true);
 			xhr.withCredentials = true;
 
 			xhr.setRequestHeader('Content-Type', 'application/octet-stream');
@@ -121,7 +121,8 @@ export	const	CreateChunkPicture = (UUID, file, albumID) => upload('uploadPicture
 export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 	let socket = new WebSocket(`${WSAPI}/ws/uploadPicture/`);
 
-	socket.onopen = function() {
+	socket.onopen = function(e) {
+		console.log(e)
 		// const	response = {Step: 0, UUID: ''}
 		// onMessage(response)
 		// performAction()
@@ -129,11 +130,13 @@ export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 	socket.onmessage = function (e) {
 		if (onMessage) {
 			const	response = JSON.parse(e.data);
-			// console.log(response)
+			console.log(response)
 
 			if (response.Step === 1 && response.UUID !== ``) {
 				performAction(response.UUID)
 			} else {
+				if (response.Step === 4)
+					socket.close()
 				onMessage(response, file);
 			}
 		}
@@ -172,3 +175,4 @@ export	const	SetAlbumName = args => performFetch('albums/set/name/', 'POST', arg
 export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null, false);
 export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null, false);
 export	const	CheckMember = args => performFetch('checkMember/', 'POST', args, null, false);
+export	const	GetMember = args => performFetch('getMember/', 'POST', args, null, false);
