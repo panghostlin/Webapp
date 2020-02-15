@@ -5,7 +5,7 @@
 ** @Filename:				_document.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 18:38:04
+** @Last modified time:		Saturday 15 February 2020 - 16:12:19
 *******************************************************************************/
 
 
@@ -22,7 +22,8 @@ export default class MyDocument extends Document
 		try {
 			ctx.renderPage = () =>
 				originalRenderPage({
-					enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
+					enhanceApp: App => props => sheet.collectStyles(<App {...props} />),
+					enhanceComponent: Component => Component,
 				});
 
 			const initialProps = await Document.getInitialProps(ctx);

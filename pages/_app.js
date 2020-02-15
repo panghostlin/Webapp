@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 14:55:30
+** @Last modified time:		Saturday 15 February 2020 - 16:19:00
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -39,7 +39,6 @@ const	Header = styled.header`
 `;
 
 function	MyApp(props) {
-	const	[isReady, set_isReady] = useState(false);
 	const	[member, set_member] = useState(undefined);
 	const	[isDragNDrop, set_isDragNDrop] = useState(false);
 
@@ -52,10 +51,10 @@ function	MyApp(props) {
 				props.router.push('/')
 			}
 		})
-		set_isReady(true);
 	}
 
 	const	{Component, pageProps} = props;
+
 	return (
 		<div style={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
 			<GlobalStyle />
@@ -74,5 +73,6 @@ function	MyApp(props) {
 		</div>
 	);
 }
+
 
 export default MyApp;

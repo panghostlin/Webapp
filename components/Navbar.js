@@ -5,11 +5,13 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 16:11:11
+** @Last modified time:		Saturday 15 February 2020 - 15:36:24
 *******************************************************************************/
 
 import	React						from	'react';
 import	styled						from	'styled-components';
+import	Router						from	'next/router'
+
 import	GgImage						from	'../Icons/Image';
 import	GgAlbum						from	'../Icons/Album';
 import	GgUpload					from	'../Icons/Upload';
@@ -100,10 +102,10 @@ function	NavBar(props) {
 	return (
 		<StyledNavbar>
 			<Menu>
-				<MenuItem content={'Mes albums'} onClick={() => props.router.push(`/albums`)}>
+				<MenuItem content={'Mes albums'} onClick={() => Router.push(`/albums`)}>
 					<GgAlbum />
 				</MenuItem>
-				<MenuItem content={'Ma galerie'} onClick={() => props.router.push(`/gallery`)}>
+				<MenuItem content={'Ma galerie'} onClick={() => Router.push(`/gallery`)}>
 					<GgImage />
 				</MenuItem>
 
@@ -111,7 +113,10 @@ function	NavBar(props) {
 				<MenuItem content={'Importer'}>
 					<GgUpload />
 				</MenuItem>
-				<MenuItem content={'Profil'} noSpaceRight>
+				<MenuItem
+					content={'Profil'}
+					noSpaceRight
+					onClick={() => Router.push(`/profile`, `/profile`)}>
 					<GgProfile />
 				</MenuItem>
 			</Menu>

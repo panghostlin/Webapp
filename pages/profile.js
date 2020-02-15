@@ -5,10 +5,10 @@
 ** @Filename:				profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 14:44:47
+** @Last modified time:		Saturday 15 February 2020 - 16:42:56
 *******************************************************************************/
 
-import	React, {useState}				from	'react';
+import	React, {useState, useEffect}				from	'react';
 import	styled							from	'styled-components';
 import	Input, {FakeInput, InputLabel}	from	'../components/Input';
 import	* as API						from	'../utils/API';
@@ -36,6 +36,21 @@ function	Profile(props) {
 	const	[email, set_email] = useState(props.email || '');
 	const	[publicKey, set_publicKey] = useState(props.publicKey || '');
 	const	[privateKey, set_privateKey] = useState(props.privateKey || '');
+
+	useEffect(() => {
+		if (props.isClient)
+			fetchMember()
+	}, [props.isClient])
+
+	async function fetchMember() {
+		const res = await API.GetMember();
+		if (res) {
+			set_memberID(res.memberID);
+			set_email(res.email);
+			set_publicKey(res.publicKey);
+			set_privateKey(res.privateKey);
+		}
+	}
 
 	return (
 		<Container>
@@ -67,12 +82,16 @@ function	Profile(props) {
 	);
 }
 
-Profile.getInitialProps = async function(props) {
-	const res = await API.GetMember({}, props.req.headers.cookie);
-	if (!res) {
-		return {memberID: '', email: '', publicKey: '', privateKey: ''};
+Profile.getInitialProps = async function({req}) {
+	if (!req) {
+		return {memberID: '', email: '', publicKey: '', privateKey: '', isClient: true};
+	} else {
+		const res = await API.GetMember({}, req.headers.cookie);
+		if (!res) {
+			return {memberID: '', email: '', publicKey: '', privateKey: ''};
+		}
+		return {memberID: res.ID, email: res.email, publicKey: res.publicKey, privateKey: res.privateKey};
 	}
-	return {memberID: res.ID, email: res.email, publicKey: res.publicKey, privateKey: res.privateKey};
 };
 
 
