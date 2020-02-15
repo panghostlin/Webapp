@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 16:38:30
+** @Last modified time:		Saturday 15 February 2020 - 13:44:54
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -13,7 +13,7 @@ import fetch from 'isomorphic-unfetch';
 export const	API = `https://api.${process.env.BACKEND}`;
 const	WSAPI = `wss://api.${process.env.BACKEND}`;
 
-const	performFetch = (url, method, args, callback) =>
+const	performFetch = (url, method, args, header) =>
 {
 	const	body = JSON.stringify({...args});
 
@@ -24,16 +24,14 @@ const	performFetch = (url, method, args, callback) =>
 			// credentials: `same-origin`,
 			headers: {
 				'Accept': 'application/json',
-				'Content-Type': 'application/json'
-				// Authorization: 
+				'Content-Type': 'application/json',
+				'cookie': header
 			},
 			credentials: 'include'
 		})
 		.then(async (response) =>
 		{
 			const	json = await response.json();
-			if (callback && json)
-				callback(json);
 			return (json);
 		})
 		.catch((err) => {
@@ -153,26 +151,27 @@ export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 /******************************************************************************
 **	PICTURES
 *****************************************************************************/
-export	const	GetMemberPictures = args => performFetch('pictures/getby/member/', 'POST', args, null, false);
-export	const	GetAlbumPictures = args => performFetch('pictures/getby/album/', 'POST', args, null, false);
+export	const	GetMemberPictures = args => performFetch('pictures/getby/member/', 'POST', args, null);
+export	const	GetAlbumPictures = args => performFetch('pictures/getby/album/', 'POST', args, null);
 
-export	const	SetPicturesAlbum = args => performFetch('pictures/set/album/', 'POST', args, null, false);
-export	const	DeletePictures = args => performFetch('deletePictures/', 'POST', args, null, false);
+export	const	SetPicturesAlbum = args => performFetch('pictures/set/album/', 'POST', args, null);
+export	const	DeletePictures = args => performFetch('deletePictures/', 'POST', args, null);
 
 /******************************************************************************
 **	ALBUMS
 *****************************************************************************/
-export	const	CreateAlbum = args => performFetch('albums/create/', 'POST', args, null, false);
-export	const	ListAlbums = args => performFetch('albums/list/', 'POST', args, null, false);
-export	const	GetAlbum = args => performFetch('albums/get/', 'POST', args, null, false);
-export	const	DeleteAlbum = args => performFetch('albums/delete/', 'POST', args, null, false);
-export	const	SetAlbumCover = args => performFetch('albums/set/cover/', 'POST', args, null, false);
-export	const	SetAlbumName = args => performFetch('albums/set/name/', 'POST', args, null, false);
+export	const	CreateAlbum = args => performFetch('albums/create/', 'POST', args, null);
+export	const	ListAlbums = args => performFetch('albums/list/', 'POST', args, null);
+export	const	GetAlbum = args => performFetch('albums/get/', 'POST', args, null);
+export	const	DeleteAlbum = args => performFetch('albums/delete/', 'POST', args, null);
+export	const	SetAlbumCover = args => performFetch('albums/set/cover/', 'POST', args, null);
+export	const	SetAlbumName = args => performFetch('albums/set/name/', 'POST', args, null);
 
 /******************************************************************************
 **	Members
 *****************************************************************************/
-export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null, false);
-export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null, false);
-export	const	CheckMember = args => performFetch('checkMember/', 'POST', args, null, false);
-export	const	GetMember = args => performFetch('getMember/', 'POST', args, null, false);
+export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null);
+export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null);
+export	const	CheckMember = args => performFetch('checkMember/', 'POST', args, null);
+export	const	GetMember = (args, headers) => performFetch('getMember/', 'POST', args, headers);
+export	const	GetSSRMember = args => performFetchSSR('getMember/', 'POST', args, null);

@@ -5,14 +5,12 @@
 ** @Filename:				profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 18:23:18
+** @Last modified time:		Saturday 15 February 2020 - 13:46:26
 *******************************************************************************/
 
-import	React, {useState, useEffect}	from	'react';
+import	React, {useState}				from	'react';
 import	styled							from	'styled-components';
 import	Input, {FakeInput, InputLabel}	from	'../components/Input';
-import	TextArea						from	'../components/TextArea';
-import	{PrimaryButton}					from	'../components/Buttons';
 import	* as API						from	'../utils/API';
 
 const	Container = styled.header`
@@ -34,23 +32,10 @@ const	PageTitle = styled.h1`
 `;
 
 function	Profile(props) {
-	const	[memberID, set_memberID] = useState('');
-	const	[email, set_email] = useState('');
-	const	[publicKey, set_publicKey] = useState('');
-	const	[privateKey, set_privateKey] = useState('');
-	const	[password, set_password] = useState('');
-
-	const	emailIsValid = false;
-	const	passwordIsValid = password.length >= 6;
-
-	useEffect(() => {
-		API.GetMember().then((e) => {
-			set_memberID(e.ID);
-			set_email(e.email);
-			set_publicKey(e.publicKey);
-			set_privateKey(e.privateKey);
-		})
-	}, [])
+	const	[memberID, set_memberID] = useState(props.memberID || '');
+	const	[email, set_email] = useState(props.email || '');
+	const	[publicKey, set_publicKey] = useState(props.publicKey || '');
+	const	[privateKey, set_privateKey] = useState(props.privateKey || '');
 
 	return (
 		<Container>
@@ -81,5 +66,15 @@ function	Profile(props) {
 		</Container>
 	);
 }
+
+Profile.getInitialProps = async function(props) {
+	const res = await API.GetMember({}, props.req.headers.cookie);
+	console.log(res)
+	if (!res) {
+		return {memberID: '', email: '', publicKey: '', privateKey: ''};
+	}
+	return {memberID: res.ID, email: res.email, publicKey: res.publicKey, privateKey: res.privateKey};
+};
+
 
 export default Profile;
