@@ -5,7 +5,7 @@
 ** @Filename:				profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 13:46:26
+** @Last modified time:		Saturday 15 February 2020 - 14:44:47
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -69,7 +69,6 @@ function	Profile(props) {
 
 Profile.getInitialProps = async function(props) {
 	const res = await API.GetMember({}, props.req.headers.cookie);
-	console.log(res)
 	if (!res) {
 		return {memberID: '', email: '', publicKey: '', privateKey: ''};
 	}

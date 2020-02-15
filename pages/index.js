@@ -5,13 +5,14 @@
 ** @Filename:				index.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 18:35:40
+** @Last modified time:		Saturday 15 February 2020 - 15:18:07
 *******************************************************************************/
 
 import	React, {useState}		from	'react';
 import	styled					from	'styled-components';
 import	Input, {InputLabel}		from	'../components/Input';
 import	{PrimaryButton}			from	'../components/Buttons';
+import	* as API				from	'../utils/API';
 
 const	Container = styled.header`
 	font-size: 10pt;
@@ -43,6 +44,12 @@ const	SwitchText = styled.p`
 		border-bottom: 1px solid #B5B7DF80;
 	}
 `;
+const	ErrorMessage = styled.p`
+	font-size: 12px;
+	margin-left: auto;
+	margin-top: 16px;
+	color: #FF453A;
+`
 
 function	validateEmail(email) {
 	const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -52,9 +59,20 @@ function	validateEmail(email) {
 function	CreateForm(props) {
 	const	[email, set_email] = useState('');
 	const	[password, set_password] = useState('');
+	const	[createError, set_createError] = useState(false);
 
 	const	emailIsValid = validateEmail(email);
 	const	passwordIsValid = password.length >= 6;
+
+	function	onCreateMember() {
+		API.CreateMember({email, password}).then((e) => {
+			if (!!e) {
+				props.router.push('/gallery')
+				return;
+			}
+			set_createError(true)
+		});
+	}
 
 	return (
 		<Container>
@@ -76,19 +94,31 @@ function	CreateForm(props) {
 			<PrimaryButton
 				style={{width: 'auto', marginTop: 0, marginLeft: 'auto', display: 'flex'}}
 				disabled={!passwordIsValid || ! emailIsValid}
-				onClick={() => props.onCreateMember(email, password)}>
+				onClick={onCreateMember}>
 				{'Inscription'}
 			</PrimaryButton>
 			<SwitchText onClick={props.onSwitch}>{'Se connecter'}</SwitchText>
+			<ErrorMessage>{loginError && 'Impossible de vous créer un compte avec ces identifiants'}</ErrorMessage>
 		</Container>
 	);
 }
 function	LoginForm(props) {
 	const	[email, set_email] = useState('');
 	const	[password, set_password] = useState('');
+	const	[loginError, set_loginError] = useState(false);
 
 	const	emailIsValid = validateEmail(email);
 	const	passwordIsValid = password.length >= 6;
+
+	function	onLoginMember() {
+		API.LoginMember({email, password}).then((e) => {
+			if (!!e) {
+				props.router.push('/gallery')
+				return;
+			}
+			set_loginError(true)
+		});
+	}
 
 	return (
 		<Container>
@@ -110,7 +140,7 @@ function	LoginForm(props) {
 			<PrimaryButton
 				style={{width: 'auto', marginTop: 0, marginLeft: 'auto', display: 'flex'}}
 				disabled={!passwordIsValid || ! emailIsValid}
-				onClick={() => props.onLoginMember(email, password)}>
+				onClick={onLoginMember}>
 				{'Connexion'}
 			</PrimaryButton>
 			<SwitchText
@@ -118,27 +148,17 @@ function	LoginForm(props) {
 				onClick={props.onSwitch}>
 				{'Créer un compte'}
 			</SwitchText>
+			<ErrorMessage>{loginError && 'Impossible de vous connecter avec ces identifiants'}</ErrorMessage>
 		</Container>
 	);
 }
 function	Index(props) {
 	const	[form, set_form] = useState('login');
 
-	if (form === 'login') {
-		return (
-			<LoginForm
-				onSwitch={() => set_form(`create`)}
-				onLoginMember={(email, password) => props.onLoginMember(email, password)}
-			/>
-		)
-	} else {
-		return (
-			<CreateForm
-				onSwitch={() => set_form(`login`)}
-				onCreateMember={(email, password) => props.onCreateMember(email, password)}
-			/>
-		)
-	}
+	if (form === 'login')
+		return (<LoginForm router={props.router} onSwitch={() => set_form(`create`)} />)
+	else
+		return (<CreateForm router={props.router} onSwitch={() => set_form(`login`)} />)
 }
 
 export default Index;

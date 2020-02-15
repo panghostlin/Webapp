@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 17:12:12
+** @Last modified time:		Saturday 15 February 2020 - 14:55:30
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -54,26 +54,6 @@ function	MyApp(props) {
 		})
 		set_isReady(true);
 	}
-	function	onLoginMember(email, password) {
-		API.LoginMember({email, password}).then((e) => {
-			if (e !== false) {
-				set_member(e)
-				props.router.push('/gallery')
-				return;
-			}
-			console.log(`Fail login member`)
-		});
-	}
-	function	onCreateMember(email, password, callback) {
-		API.CreateMember({email, password}).then((e) => {
-			if (e !== false) {
-				set_member(e)
-				props.router.push('/gallery')
-				return;
-			}
-			console.log(`Fail create member`);
-		});
-	}
 
 	const	{Component, pageProps} = props;
 	return (
@@ -89,8 +69,6 @@ function	MyApp(props) {
 					element={props.element}
 					router={props.router}
 					member={member}
-					onLoginMember={onLoginMember}
-					onCreateMember={onCreateMember}
 					{...pageProps} />
 			</div>
 		</div>
