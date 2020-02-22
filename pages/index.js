@@ -5,7 +5,7 @@
 ** @Filename:				index.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 19 February 2020 - 18:15:39
+** @Last modified time:		Saturday 22 February 2020 - 11:27:45
 *******************************************************************************/
 
 import	React, {useState}		from	'react';
@@ -147,6 +147,16 @@ const	BoxMessage = styled.div`
 	${props => props.error ? 'opacity: 1' : 'opacity: 0'}
 `;
 
+function	setSessionsKey(decryptedPrivateKey, encodedPublicKey) {
+	window.crypto.subtle.exportKey("jwk", decryptedPrivateKey).then((privateKey) => {
+		sessionStorage.setItem(`Priv`, JSON.stringify(privateKey))
+	});
+
+	window.crypto.subtle.importKey("spki", encodedPublicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"]).then((publicKey) => {
+		window.crypto.subtle.exportKey("jwk", publicKey).then(e => sessionStorage.setItem(`Pub`, JSON.stringify(e)));
+	});
+
+}
 
 function	CreateForm(props) {
 	const	[email, set_email] = useState('');
@@ -158,9 +168,10 @@ function	CreateForm(props) {
 
 	async function	onCreateMember() {
 		const	pem = await Crypto.GeneratePemKeysFromPassword(password)
+		const	digestPassword = await Crypto.DigestPassword(password);
 		API.CreateMember({
 			email,
-			password,
+			password: digestPassword,
 			publicKey: Crypto.ToBase64(pem.exportedPublicKey),
 			privateKey: {
 				key: Crypto.ToBase64(pem.cryptedPrivateKey),
@@ -175,9 +186,7 @@ function	CreateForm(props) {
 				sessionStorage.setItem(`PrivateIV`, keys.PrivateIV);
 
 				Crypto.RetrievePemKeysFromPassword(password, Crypto.FromBase64(keys.PrivateKey), Crypto.FromBase64(keys.PrivateSalt), Crypto.FromBase64(keys.PrivateIV)).then((decryptedPrivateKey) => {
-					console.log(decryptedPrivateKey)
-					window.crypto.subtle.exportKey(`jwk`, decryptedPrivateKey).then(e => sessionStorage.setItem(`PrivateKey`, JSON.stringify(e)));
-					window.crypto.subtle.exportKey(`jwk`, Crypto.FromBase64(keys.PublicKey)).then(e => sessionStorage.setItem(`PrivateKey`, JSON.stringify(e)));
+					setSessionsKey(decryptedPrivateKey, Crypto.FromBase64(keys.PublicKey))
 					props.router.push('/gallery')
 				})
 				return;
@@ -228,19 +237,10 @@ function	LoginForm(props) {
 	const	emailIsValid = validateEmail(email);
 	const	passwordIsValid = password.length >= 6;
 
-	function	setSessionsKey(decryptedPrivateKey, encodedPublicKey) {
-		window.crypto.subtle.exportKey("jwk", decryptedPrivateKey).then((privateKey) => {
-			sessionStorage.setItem(`Priv`, JSON.stringify(privateKey))
-		});
+	async function	onLoginMember() {
+		const	digestPassword = await Crypto.DigestPassword(password);
 
-		window.crypto.subtle.importKey("spki", encodedPublicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"]).then((publicKey) => {
-			window.crypto.subtle.exportKey("jwk", publicKey).then(e => sessionStorage.setItem(`Pub`, JSON.stringify(e)));
-		});
-
-	}
-
-	function	onLoginMember() {
-		API.LoginMember({email, password}).then((keys) => {
+		API.LoginMember({email, password: digestPassword}).then((keys) => {
 			if (!!keys) {
 				localStorage.setItem(`PublicKey`, keys.PublicKey);
 				localStorage.setItem(`PrivateKey`, keys.PrivateKey);

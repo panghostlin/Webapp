@@ -5,10 +5,10 @@
 ** @Filename:				Crypto.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 22 February 2020 - 10:59:21
+** @Last modified time:		Saturday 22 February 2020 - 11:25:28
 *******************************************************************************/
 
-function _arrayBufferToBase64( buffer ) {
+function _arrayBufferToBase64(buffer) {
 	var binary = '';
 	var bytes = new Uint8Array( buffer );
 	var len = bytes.byteLength;
@@ -208,4 +208,11 @@ export async function	ConvertJwkToPublicPem(key) {
 	const	b64Key = addNewLines(arrayBufferToBase64(exported));
 	
 	return b64Key;
+}
+
+export async function	DigestPassword(password) {
+	const encoder = new TextEncoder();
+  	const data = encoder.encode(password);
+	const hash = await crypto.subtle.digest('SHA-256', data);
+	return (_arrayBufferToBase64(hash));
 }
