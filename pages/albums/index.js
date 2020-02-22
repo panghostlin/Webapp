@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 18:39:30
+** @Last modified time:		Monday 17 February 2020 - 14:57:30
 *******************************************************************************/
 
 import	React, {useState}					from	'react';
@@ -17,15 +17,15 @@ import	* as API							from	'../../utils/API';
 
 const	AlbumsContainer = styled.div`
 	font-size: 10pt;
-	width: 80%;
+	width: 100%;
 	margin: 0 auto;
 	border-radius: 4px;
-	padding: 32px 16px;
+	padding: 32px 8.33%;
 
-	display: grid;
-    grid-template-columns: repeat(3, 1fr);
-	grid-column-gap: 16px;
-    justify-items: center;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
 `;
 
 function AlbumList() {

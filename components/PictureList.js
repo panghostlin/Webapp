@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 01:11:09
+** @Last modified time:		Friday 21 February 2020 - 18:14:02
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -21,6 +21,7 @@ import	* as API						from	'../utils/API';
 import	{ActionBar}						from	'./Navbar';
 import	useKeyPress						from	'../hooks/useKeyPress';
 import	convertToMoment					from	'../utils/ConvertDate';
+import	* as Crypto						from	'../utils/Crypto';
 
 const	Toggle = styled.div`
 	cursor: pointer;
@@ -78,6 +79,8 @@ const	StyledDate = styled.div`
 `;
 
 function	Uploader(props) {
+	let		cryptoPrivateKey = undefined;
+	let		cryptoPublicKey = undefined;
 	const	[update, set_update] = useState(0);
 	const	[uploader, set_uploader] = useState(false);
 	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
@@ -87,6 +90,25 @@ function	Uploader(props) {
 	const	[uploaderCurrentFile, set_uploaderCurrentFile] = useState(undefined);
 	// const	[isDragNDrop, set_isDragNDrop] = useState(props.isDragNDrop);
 
+	function	CreatePictureThumbnail(file) {
+		const	thumbSize = 220;
+		const	canvas = document.createElement('canvas');
+		canvas.width = thumbSize;
+		canvas.height = thumbSize;
+		const	c = canvas.getContext("2d");
+		const	img = new Image();
+		img.onload = function(e) {
+			URL.revokeObjectURL(file)
+			c.drawImage(this, 0, 0, thumbSize, thumbSize);
+			set_uploaderCurrentFile(canvas.toDataURL('image/jpeg', 0.8));
+		};
+		img.src = URL.createObjectURL(file);
+	}
+
+	/**************************************************************************
+	**	The pictureCompress function takes an image as a file and resize it
+	**	to the max size of 16 mega pixels
+	**************************************************************************/
 	function	PictureCompress(file, callback) {
 		const fileName = file.name;
 		const reader = new FileReader();
@@ -123,21 +145,56 @@ function	Uploader(props) {
 			}
 		};
 	}
-	function	CreatePictureThumbnail(file) {
-		const	thumbSize = 220;
-		let		canvas = document.createElement('canvas');
-		canvas.width = thumbSize;
-		canvas.height = thumbSize;
-		var c = canvas.getContext("2d");
-		var img = new Image();
-		img.onload = function(e) {
-			URL.revokeObjectURL(file)
-			c.drawImage(this, 0, 0, thumbSize, thumbSize);
-			set_uploaderCurrentFile(canvas.toDataURL('image/jpeg', 0.8));
-		};
-		img.src = URL.createObjectURL(file);
+
+	const fileToBase64 = file => new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = () => resolve(reader.result);
+		reader.onerror = error => reject(error);
+	});
+	function b64toBlob(b64Data, contentType, sliceSize) {
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+
+        var byteCharacters = atob(b64Data);
+        var byteArrays = [];
+
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            var byteArray = new Uint8Array(byteNumbers);
+
+            byteArrays.push(byteArray);
+        }
+
+      var blob = new Blob(byteArrays, {type: contentType});
+      return blob;
 	}
-	function	recursiveUpload(index, files) {
+
+	function	GetImage(file) {
+		const fileReader = new FileReader();
+	
+		return new Promise((resolve, reject) => {
+			fileReader.onerror = () => {
+				fileReader.abort();
+				reject(new DOMException("Problem parsing input file."));
+			};
+			fileReader.onload = () => {
+				var img = new Image;
+				img.onload = function() {resolve(img);};
+				img.onerror = function() {reject(new DOMException("Impossible create Image."));};
+				img.src = fileReader.result;
+			};
+			fileReader.readAsDataURL(file);
+		});
+	};
+
+	async function	recursiveUpload(index, files) {
 		if (index >= files.length) {
 			set_uploader(false);
 			set_uploaderLength(0);
@@ -146,16 +203,47 @@ function	Uploader(props) {
 			set_uploaderCurrentFile(undefined);
 			return;
 		}
+		const	file = files[index];
 
-		const	file = files[index]
+		/* ********************************************************************
+		**	Let's get the keys if we do not have them
+		******************************************************************** */
+		if (cryptoPublicKey === undefined) {
+			const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
+			cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
+		}
+		if (cryptoPrivateKey === undefined) {
+			const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
+			cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
+		}
+		
+		/* ********************************************************************
+		**	Now, for each image, we need to :
+		**	- Generate a secret key
+		**	- Generate an IV
+		**	- Encrypt the image
+		******************************************************************** */
+		const image = await GetImage(file)
+		const fileAsBase64 = await fileToBase64(file)
+		const encryptionData = await Crypto.EncryptData(fileAsBase64, cryptoPublicKey)
+		const encryptedFile = b64toBlob(Crypto.ToBase64(encryptionData.encryptedData), file.type);
+		
+		encryptedFile.Key = encryptionData.encodedSecretKey
+		encryptedFile.IV = Crypto.ToBase64(encryptionData.IV)
+		encryptedFile.Width = image.width
+		encryptedFile.Height = image.height
+		encryptedFile.Name = file.name
+		encryptedFile.LastModified = file.lastModified
+
+
 		CreatePictureThumbnail(file)
-		PictureCompress(file, (resizedFile) => {
+		// PictureCompress(file, (encryptedFile) => {
 			set_uploader(true)
-			if (!(resizedFile instanceof File)) {
-				resizedFile.name = file.name
-				resizedFile.lastModified = file.lastModified
-			}
-			API.WSCreateChunkPicture(resizedFile, (UUID) => API.CreateChunkPicture(UUID, resizedFile, props.albumID), (response, currentFile) => {
+			// if (!(encryptedFile instanceof File)) {
+			// 	encryptedFile.name = file.name
+			// 	encryptedFile.lastModified = file.lastModified
+			// }
+			API.WSCreateChunkPicture(encryptedFile, (UUID) => API.CreateChunkPicture(UUID, encryptedFile, props.albumID), (response, currentFile) => {
 				if (response.Step === 4) {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
@@ -168,21 +256,15 @@ function	Uploader(props) {
 						recursiveUpload(index + 1, files)
 					} else {
 						console.error(`ERROR WITH ${index}`)
-						set_uploaderCurrentStep(0);
-						URL.revokeObjectURL(currentFile);
-						recursiveUpload(index, files)
-
-						// set_uploaderCurrentIndex(index => index + 1);
 						// set_uploaderCurrentStep(0);
-						// set_uploaderUpdate(_prev => _prev + 1);
 						// URL.revokeObjectURL(currentFile);
-						// recursiveUpload(index + 1, files)
+						// recursiveUpload(index, files)
 					}
 				} else {
 					set_uploaderCurrentStep(response.Step)
 				}	
 			})
-		})
+		// })
 	}
 
 	return (
@@ -369,7 +451,7 @@ function	PictureList(props) {
 		return (
 			<PhotoCardWidth
 				key={`${element.uri}_${elemIndex}`}
-				uri={`${API.API}/downloadPicture/500x500/${element.uri}`}
+				uri={element.uri}
 				width={element.width}
 				height={element.height}
 				isSelectMode={selectMode}
@@ -441,6 +523,7 @@ function	PictureList(props) {
 				onClose={() => set_successToast(false)}
 				status={'Les photos de couverture de l\'album ont été mises à jour'} />
 			<Uploader
+				memberPublicKey={props.memberPublicKey}
 				albumID={props.albumID}
 				set_pictureList={props.set_pictureList}
 				isDragNDrop={props.isDragNDrop}

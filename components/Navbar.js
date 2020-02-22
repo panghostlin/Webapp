@@ -5,7 +5,7 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 15:36:24
+** @Last modified time:		Monday 17 February 2020 - 01:29:28
 *******************************************************************************/
 
 import	React						from	'react';
@@ -21,23 +21,22 @@ import	GgTrash						from	'../Icons/Trash';
 import	GgProfile					from	'../Icons/Profile';
 import	GgCoverTemplate				from	'../Icons/CoverTemplate';
 
+const	backgroundColor = '#191c28';
+const	backgroundAltColor = '#1e2331';
+const	backgroundAccentColor = '#242a3b';
 const	StyledNavbar = styled.nav`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	height: 76px;
 	width: 100%;
-	box-shadow: 0 8px 12px rgba(0,0,0,0.2), 0 0 1px rgba(1,0,0,0.2);
 	position: fixed;
 	top: 0;
 	left: 0%;
 	z-index: 500;
 	padding: 0px 8.33%;
-
-	background: #2E3056;
-    background-image: radial-gradient(rgba(255,255,255,.1) 1px,transparent 0),radial-gradient(rgba(255,255,255,.1) 1px,transparent 0);
-    background-size: 40px 40px;
-    background-position: 0 0, 20px 20px;
+    background: ${backgroundAccentColor};
+	box-shadow: 0 3px 12px ${backgroundColor}AA;
 `;
 const	Menu = styled.menu`
 	display: flex;

@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 06 February 2020 - 10:51:30
+** @Last modified time:		Tuesday 18 February 2020 - 16:36:00
 *******************************************************************************/
 
 
@@ -45,13 +45,13 @@ const	AlbumFake = styled.div`
 const	AlbumTitle = styled.p``;
 const	AlbumDescription = styled.p``;
 const	AlbumContainer = styled.div`
-	width: 100%;
-	min-height: 20vw;
-	border-radius: 8px;
+	width: 20vw;
+	height: 20vw;
+	border-radius: 4px;
 	max-width: ${props => props.isPreview ? 'unset' : '100%'};
 	min-width: ${props => props.isPreview ? 'unset' : '300px'};
 	cursor: ${props => props.isPreview ? 'default' : 'pointer'};
-	margin-bottom: 32px;
+	/* margin-bottom: 32px; */
 
 	& ${Image}.last {
 		filter: ${props => (props.isPreview ? 'brightness(0.5)' : 'unset')};
@@ -75,7 +75,13 @@ const	AlbumContainer = styled.div`
     	text-overflow: ellipsis;
     	white-space: nowrap;
 	}
+`;
 
+const	AlbumImages = styled.div`
+	position: relative;
+    margin-bottom: 8px;
+    padding-bottom: 70%;
+    box-shadow: 0 8px 10px -2px rgba(0,0,0,.45);
 	&:hover {
 		& ${Image} {
 			opacity: ${props => (props.isPreview ? 1 : 0.85)};
@@ -83,11 +89,6 @@ const	AlbumContainer = styled.div`
 	}
 `;
 
-const	AlbumImages = styled.div`
-	position: relative;
-    margin-bottom: 8px;
-    padding-bottom: 70%;
-`;
 const	LeftImage = styled.div``;
 const	RightImages = styled.div``;
 const	AlbumInner = styled.div`

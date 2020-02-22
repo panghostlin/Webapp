@@ -5,25 +5,26 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 14:44:30
+** @Last modified time:		Saturday 22 February 2020 - 10:27:51
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
+import	* as Crypto from './Crypto';
 
-export const	API = `https://api.${process.env.BACKEND}`;
-const	WSAPI = `wss://api.${process.env.BACKEND}`;
+// export const	API = `https://api.${process.env.BACKEND}`;
+// const	WSAPI = `wss://api.${process.env.BACKEND}`;
+
+export const	API = `http://localhost:8000`;
+const	WSAPI = `ws://localhost:8000`;
 
 const	performFetch = (url, method, args, header) =>
 {
 	const	body = JSON.stringify({...args});
-
 	return (
 		fetch(`${API}/${url}`, {
 			method,
 			body,
-			// credentials: `same-origin`,
 			headers: {
-				'Accept': 'application/json',
 				'Content-Type': 'application/json',
 				'cookie': header
 			},
@@ -35,38 +36,40 @@ const	performFetch = (url, method, args, header) =>
 			return (json);
 		})
 		.catch((err) => {
-			console.warn(url, err)
+			console.warn(`${API}/${url}`, err)
 		})
 	);
 };
 
-function	send(url, chunk, chunkId, parts, file, UUID, albumID) {
+function	send(url, chunk, chunkID, parts, file, UUID, albumID) {
+	const	formData  = new FormData();
+	formData.append("file", chunk, file.name);
+	formData.append('fileUUID', UUID);
+	formData.append('fileType', file.type);
+	formData.append('fileName', file.Name);
+	formData.append('fileLastModified', file.LastModified);
+	formData.append('fileWidth', file.Width);
+	formData.append('fileHeight', file.Height);
+	formData.append('fileAlbumID', albumID || '');
+	formData.append('fileChunkID', chunkID);
+	formData.append('fileParts', parts);
+	formData.append('encryptionKey', file.Key);
+	formData.append('encryptionIV', file.IV);
+
 	return (
-		new Promise((resolve, reject) =>
+		fetch(`${API}/${url}`, {
+			method: 'POST',
+			body: formData,
+			credentials: 'include'
+		})
+		.then(async (response) =>
 		{
-			const xhr = new XMLHttpRequest();
-
-			xhr.open('POST', `${API}/${url}`, true);
-			xhr.withCredentials = true;
-
-			xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-			xhr.setRequestHeader('Access-Control-Allow-Credentials', true);
-			xhr.setRequestHeader('X-Content-Type', file.type || '');
-			xhr.setRequestHeader('X-Content-Length', file.size);
-			xhr.setRequestHeader('X-Content-Name', encodeURI(file.name || ''));
-			xhr.setRequestHeader('X-Content-Parts', parts);
-			xhr.setRequestHeader('X-Content-Last-Modified', file.lastModified);
-			xhr.setRequestHeader('X-Content-UUID', UUID);
-			xhr.setRequestHeader('X-Content-AlbumID', albumID || '');
-			xhr.setRequestHeader('X-Chunk-ID', chunkId);
-
-			xhr.onreadystatechange = () =>
-			{
-				if (xhr.readyState === 4 && xhr.status === 200)
-					return (resolve(xhr.response));
-			};
-			xhr.onerror = reject;
-			xhr.send(chunk);
+			const	json = await response.json();
+			console.log(json)
+			return (json);
+		})
+		.catch((err) => {
+			console.warn(`${API}/${url}`, err)
 		})
 	);
 }
@@ -173,5 +176,43 @@ export	const	SetAlbumName = args => performFetch('albums/set/name/', 'POST', arg
 export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null);
 export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null);
 export	const	CheckMember = (args, cookies) => performFetch('checkMember/', 'POST', args, cookies);
-export	const	GetMember = (args, cookies) => performFetch('getMember/', 'POST', args, cookies);
-export	const	GetSSRMember = args => performFetchSSR('getMember/', 'POST', args, null);
+
+// export	const	GetImage = uri => performFetch(`downloadPicture/500x500/${uri}`, 'GET', null, null);
+
+let		cryptoPrivateKey = undefined;
+let		cryptoPublicKey = undefined;
+export const	GetImage = async (uri) =>
+{
+	// if (cryptoPublicKey === undefined) {
+	// 	const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
+	// 	cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
+	// }
+	if (cryptoPrivateKey === undefined) {
+		const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
+		cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
+	}
+
+	return (
+		fetch(`${API}/downloadPicture/500x500/${uri}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'include'
+		})
+		.then(async (response) =>
+		{
+			const	buffer = await response.json();
+			const	encryptionData = await Crypto.DecryptData(
+				Crypto.FromBase64(buffer.Picture),
+				cryptoPrivateKey,
+				Crypto.FromBase64(buffer.IV),
+				buffer.Key
+			)
+			return (encryptionData);
+		})
+		.catch((err) => {
+			console.warn(`${API}/${uri}`, err)
+		})
+	);
+};

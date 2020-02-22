@@ -5,13 +5,14 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 11 February 2020 - 19:24:54
+** @Last modified time:		Friday 21 February 2020 - 18:21:43
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
 import	styled									from	'styled-components';
+import	ContentLoader							from	'react-content-loader'
+import	* as API								from	'../utils/API';
 import	useIntersectionObserver					from	'../hooks/useIntersectionObserver';
-import ContentLoader from 'react-content-loader'
 
 const	Toggle = styled.div`
 	cursor: pointer;
@@ -49,11 +50,12 @@ const	CardContainer = styled.div`
 	contain: layout;
 	width: ${props => `${props.width - 4}px`};
 	height: ${props => `${props.height - 4}px`};
-	margin: 4px;
+	margin: 8px;
 	cursor: pointer;
 	position: relative;
 	display: block;
 	overflow: hidden;
+	border-radius: 4px;
 	&:hover > ${Toggle} {
 		display: flex;
 	}
@@ -95,7 +97,15 @@ const	PhotoContainer = styled.div`
 `;
 
 const	Picture = React.memo((props) => {
-	const [isLoaded, set_isLoaded] = useState(false);
+	const	[isLoaded, set_isLoaded] = useState(false);
+	const	[pictureData, set_pictureData] = useState(undefined);
+
+	useEffect(() => {fetchPicture()}, [])
+
+	async function	fetchPicture() {
+		const	image = await API.GetImage(props.uri)
+		set_pictureData(image);
+	}
 
 	return (
 		<React.Fragment>
@@ -103,8 +113,8 @@ const	Picture = React.memo((props) => {
 				speed={2}
 				width={'100%'}
 				height={props.height}
-				backgroundColor="#2E3056"
-				foregroundColor="#343660"
+				backgroundColor="#242a3b"
+				foregroundColor="#191c28"
 				preserveAspectRatio="none"
 				style={{visibility: isLoaded ? "hidden" : "visible"}}> 
 				<rect
@@ -117,15 +127,14 @@ const	Picture = React.memo((props) => {
 					preserveAspectRatio={'none'} />
 			</ContentLoader>
 			<FullPicture
-				onLoad={() => set_isLoaded(true)}
+				onLoad={e => set_isLoaded(true)}
 				style={{opacity: isLoaded ? 1 : 0}}
 				alt={props.alt}
-				src={props.uri} />
+				src={pictureData} />
 		</React.Fragment>
 	)
 });
 
-// function	PhotoCardWidth(props) {
 const PhotoCardWidth = React.memo((props) => {
 	const	imageRef = useRef();
 	const	[visible, set_visible] = useState(false);

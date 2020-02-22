@@ -5,7 +5,7 @@
 ** @Filename:				Input.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 17:40:46
+** @Last modified time:		Saturday 22 February 2020 - 11:01:06
 *******************************************************************************/
 
 import styled from 'styled-components';
@@ -50,7 +50,7 @@ const	FakeInput = styled.div`
 	word-break: break-word;
 `;
 const	InputLabel = styled.p`
-	color: ${props => props.isOk === false && props.value.length > 0 ? '#FE0000' : '#FFFFFF'};
+	color: ${props => props.isOk === false && props.value.length > 0 ? '#EF5350' : '#FFFFFF'};
 	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-size: 14px;
 	margin-top: 0px;

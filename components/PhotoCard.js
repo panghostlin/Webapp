@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 07 February 2020 - 18:33:31
+** @Last modified time:		Monday 17 February 2020 - 01:19:50
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -42,7 +42,6 @@ const	CardContainer = styled.div`
 	/* height: ${props => `calc(${props.height}px + 24px)`}; */
 	cursor: pointer;
 	position: relative;
-
 	&:hover > ${Toggle} {
 		display: flex;
 	}

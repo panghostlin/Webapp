@@ -5,13 +5,14 @@
 ** @Filename:				profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 16:42:56
+** @Last modified time:		Saturday 22 February 2020 - 11:01:42
 *******************************************************************************/
 
 import	React, {useState, useEffect}				from	'react';
 import	styled							from	'styled-components';
 import	Input, {FakeInput, InputLabel}	from	'../components/Input';
 import	* as API						from	'../utils/API';
+import	* as Crypto						from	'../utils/Crypto';
 
 const	Container = styled.header`
 	font-size: 10pt;
@@ -37,62 +38,49 @@ function	Profile(props) {
 	const	[publicKey, set_publicKey] = useState(props.publicKey || '');
 	const	[privateKey, set_privateKey] = useState(props.privateKey || '');
 
-	useEffect(() => {
-		if (props.isClient)
-			fetchMember()
-	}, [props.isClient])
+	useEffect(() => {getKeys()}, [])
 
-	async function fetchMember() {
-		const res = await API.GetMember();
-		if (res) {
-			set_memberID(res.memberID);
-			set_email(res.email);
-			set_publicKey(res.publicKey);
-			set_privateKey(res.privateKey);
-		}
+	async function getKeys() {
+		const	sessionPublicKey = JSON.parse(sessionStorage.getItem(`Pub`))
+		const	cryptoPublicKey = await window.crypto.subtle.importKey("jwk", sessionPublicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
+		const	pemPublicKey = await Crypto.ConvertJwkToPublicPem(cryptoPublicKey)
+		
+		const	sessionPrivateKey = JSON.parse(sessionStorage.getItem(`Priv`))
+		const	cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", sessionPrivateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
+		const	pemPrivateKey = await Crypto.ConvertJwkToPrivatePem(cryptoPrivateKey)
+
+		set_privateKey(pemPrivateKey)
+		set_publicKey(pemPublicKey)
 	}
 
 	return (
 		<Container>
 			<PageTitle>{'Profil'}</PageTitle>
 
-			<InputLabel value={memberID}>{'Identifiant unique'}</InputLabel>
+			<InputLabel value={memberID}>{'Unique ID'}</InputLabel>
 			<Input disabled defaultValue={memberID} />
 
-			<InputLabel value={email}>{'Adresse email'}</InputLabel>
+			<InputLabel value={email}>{'Email Address'}</InputLabel>
 			<Input
 				autoFocus
 				value={email}
 				onChange={e => set_email(e.target.value)} />
 			
-			<InputLabel>{'Clée publique'}</InputLabel>
-			<FakeInput font={'16px'}>
+			<InputLabel>{'Public Key'}</InputLabel>
+			<FakeInput font={'14px'}>
 				{'-----BEGIN RSA PUBLIC KEY-----'}
-				<p>{publicKey.slice(30, publicKey.length - 29)}</p>
+				<p>{publicKey}</p>
 				{'-----END RSA PUBLIC KEY-----'}
 			</FakeInput>
 
-			<InputLabel>{'Clée privée'}</InputLabel>
-			<FakeInput font={'16px'}>
+			<InputLabel>{'Private Key'}</InputLabel>
+			<FakeInput font={'14px'}>
 				{'-----BEGIN RSA PRIVATE KEY-----'}
-				<p>{privateKey.slice(31, privateKey.length - 30)}</p>
+				<p>{privateKey}</p>
 				{'-----END RSA PRIVATE KEY-----'}
 			</FakeInput>
 		</Container>
 	);
 }
-
-Profile.getInitialProps = async function({req}) {
-	if (!req) {
-		return {memberID: '', email: '', publicKey: '', privateKey: '', isClient: true};
-	} else {
-		const res = await API.GetMember({}, req.headers.cookie);
-		if (!res) {
-			return {memberID: '', email: '', publicKey: '', privateKey: ''};
-		}
-		return {memberID: res.ID, email: res.email, publicKey: res.publicKey, privateKey: res.privateKey};
-	}
-};
-
 
 export default Profile;

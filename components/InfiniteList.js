@@ -5,7 +5,7 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 17:06:34
+** @Last modified time:		Friday 21 February 2020 - 18:25:45
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -31,6 +31,7 @@ function	PerDayInfiniteList(props) {
 
 	function	renderChildrens() {
 		const	dayToRender = []
+		console.log(picturesByDay)
 		Object.entries(picturesByDay).map(([day, pictures]) => {
 			const	pictureForThisDay = pictures
 			.map(e => ({
@@ -38,17 +39,25 @@ function	PerDayInfiniteList(props) {
 				uri: e.uri,
 				width: e.width,
 				height: e.height,
+				originalWidth: e.width,
+				originalHeight: e.height,
 				originalIndex: e.originalIndex,
 				day
 			}));
+
+			console.log(pictureForThisDay[0].width)
+			console.log(pictureForThisDay[0].height)
 
 			dayToRender.push(
 				<div key={day} style={{marginBottom: 32}}>
 					{props.renderDaySeparator(day)}
 					<Gallery
-						margin={4}
-						targetRowHeight={300}
-						renderImage={e => props.renderChildren(e.photo, e.photo.originalIndex)}
+						margin={8}
+						// targetRowHeight={10}
+						renderImage={(e) => {
+							console.log(e)
+							return props.renderChildren(e.photo, e.photo.originalIndex)
+						}}
 						photos={pictureForThisDay} />
 				</div>
 			);

@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 16:19:00
+** @Last modified time:		Wednesday 19 February 2020 - 16:30:03
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -15,12 +15,11 @@ import	* as API						from	'../utils/API';
 import	NavBar							from	'../components/Navbar';
 
 const GlobalStyle = createGlobalStyle`
-	*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:Roboto,Helvetica,Arial,sans-serif;padding-inline-start: 0;font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;}
-	html{overflow: hidden;height:100%;}
-	body{background-color: #2A2B41;overflow: hidden;box-sizing: content-box;height:100%;padding:0;margin:0;}
+	*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:Roboto,Helvetica,Arial,sans-serif;padding-inline-start: 0;font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; scroll-behavior: smooth;}
+	::-webkit-scrollbar {width: 0 !important;}
+	body{background-color: #1e2331;box-sizing: content-box;height:100%;padding:0;margin:0;}
 	#__next{height:100%;width:100%;overflow-y: auto;padding:0;margin:0;};
-	#__next::-webkit-scrollbar { width: 0 !important }
-	#__next { overflow: -moz-scrollbars-none; }
+	#__next{ overflow: -moz-scrollbars-none; }
 	#__next { -ms-overflow-style: none; }
 
 	h1,h2,h3,h4,h5,h6,p{margin:0;padding:0}
@@ -35,23 +34,32 @@ const GlobalStyle = createGlobalStyle`
 
 const	Header = styled.header`
 	padding-top: 76px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.2), 0 0 1px rgba(1,0,0,0.2);
 `;
 
 function	MyApp(props) {
 	const	[member, set_member] = useState(undefined);
+	const	[memberPublicKey, set_memberPublicKey] = useState(undefined);
 	const	[isDragNDrop, set_isDragNDrop] = useState(false);
 
-	useEffect(() => {onCheckMember()}, [props.router.route])
+	// useEffect(() => {onCheckMember()}, [props.router.route])
 
-	async function	onCheckMember() {
-		await API.CheckMember().then((status) => {
-			if (status === false || status === undefined) {
-				set_member(undefined);
-				props.router.push('/')
-			}
-		})
-	}
+	// async function	onCheckMember() {
+	// 	await API.CheckMember().then((status) => {
+	// 		if (status === false || status === undefined) {
+	// 			// if (props.router.route)
+	// 			if (props.router.route !== `/`) {
+	// 				set_member(undefined);
+	// 				// props.router.push('/login')
+	// 			}
+	// 		} else {
+	// 			const res = API.GetMember().then((res) => {
+	// 				if (res) {
+	// 					set_memberPublicKey(res.publicKey);
+	// 				}
+	// 			});
+	// 		}
+	// 	})
+	// }
 
 	const	{Component, pageProps} = props;
 
@@ -68,6 +76,7 @@ function	MyApp(props) {
 					element={props.element}
 					router={props.router}
 					member={member}
+					memberPublicKey={memberPublicKey}
 					{...pageProps} />
 			</div>
 		</div>
