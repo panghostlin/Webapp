@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 21 February 2020 - 18:21:43
+** @Last modified time:		Sunday 23 February 2020 - 22:27:52
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -142,18 +142,26 @@ const PhotoCardWidth = React.memo((props) => {
 	const	[width, set_width] = useState(props.width);
 
 	useEffect(() => {
+		let	_width = props.width;
+		let	_height = props.height;
+
+		if (props.width > props.originalWidth)
+			_width = props.originalWidth
+		if (props.height > props.originalHeight)
+			_height = props.originalHeight
+
 		const	maxWidth = window.innerWidth * 80 / 100; //size of content : 80%
-		if (props.width > maxWidth) {
-			set_height(600 * props.height / props.width);
+		if (_width > maxWidth) {
+			set_height(600 * _height / _width);
 			set_width(600);
 			return undefined;
 		}
-		if (props.height > 400) {
+		if (_height > 400) {
 			set_height(300);
-			set_width(300 * props.width / props.height);
+			set_width(300 * _width / _height);
 		} else {
-			set_height(props.height);
-			set_width(props.width > 600 ? 600 : props.width);
+			set_height(_height);
+			set_width(_width > 600 ? 600 : _width);
 		}
 	}, [props.width])
 

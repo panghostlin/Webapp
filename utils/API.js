@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 22 February 2020 - 10:27:51
+** @Last modified time:		Monday 24 February 2020 - 14:17:58
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -43,7 +43,8 @@ const	performFetch = (url, method, args, header) =>
 
 function	send(url, chunk, chunkID, parts, file, UUID, albumID) {
 	const	formData  = new FormData();
-	formData.append("file", chunk, file.name);
+	console.log(new Blob([chunk], {type: 'text/plain'}))
+	formData.append("file", new Blob([chunk]), file.name);
 	formData.append('fileUUID', UUID);
 	formData.append('fileType', file.type);
 	formData.append('fileName', file.Name);
@@ -56,17 +57,13 @@ function	send(url, chunk, chunkID, parts, file, UUID, albumID) {
 	formData.append('encryptionKey', file.Key);
 	formData.append('encryptionIV', file.IV);
 
+	console.log(formData)
+
 	return (
 		fetch(`${API}/${url}`, {
 			method: 'POST',
 			body: formData,
 			credentials: 'include'
-		})
-		.then(async (response) =>
-		{
-			const	json = await response.json();
-			console.log(json)
-			return (json);
 		})
 		.catch((err) => {
 			console.warn(`${API}/${url}`, err)
@@ -85,30 +82,25 @@ const	recursiveUpload = (file, currentByte, chunkSize, chunksQuantity, index) =>
 	} else {
 		chunks = file.slice(currentByte, currentByte + chunkSize)
 	}
-	// allChunk.push(chunks)
 	setTimeout(() => {
 		send(chunks, currentIndex, chunksQuantity, file)
-		// console.log(index)
 	}, 1 * index)
 	recursiveUpload(file, currentByte + chunkSize, chunkSize, chunksQuantity, index + 1)
 }
 export	const	upload = (url, file, UUID, albumID) => {
 	const	chunkSize = 64 * 1024;
-	const	chunksQuantity = Math.ceil(file.size / chunkSize);
-
+	const	chunksQuantity = Math.ceil(file.encryptedData.byteLength / chunkSize);
 
 	let		index = 0;
 	let		chunks = '';
 
-	// recursiveUpload(file, 0, chunkSize, chunksQuantity, 0)
-	
-	for (let currentByte = 0; currentByte < file.size; currentByte += chunkSize) {
+	for (let currentByte = 0; currentByte < file.encryptedData.byteLength; currentByte += chunkSize) {
 		const	currentIndex = index;
 
-		if (currentByte + chunkSize > file.size) {
-			chunks = file.slice(currentByte, file.size)
+		if (currentByte + chunkSize > file.encryptedData.byteLength) {
+			chunks = file.encryptedData.slice(currentByte, file.encryptedData.byteLength)
 		} else {
-			chunks = file.slice(currentByte, currentByte + chunkSize)
+			chunks = file.encryptedData.slice(currentByte, currentByte + chunkSize)
 		}
 		send(url, chunks, currentIndex, chunksQuantity, file, UUID, albumID)
 		index += 1
@@ -117,7 +109,6 @@ export	const	upload = (url, file, UUID, albumID) => {
 
 
 export	const	CreateChunkPicture = (UUID, file, albumID) => upload('uploadPicture/', file, UUID, albumID);
-
 
 export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 	let socket = new WebSocket(`${WSAPI}/ws/uploadPicture/`);
@@ -136,7 +127,7 @@ export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
 			if (response.Step === 1 && response.UUID !== ``) {
 				performAction(response.UUID)
 			} else {
-				if (response.Step === 4)
+				if (response.Step === 3)
 					socket.close()
 				onMessage(response, file);
 			}
@@ -177,16 +168,9 @@ export	const	CreateMember = args => performFetch('newMember/', 'POST', args, nul
 export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null);
 export	const	CheckMember = (args, cookies) => performFetch('checkMember/', 'POST', args, cookies);
 
-// export	const	GetImage = uri => performFetch(`downloadPicture/500x500/${uri}`, 'GET', null, null);
-
 let		cryptoPrivateKey = undefined;
-let		cryptoPublicKey = undefined;
 export const	GetImage = async (uri) =>
 {
-	// if (cryptoPublicKey === undefined) {
-	// 	const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
-	// 	cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
-	// }
 	if (cryptoPrivateKey === undefined) {
 		const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
 		cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
@@ -203,6 +187,7 @@ export const	GetImage = async (uri) =>
 		.then(async (response) =>
 		{
 			const	buffer = await response.json();
+			console.log(buffer)
 			const	encryptionData = await Crypto.DecryptData(
 				Crypto.FromBase64(buffer.Picture),
 				cryptoPrivateKey,

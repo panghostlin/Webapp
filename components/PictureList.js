@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 21 February 2020 - 18:14:02
+** @Last modified time:		Monday 24 February 2020 - 14:18:27
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -90,21 +90,6 @@ function	Uploader(props) {
 	const	[uploaderCurrentFile, set_uploaderCurrentFile] = useState(undefined);
 	// const	[isDragNDrop, set_isDragNDrop] = useState(props.isDragNDrop);
 
-	function	CreatePictureThumbnail(file) {
-		const	thumbSize = 220;
-		const	canvas = document.createElement('canvas');
-		canvas.width = thumbSize;
-		canvas.height = thumbSize;
-		const	c = canvas.getContext("2d");
-		const	img = new Image();
-		img.onload = function(e) {
-			URL.revokeObjectURL(file)
-			c.drawImage(this, 0, 0, thumbSize, thumbSize);
-			set_uploaderCurrentFile(canvas.toDataURL('image/jpeg', 0.8));
-		};
-		img.src = URL.createObjectURL(file);
-	}
-
 	/**************************************************************************
 	**	The pictureCompress function takes an image as a file and resize it
 	**	to the max size of 16 mega pixels
@@ -146,47 +131,44 @@ function	Uploader(props) {
 		};
 	}
 
-	const fileToBase64 = file => new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.readAsDataURL(file);
-		reader.onload = () => resolve(reader.result);
-		reader.onerror = error => reject(error);
-	});
-	function b64toBlob(b64Data, contentType, sliceSize) {
-        contentType = contentType || '';
-        sliceSize = sliceSize || 512;
+	function	GetBinary(file) {
+		const	fileReader = new FileReader();
 
-        var byteCharacters = atob(b64Data);
-        var byteArrays = [];
-
-        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-            var byteNumbers = new Array(slice.length);
-            for (var i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-
-            var byteArray = new Uint8Array(byteNumbers);
-
-            byteArrays.push(byteArray);
-        }
-
-      var blob = new Blob(byteArrays, {type: contentType});
-      return blob;
-	}
-
-	function	GetImage(file) {
-		const fileReader = new FileReader();
-	
 		return new Promise((resolve, reject) => {
 			fileReader.onerror = () => {
 				fileReader.abort();
 				reject(new DOMException("Problem parsing input file."));
 			};
-			fileReader.onload = () => {
-				var img = new Image;
-				img.onload = function() {resolve(img);};
+			fileReader.onload = function() {
+				console.log(this.result)
+				resolve(this.result)
+			};
+			fileReader.readAsArrayBuffer(file);
+		});
+	};
+	function	GetImage(file) {
+		const	fileReader = new FileReader();
+		const	thumbSize = 220;
+		const	canvas = document.createElement('canvas');
+		const	c = canvas.getContext('2d');
+		canvas.width = thumbSize;
+		canvas.height = thumbSize;
+
+		return new Promise((resolve, reject) => {
+			fileReader.onerror = () => {
+				fileReader.abort();
+				reject(new DOMException("Problem parsing input file."));
+			};
+			fileReader.onload = function() {
+				const	img = new Image();
+				img.onload = function() {
+					c.drawImage(img, 0, 0, thumbSize, thumbSize);
+					canvas.toBlob((blob) => {
+						set_uploaderCurrentFile(URL.createObjectURL(blob))
+						set_uploader(true)
+					}, file.type, 0.8);
+					resolve(img);
+				};
 				img.onerror = function() {reject(new DOMException("Impossible create Image."));};
 				img.src = fileReader.result;
 			};
@@ -223,28 +205,28 @@ function	Uploader(props) {
 		**	- Generate an IV
 		**	- Encrypt the image
 		******************************************************************** */
+
 		const image = await GetImage(file)
-		const fileAsBase64 = await fileToBase64(file)
-		const encryptionData = await Crypto.EncryptData(fileAsBase64, cryptoPublicKey)
-		const encryptedFile = b64toBlob(Crypto.ToBase64(encryptionData.encryptedData), file.type);
-		
-		encryptedFile.Key = encryptionData.encodedSecretKey
-		encryptedFile.IV = Crypto.ToBase64(encryptionData.IV)
-		encryptedFile.Width = image.width
-		encryptedFile.Height = image.height
-		encryptedFile.Name = file.name
-		encryptedFile.LastModified = file.lastModified
+		const binary = await GetBinary(file)
+		const encryptionData = await Crypto.EncryptData(binary, cryptoPublicKey)
+
+		encryptionData.Key = encryptionData.encodedSecretKey
+		encryptionData.IV = Crypto.ToBase64(encryptionData.IV)
+		encryptionData.Width = image.width
+		encryptionData.Height = image.height
+		encryptionData.Name = file.name
+		encryptionData.LastModified = file.lastModified
 
 
-		CreatePictureThumbnail(file)
+			// return
 		// PictureCompress(file, (encryptedFile) => {
-			set_uploader(true)
+			// set_uploader(true)
 			// if (!(encryptedFile instanceof File)) {
 			// 	encryptedFile.name = file.name
 			// 	encryptedFile.lastModified = file.lastModified
 			// }
-			API.WSCreateChunkPicture(encryptedFile, (UUID) => API.CreateChunkPicture(UUID, encryptedFile, props.albumID), (response, currentFile) => {
-				if (response.Step === 4) {
+			API.WSCreateChunkPicture(encryptionData, (UUID) => API.CreateChunkPicture(UUID, encryptionData, props.albumID), (response, currentFile) => {
+				if (response.Step === 3) {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
 
@@ -264,7 +246,6 @@ function	Uploader(props) {
 					set_uploaderCurrentStep(response.Step)
 				}	
 			})
-		// })
 	}
 
 	return (
@@ -454,6 +435,8 @@ function	PictureList(props) {
 				uri={element.uri}
 				width={element.width}
 				height={element.height}
+				originalWidth={element.originalWidth}
+				originalHeight={element.originalHeight}
 				isSelectMode={selectMode}
 				isSelected={selectedPictures.indexOf(element.uri) > -1}
 				onToggle={() => {

@@ -5,7 +5,7 @@
 ** @Filename:				Crypto.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 22 February 2020 - 11:25:28
+** @Last modified time:		Monday 24 February 2020 - 14:12:49
 *******************************************************************************/
 
 function _arrayBufferToBase64(buffer) {
@@ -135,13 +135,11 @@ export async function	RetrievePemKeysFromPassword(password, encryptedPrivateKey,
 	return undecyptedPrivateKey
 }
 
-export async function	EncryptData(dataToEncrypt, publicKey) {
-	const	encoder = new TextEncoder();
 
-	const	toEncrypt = encoder.encode(dataToEncrypt)
+export async function	EncryptData(dataToEncrypt, publicKey) {
 	const	secretKey = await window.crypto.subtle.generateKey({name: "AES-CTR", length: 256}, true, ["encrypt", "decrypt"]);
 	const	IV = window.crypto.getRandomValues(new Uint8Array(16))
-	const	encryptedData = await window.crypto.subtle.encrypt({name: "AES-CTR", counter: IV, length: 128}, secretKey, toEncrypt);
+	const	encryptedData = await window.crypto.subtle.encrypt({name: "AES-CTR", counter: IV, length: 128}, secretKey, dataToEncrypt);
 	const	rawExportedSecretKey = await window.crypto.subtle.exportKey("raw", secretKey);
 	const	encryptedSecretKey = await window.crypto.subtle.encrypt({name: "RSA-OAEP"}, publicKey, rawExportedSecretKey);
 	const	encodedSecretKey = _arrayBufferToBase64(encryptedSecretKey);
@@ -150,15 +148,15 @@ export async function	EncryptData(dataToEncrypt, publicKey) {
 }
 
 export async function	DecryptData(dataToDecrypt, privateKey, IV, encodedSecretKey) {
-	const	decoder = new TextDecoder();
-	
 	const	decodedSecretKey = _base64ToArrayBuffer(encodedSecretKey)
 	const	decryptedSecretKey = await window.crypto.subtle.decrypt({name: "RSA-OAEP"}, privateKey, decodedSecretKey);
 	const	secretKey = await window.crypto.subtle.importKey("raw", decryptedSecretKey, "AES-CTR", true, ["encrypt", "decrypt"]);
 	const	decrypted = await window.crypto.subtle.decrypt({name: "AES-CTR", counter: IV, length: 128}, secretKey, dataToDecrypt);
-	const	data = decoder.decode(decrypted);
+	const	blob = new Blob([decrypted]);
+	const	urlCreator = window.URL || window.webkitURL;
+    const	imageUrl = urlCreator.createObjectURL(blob);
 
-	return (data);
+	return (imageUrl);
 }
 
 export async function	ConvertJwkToPrivatePem(key) {
