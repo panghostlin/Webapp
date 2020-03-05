@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 18 February 2020 - 16:36:00
+** @Last modified time:		Friday 28 February 2020 - 10:22:11
 *******************************************************************************/
 
 
@@ -157,18 +157,18 @@ function	AlbumsCard(props) {
 					<LeftImage>
 						<Image
 							alt={`${album.name} image 1`}
-							src={`${API}/downloadPicture/500x500/${album.coverPicture0ID}`} />
+							src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
 					</LeftImage>
 					<RightImages>
 						<div>
 							<Image
 								alt={`${album.name} image 2`}
-								src={`${API}/downloadPicture/500x500/${album.coverPicture1ID}`} />
+								src={`${API}/downloadPicture/max500/${album.coverPicture1ID}`} />
 						</div>
 						<div>
 							<Image
 								alt={`${album.name} image 3`}
-								src={`${API}/downloadPicture/500x500/${album.coverPicture2ID}`} />
+								src={`${API}/downloadPicture/max500/${album.coverPicture2ID}`} />
 						</div>
 					</RightImages>
 				</AlbumInner>
@@ -178,8 +178,8 @@ function	AlbumsCard(props) {
 			<AlbumInner>
 				<Image
 					alt={`${album.name} image 1`}
-					srcErr={`https://source.unsplash.com/500x500/?${album.name}`}
-					src={`${API}/downloadPicture/500x500/${album.coverPicture0ID}`} />
+					srcErr={`https://source.unsplash.com/max500/?${album.name}`}
+					src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
 			</AlbumInner>
 		);
 	}
@@ -219,14 +219,14 @@ function	AlbumsCardPreview(props) {
 			return (
 				<AlbumInner>
 					<LeftImage>
-						<Image alt={`${album.name} image 1`} src={`${API}/downloadPicture/500x500/${album.coverPicture0ID}`} />
+						<Image alt={`${album.name} image 1`} src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
 					</LeftImage>
 					<RightImages>
 						<div>
-							<Image alt={`${album.name} image 2`} src={`${API}/downloadPicture/500x500/${album.coverPicture1ID}`} />
+							<Image alt={`${album.name} image 2`} src={`${API}/downloadPicture/max500/${album.coverPicture1ID}`} />
 						</div>
 						<div>
-							<Image className={album.selectedCount > 3 && 'last'} alt={`${album.name} image 3`} src={`${API}/downloadPicture/500x500/${album.coverPicture2ID}`} />
+							<Image className={album.selectedCount > 3 && 'last'} alt={`${album.name} image 3`} src={`${API}/downloadPicture/max500/${album.coverPicture2ID}`} />
 							<MoreCounter>{album.selectedCount > 3 ? `+ ${album.selectedCount - 3}` : ''}</MoreCounter>
 						</div>
 					</RightImages>
@@ -237,7 +237,7 @@ function	AlbumsCardPreview(props) {
 			<AlbumInner>
 				<Image
 					alt={`${album.name} image 1`}
-					src={`${API}/downloadPicture/500x500/${album.coverPicture0ID}`} />
+					src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
 			</AlbumInner>
 		);
 	}

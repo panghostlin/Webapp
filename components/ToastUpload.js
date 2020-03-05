@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 04 February 2020 - 17:37:13
+** @Last modified time:		Wednesday 04 March 2020 - 18:34:39
 *******************************************************************************/
 
 import	react, {useEffect, useState}	from	'react';
@@ -165,7 +165,10 @@ function	ToastUploadProgress(props) {
 	return (
 		<ToastUploadContainer>
 			<ToastUploadElement>
-				<ToastUploadImage height={96} width={96} picture={`url(${props.file})`} />
+				<ToastUploadImage
+					height={96}
+					width={96}
+					picture={`url(${props.file})`} />
 				<ToastUploadMeta>
 						{renderProgressText()}
 					<UploadStatus>{`${props.current + 1} sur ${props.total}`}</UploadStatus>

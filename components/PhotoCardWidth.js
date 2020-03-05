@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 23 February 2020 - 22:27:52
+** @Last modified time:		Wednesday 04 March 2020 - 23:12:30
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -98,7 +98,7 @@ const	PhotoContainer = styled.div`
 
 const	Picture = React.memo((props) => {
 	const	[isLoaded, set_isLoaded] = useState(false);
-	const	[pictureData, set_pictureData] = useState(undefined);
+	const	[pictureData, set_pictureData] = useState({});
 
 	useEffect(() => {fetchPicture()}, [])
 
@@ -127,10 +127,14 @@ const	Picture = React.memo((props) => {
 					preserveAspectRatio={'none'} />
 			</ContentLoader>
 			<FullPicture
-				onLoad={e => set_isLoaded(true)}
+				onLoad={(e) => {
+					set_isLoaded(true);
+					URL.revokeObjectURL(e.target.src);
+					URL.revokeObjectURL(pictureData.src);
+				}}
 				style={{opacity: isLoaded ? 1 : 0}}
 				alt={props.alt}
-				src={pictureData} />
+				src={pictureData.src} />
 		</React.Fragment>
 	)
 });

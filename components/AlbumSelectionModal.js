@@ -5,7 +5,7 @@
 ** @Filename:				AlbumSelectionModal.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 18:39:59
+** @Last modified time:		Friday 28 February 2020 - 10:22:17
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -192,7 +192,7 @@ function AlbumSelectionModal(props) {
 								props.onClose();
 							});
 						}}>
-						<img src={`${API.API}/downloadPicture/500x500/${album.coverPicture0ID}`} alt={album.name} />
+						<img src={`${API.API}/downloadPicture/max500/${album.coverPicture0ID}`} alt={album.name} />
 						<div>{album.name}</div>
 					</AlbumButton>
 				);

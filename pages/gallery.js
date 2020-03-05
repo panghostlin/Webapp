@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 23 February 2020 - 22:35:07
+** @Last modified time:		Monday 02 March 2020 - 16:57:29
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -50,6 +50,7 @@ function Albums(props) {
 
 	if (!isReady)
 		return (null);
+
 
 	return (
 		<Container>

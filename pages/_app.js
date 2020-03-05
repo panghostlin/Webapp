@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 19 February 2020 - 16:30:03
+** @Last modified time:		Wednesday 04 March 2020 - 22:48:00
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -69,7 +69,7 @@ function	MyApp(props) {
 			{props.router.route !== '/' && <Header>
 				<NavBar router={props.router} />
 			</Header>}
-			<div onDragEnter={() => set_isDragNDrop(true)} style={{display: 'flex', flex: 1}}>
+			<div onDragEnter={() => set_isDragNDrop(true)} style={{width: '100%', minHeight: '100vh'}}>
 				<Component
 					isDragNDrop={isDragNDrop}
 					set_isDragNDrop={set_isDragNDrop}

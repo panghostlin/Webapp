@@ -5,13 +5,14 @@
 ** @Filename:				PictureLightroom.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 17:54:22
+** @Last modified time:		Thursday 05 March 2020 - 10:56:25
 *******************************************************************************/
 
-import	React, {useState}				from	'react';
+import	React, {useState, useEffect}	from	'react';
 import	styled, {css, keyframes}		from	'styled-components';
 import	* as API						from	'../utils/API';
 import	useLockBodyScroll				from	'../hooks/useLockBodyScroll';
+import	usePrevious						from	'../hooks/usePrevious';
 import	ArrowRight						from	'../Icons/ArrowRight';
 import	ArrowLeft						from	'../Icons/ArrowLeft';
 import	GgClose							from	'../Icons/Cross';
@@ -118,21 +119,80 @@ const	MenuContainer = styled.div`
 
 function	PictureLightroom(props) {
 	useLockBodyScroll();
+	const	[isReady, set_isReady] = useState(false);
 	const	[index, set_index] = useState(props.originalIndex);
 	const	[isLoaded, set_isLoaded] = useState(false);
 	const	[shouldPushSideRight, set_shouldPushSideRight] = useState(false);
 	const	[shouldPushSideLeft, set_shouldPushSideLeft] = useState(false);
-
 	const	[optionRatio, set_optionRatio] = useState('contain');
 	const	[optionVisible, set_optionVisible] = useState('visible');
+
+	const	[currentPicture, set_currentPicture] = useState({});
+	const	[previousPicture, set_previousPicture] = useState({});
+	const	[nextPicture, set_nextPicture] = useState({});
+
+	const	previousIndex = usePrevious(index)
+
+	const	mapping = [];
+	useEffect(() => {
+		fetchPicture()
+		return (() => {
+			mapping.forEach(e => URL.revokeObjectURL(e))
+		})
+	}, [])
+
+	useEffect(() => {
+		if (previousIndex > index) { //the previous button was pressed, only no need for next (is current)
+			fetchPrevious();
+		} else if (previousIndex < index) {
+			fetchNext();
+		}
+	}, [index])
+	//create mapping with blobs uri
+
+	async function	fetchPicture() {
+		const	_currentPicture = await API.GetImage(props.list[index].uri)
+		set_currentPicture(_currentPicture.src);
+		mapping.push(_currentPicture.src);
+
+		if (hasNext()) {
+			const	_nextPicture = await API.GetImage(props.list[index + 1].uri)
+			set_nextPicture(_nextPicture.src);
+			mapping.push(_nextPicture.src);
+		}
+
+		if (hasPrevious()) {
+			const	_previousPicture = await API.GetImage(props.list[index - 1].uri)
+			set_previousPicture(_previousPicture.src);
+			mapping.push(_previousPicture.src);
+		}
+		set_isReady(true)
+	}
+	async function	fetchPrevious() {
+		if (hasPrevious()) {
+			const	_previousPicture = await API.GetImage(props.list[index - 1].uri)
+			console.log(_previousPicture)
+			set_previousPicture(_previousPicture.src);
+			mapping.push(_previousPicture.src);
+		}
+	}
+	async function	fetchNext() {
+		if (hasNext()) {
+			const	_nextPicture = await API.GetImage(props.list[index + 1].uri)
+			set_nextPicture(_nextPicture.src);
+			mapping.push(_nextPicture.src);
+		}
+	}
 
 	const		hasPrevious = () => index - 1 >= 0;
 	function	onClickPrevious() {
 		if (hasPrevious()) {
 			set_shouldPushSideLeft(true);
 			setTimeout(() => {
-				set_index(index - 1);
 				set_shouldPushSideLeft(false);
+				set_nextPicture(currentPicture);
+				set_currentPicture(previousPicture);
+				set_index(index - 1);
 			}, 400);
 		}
 	}
@@ -141,45 +201,43 @@ function	PictureLightroom(props) {
 		if (hasNext()) {
 			set_shouldPushSideRight(true);
 			setTimeout(() => {
-				set_index(index + 1);
 				set_shouldPushSideRight(false);
+				set_previousPicture(currentPicture);
+				set_currentPicture(nextPicture);
+				set_index(index + 1);
 			}, 400);
 		}
 	}
 
 	function	renderImages() {
-		const	currentPicture = props.list[index];
-		const	previousPicture = props.list[index - 1];
-		const	nextPicture = props.list[index + 1];
+		if (!isReady)
+			return null
 
 		return (<>
 			<FrontPicture
 				key={index}
-				
 				ratio={optionRatio}
 				visible={optionVisible}
-
 				isLoaded={isLoaded}
 				isSide={shouldPushSideRight || shouldPushSideLeft}
-				onLoad={() => !isLoaded && set_isLoaded(true)}
-				src={`${API.API}/downloadPicture/original/${currentPicture.uri}`} />
+				onLoad={(e) => {
+					if (!isLoaded)
+						set_isLoaded(true);
+				}}
+				src={currentPicture} />
 
 			{hasPrevious() && previousPicture && <PreviousPicture
-				key={index - 1}
-				
+				key={previousPicture}
 				ratio={optionRatio}
 				visible={optionVisible}
-
 				isLoaded={shouldPushSideLeft}
-				src={`${API.API}/downloadPicture/original/${previousPicture.uri}`} />}
+				src={previousPicture} />}
 			{hasNext() && nextPicture && <NextPicture
-				key={index + 1}
-				
+				key={nextPicture}
 				ratio={optionRatio}
 				visible={optionVisible}
-
 				isLoaded={shouldPushSideRight}
-				src={`${API.API}/downloadPicture/original/${nextPicture.uri}`} />}
+				src={nextPicture} />}
 		</>);
 	}
 	function	renderNavigation() {

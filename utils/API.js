@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 24 February 2020 - 14:17:58
+** @Last modified time:		Wednesday 04 March 2020 - 23:03:13
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -43,12 +43,12 @@ const	performFetch = (url, method, args, header) =>
 
 function	send(url, chunk, chunkID, parts, file, UUID, albumID) {
 	const	formData  = new FormData();
-	console.log(new Blob([chunk], {type: 'text/plain'}))
-	formData.append("file", new Blob([chunk]), file.name);
+	formData.append('file', new Blob([chunk]), file.name);
 	formData.append('fileUUID', UUID);
 	formData.append('fileType', file.type);
 	formData.append('fileName', file.Name);
 	formData.append('fileLastModified', file.LastModified);
+	formData.append('fileSizeType', file.SizeType);
 	formData.append('fileWidth', file.Width);
 	formData.append('fileHeight', file.Height);
 	formData.append('fileAlbumID', albumID || '');
@@ -56,8 +56,7 @@ function	send(url, chunk, chunkID, parts, file, UUID, albumID) {
 	formData.append('fileParts', parts);
 	formData.append('encryptionKey', file.Key);
 	formData.append('encryptionIV', file.IV);
-
-	console.log(formData)
+	formData.append('isLast', file.IsLast);
 
 	return (
 		fetch(`${API}/${url}`, {
@@ -110,37 +109,28 @@ export	const	upload = (url, file, UUID, albumID) => {
 
 export	const	CreateChunkPicture = (UUID, file, albumID) => upload('uploadPicture/', file, UUID, albumID);
 
-export	const	WSCreateChunkPicture = (file, performAction, onMessage) => {
-	let socket = new WebSocket(`${WSAPI}/ws/uploadPicture/`);
-
-	socket.onopen = function(e) {
-		console.log(e)
-		// const	response = {Step: 0, UUID: ''}
-		// onMessage(response)
-		// performAction()
-	};
-	socket.onmessage = function (e) {
+export	const	WSCreateChunkPicture = (performAction, onMessage) => {
+	const	socket = new WebSocket(`${WSAPI}/ws/uploadPicture/`);
+	socket.onmessage = (e) => {
 		if (onMessage) {
 			const	response = JSON.parse(e.data);
-			console.log(response)
-
 			if (response.Step === 1 && response.UUID !== ``) {
 				performAction(response.UUID)
 			} else {
-				if (response.Step === 3)
+				if (response.Step === 4) {
+					console.log(`Socket will close for ${response.UUID}`)
 					socket.close()
-				onMessage(response, file);
+				}
+				onMessage(response);
 			}
+		} else {
+			socket.close();
 		}
 	}
-	socket.onclose = function () {
-		console.log("Socket closed");
-		return
-	}
-	socket.onerror = (e) => console.warn(e)
-
-	return socket;
+	socket.onclose = () => console.log("Socket closed")
+	socket.onerror = e => console.warn(e)
 }
+
 
 /******************************************************************************
 **	PICTURES
@@ -177,7 +167,7 @@ export const	GetImage = async (uri) =>
 	}
 
 	return (
-		fetch(`${API}/downloadPicture/500x500/${uri}`, {
+		fetch(`${API}/downloadPicture/max500/${uri}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -187,13 +177,12 @@ export const	GetImage = async (uri) =>
 		.then(async (response) =>
 		{
 			const	buffer = await response.json();
-			console.log(buffer)
 			const	encryptionData = await Crypto.DecryptData(
 				Crypto.FromBase64(buffer.Picture),
 				cryptoPrivateKey,
 				Crypto.FromBase64(buffer.IV),
 				buffer.Key
-			)
+			);
 			return (encryptionData);
 		})
 		.catch((err) => {

@@ -5,7 +5,7 @@
 ** @Filename:				Crypto.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 24 February 2020 - 14:12:49
+** @Last modified time:		Wednesday 04 March 2020 - 22:22:32
 *******************************************************************************/
 
 function _arrayBufferToBase64(buffer) {
@@ -152,11 +152,13 @@ export async function	DecryptData(dataToDecrypt, privateKey, IV, encodedSecretKe
 	const	decryptedSecretKey = await window.crypto.subtle.decrypt({name: "RSA-OAEP"}, privateKey, decodedSecretKey);
 	const	secretKey = await window.crypto.subtle.importKey("raw", decryptedSecretKey, "AES-CTR", true, ["encrypt", "decrypt"]);
 	const	decrypted = await window.crypto.subtle.decrypt({name: "AES-CTR", counter: IV, length: 128}, secretKey, dataToDecrypt);
+
 	const	blob = new Blob([decrypted]);
 	const	urlCreator = window.URL || window.webkitURL;
-    const	imageUrl = urlCreator.createObjectURL(blob);
+	
+	const	src = urlCreator.createObjectURL(blob);
 
-	return (imageUrl);
+	return ({src, blob});
 }
 
 export async function	ConvertJwkToPrivatePem(key) {

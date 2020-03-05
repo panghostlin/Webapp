@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 24 February 2020 - 14:18:27
+** @Last modified time:		Wednesday 04 March 2020 - 22:52:53
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -22,6 +22,7 @@ import	{ActionBar}						from	'./Navbar';
 import	useKeyPress						from	'../hooks/useKeyPress';
 import	convertToMoment					from	'../utils/ConvertDate';
 import	* as Crypto						from	'../utils/Crypto';
+import	* as Worker						from	'../utils/Worker';
 
 const	Toggle = styled.div`
 	cursor: pointer;
@@ -88,7 +89,7 @@ function	Uploader(props) {
 	const	[uploaderCurrentIndex, set_uploaderCurrentIndex] = useState(0);
 	const	[uploaderCurrentStep, set_uploaderCurrentStep] = useState(0);
 	const	[uploaderCurrentFile, set_uploaderCurrentFile] = useState(undefined);
-	// const	[isDragNDrop, set_isDragNDrop] = useState(props.isDragNDrop);
+	const	imgref = React.useRef(null);
 
 	/**************************************************************************
 	**	The pictureCompress function takes an image as a file and resize it
@@ -131,52 +132,74 @@ function	Uploader(props) {
 		};
 	}
 
-	function	GetBinary(file) {
-		const	fileReader = new FileReader();
+	function	CreateOriginalImage(objectURL) {
+		return new Promise((resolve) => {
+			const img = imgref.current;
 
-		return new Promise((resolve, reject) => {
-			fileReader.onerror = () => {
-				fileReader.abort();
-				reject(new DOMException("Problem parsing input file."));
-			};
-			fileReader.onload = function() {
-				console.log(this.result)
-				resolve(this.result)
-			};
-			fileReader.readAsArrayBuffer(file);
+			img.onload = function(e) {
+				// window.URL.revokeObjectURL(img.src);
+				resolve(img);
+			}
+			img.src = objectURL
 		});
 	};
-	function	GetImage(file) {
-		const	fileReader = new FileReader();
-		const	thumbSize = 220;
-		const	canvas = document.createElement('canvas');
-		const	c = canvas.getContext('2d');
-		canvas.width = thumbSize;
-		canvas.height = thumbSize;
-
-		return new Promise((resolve, reject) => {
-			fileReader.onerror = () => {
-				fileReader.abort();
-				reject(new DOMException("Problem parsing input file."));
-			};
-			fileReader.onload = function() {
-				const	img = new Image();
-				img.onload = function() {
-					c.drawImage(img, 0, 0, thumbSize, thumbSize);
-					canvas.toBlob((blob) => {
-						set_uploaderCurrentFile(URL.createObjectURL(blob))
-						set_uploader(true)
-					}, file.type, 0.8);
-					resolve(img);
-				};
-				img.onerror = function() {reject(new DOMException("Impossible create Image."));};
-				img.src = fileReader.result;
-			};
-			fileReader.readAsDataURL(file);
+	function	CreateThumbnailImage(image, target) {
+		return new Promise((resolve) => {
+			const	canvas = new OffscreenCanvas(image.width, image.height);
+			const	c = canvas.getContext('2d');
+			const	ratio = Math.min(target / image.width, target / image.height);
+			const	rWidth = Math.round(image.width * ratio);
+			const	rHeight = Math.round(image.height * ratio);
+			const	newWidth = (((rWidth - image.width) / rWidth) * -0.01)
+			const	newHeight = (((rHeight - image.height) / rHeight) * -0.01)
+			c.drawImage(image, 0, 0, image.width, image.height);
+			c.scale(newWidth, newHeight);
+			canvas.convertToBlob({type: 'image/jpeg', quality: 0.8}).then((blob) => {
+				blob.arrayBuffer().then((arrayBuffer) => {
+					resolve({data: arrayBuffer, width: rWidth, height: rHeight});
+				})
+			})
 		});
 	};
 
-	async function	recursiveUpload(index, files) {
+	async function	recursiveWorkerUpload(currentWorker, toProcess, index, options, versions) {
+		const	isLast = index === (toProcess.length - 1);
+		const	target = toProcess[index];
+		const	thumbnail = await CreateThumbnailImage(versions.image, target);
+		
+		await Worker.postMessage(currentWorker, {
+			type: 'uploadPicture',
+			file: thumbnail.data,
+			options: {
+				width: thumbnail.width,
+				height: thumbnail.height,
+				targetSize: target,
+				isLast,
+				...options
+			}
+		});
+		if (isLast)
+			return
+		recursiveWorkerUpload(currentWorker, toProcess, index + 1, options, versions)
+	}
+	async function	performWorkerUpload(currentWorker, options, versions) {
+		await Worker.postMessage(currentWorker, {
+			type: 'uploadPicture',
+			file: versions.arrayBuffer,
+			options: {
+				width: versions.image.width,
+				height: versions.image.height,
+				targetSize: 'original',
+				isLast: false,
+				...options
+			}
+		});
+		recursiveWorkerUpload(currentWorker, [1000, 500], 0, options, versions);
+	}
+
+	async function	onDropFile(oldWorker, index, files) {
+		Worker.terminate(oldWorker)
+
 		if (index >= files.length) {
 			set_uploader(false);
 			set_uploaderLength(0);
@@ -185,6 +208,7 @@ function	Uploader(props) {
 			set_uploaderCurrentFile(undefined);
 			return;
 		}
+		const	currentWorker = Worker.register();
 		const	file = files[index];
 
 		/* ********************************************************************
@@ -205,28 +229,27 @@ function	Uploader(props) {
 		**	- Generate an IV
 		**	- Encrypt the image
 		******************************************************************** */
+		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
+		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
+		const	fileAsImg = await CreateOriginalImage(imgObject);
+		set_uploader(true);
+		set_uploaderCurrentFile(imgObject)
 
-		const image = await GetImage(file)
-		const binary = await GetBinary(file)
-		const encryptionData = await Crypto.EncryptData(binary, cryptoPublicKey)
-
-		encryptionData.Key = encryptionData.encodedSecretKey
-		encryptionData.IV = Crypto.ToBase64(encryptionData.IV)
-		encryptionData.Width = image.width
-		encryptionData.Height = image.height
-		encryptionData.Name = file.name
-		encryptionData.LastModified = file.lastModified
-
-
-			// return
-		// PictureCompress(file, (encryptedFile) => {
-			// set_uploader(true)
-			// if (!(encryptedFile instanceof File)) {
-			// 	encryptedFile.name = file.name
-			// 	encryptedFile.lastModified = file.lastModified
-			// }
-			API.WSCreateChunkPicture(encryptionData, (UUID) => API.CreateChunkPicture(UUID, encryptionData, props.albumID), (response, currentFile) => {
-				if (response.Step === 3) {
+		API.WSCreateChunkPicture(
+			(UUID) => {
+				const	options = {
+					fileUUID: UUID,
+					fileAlbumID: props.albumID,
+					cryptoPublicKey,
+					name: file.name,
+					lastModified: file.lastModified,
+					type: file.type
+				};
+				const	versions = {file, arrayBuffer: fileAsArrayBuffer, image: fileAsImg};
+				performWorkerUpload(currentWorker, options, versions)
+			},
+			(response) => {
+				if (response.Step === 4) {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
 
@@ -234,29 +257,32 @@ function	Uploader(props) {
 						set_uploaderCurrentIndex(index => index + 1);
 						set_uploaderCurrentStep(0);
 						set_uploaderUpdate(_prev => _prev + 1);
-						URL.revokeObjectURL(currentFile);
-						recursiveUpload(index + 1, files)
+						window.URL.revokeObjectURL(imgObject);
+
+						onDropFile(currentWorker, index + 1, files);
 					} else {
-						console.error(`ERROR WITH ${index}`)
-						// set_uploaderCurrentStep(0);
-						// URL.revokeObjectURL(currentFile);
-						// recursiveUpload(index, files)
+						console.error(`ERROR WITH ${index}`);
+						window.URL.revokeObjectURL(imgObject);
+						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
 					}
 				} else {
 					set_uploaderCurrentStep(response.Step)
 				}	
-			})
+			}
+		);
 	}
 
 	return (
 		<>
+			<img id={'image'} ref={imgref} style={{opacity: 0, pointerEvent: 'none'}} />
 			<DragNDrop
 				isOpen={props.isDragNDrop}
 				onDragLeave={() => props.set_isDragNDrop(false)}
 				onDrop={(event) => {
+					const	currentWorker = Worker.register();
 					props.set_isDragNDrop(false);
 					set_uploaderLength(event.dataTransfer.files.length)
-					recursiveUpload(0, event.dataTransfer.files)
+					onDropFile(currentWorker, 0, event.dataTransfer.files)
 				}} />
 			<ToastUpload
 				open={uploader}
