@@ -5,7 +5,7 @@
 ** @Filename:				AlbumSelectionModal.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 28 February 2020 - 10:22:17
+** @Last modified time:		Friday 06 March 2020 - 11:48:31
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -192,7 +192,7 @@ function AlbumSelectionModal(props) {
 								props.onClose();
 							});
 						}}>
-						<img src={`${API.API}/downloadPicture/max500/${album.coverPicture0ID}`} alt={album.name} />
+						<img src={`${API.API}/downloadPicture/max500/${album.coverPicture}`} alt={album.name} />
 						<div>{album.name}</div>
 					</AlbumButton>
 				);
@@ -234,18 +234,14 @@ function AlbumSelectionModal(props) {
 							album={{
 								albumID: undefined,
 								title: newAlbumName,
-								coverPicture0ID: props.selected[0],
-								coverPicture1ID: props.selected[1],
-								coverPicture2ID: props.selected[2],
+								coverPicture: props.selected[0],
 								selectedCount: props.selected.length
 							}} />
 						<PrimaryButton
 							onClick={() => {
 								API.CreateAlbum({
 									name: newAlbumName,
-									coverPicture0ID: props.selected[0],
-									coverPicture1ID: props.selected[1],
-									coverPicture2ID: props.selected[2],
+									coverPicture: props.selected[0],
 									pictures: props.selected,
 								}).then(() => {
 									props.onClose();

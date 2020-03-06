@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 22:48:00
+** @Last modified time:		Thursday 05 March 2020 - 13:57:41
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -37,18 +37,18 @@ const	Header = styled.header`
 `;
 
 function	MyApp(props) {
-	const	[member, set_member] = useState(undefined);
-	const	[memberPublicKey, set_memberPublicKey] = useState(undefined);
+	const	[member, set_member] = useState(null);
+	const	[memberPublicKey, set_memberPublicKey] = useState(null);
 	const	[isDragNDrop, set_isDragNDrop] = useState(false);
 
 	// useEffect(() => {onCheckMember()}, [props.router.route])
 
 	// async function	onCheckMember() {
 	// 	await API.CheckMember().then((status) => {
-	// 		if (status === false || status === undefined) {
+	// 		if (status === false || status === null) {
 	// 			// if (props.router.route)
 	// 			if (props.router.route !== `/`) {
-	// 				set_member(undefined);
+	// 				set_member(null);
 	// 				// props.router.push('/login')
 	// 			}
 	// 		} else {

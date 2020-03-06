@@ -5,12 +5,11 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 23:12:30
+** @Last modified time:		Friday 06 March 2020 - 14:16:29
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
 import	styled									from	'styled-components';
-import	ContentLoader							from	'react-content-loader'
 import	* as API								from	'../utils/API';
 import	useIntersectionObserver					from	'../hooks/useIntersectionObserver';
 
@@ -82,9 +81,9 @@ const	FullPicture = styled.img`
 	left: 0;
 	width: 100%;
 	height: 100%;
-	transition: opacity 300ms ease 0ms;
+	transition: opacity 500ms ease 0ms;
 	object-fit: cover;
-	&::selection {background:transparent;}
+	&::selection {background: transparent;}
 `;
 const	PhotoContainer = styled.div`
 	contain: strict;
@@ -96,54 +95,59 @@ const	PhotoContainer = styled.div`
 	border-radius: 4px;
 `;
 
-const	Picture = React.memo((props) => {
+function	Picture(props) {
 	const	[isLoaded, set_isLoaded] = useState(false);
-	const	[pictureData, set_pictureData] = useState({});
+	const	[pictureData, set_pictureData] = useState(null);
+	const	pictureRef = useRef();
 
-	useEffect(() => {fetchPicture()}, [])
+	useEffect(() => {
+		return (() => {
+			if (pictureRef && pictureRef.current) {
+				URL.revokeObjectURL(pictureRef.current);
+				URL.revokeObjectURL(pictureData);
+				pictureRef.current.src = ''
+				pictureRef.current = null
+			}
+		});
+	})
+
+	useEffect(() => {
+		if (props.visible) {
+			fetchPicture()
+		}
+	}, [props.visible])
 
 	async function	fetchPicture() {
-		const	image = await API.GetImage(props.uri)
+		const	image = await API.GetImage(props.uri, props.signal)
 		set_pictureData(image);
 	}
 
+	if (!pictureData) {
+		return (null);
+	}
 	return (
-		<React.Fragment>
-			<ContentLoader 
-				speed={2}
-				width={'100%'}
-				height={props.height}
-				backgroundColor="#242a3b"
-				foregroundColor="#191c28"
-				preserveAspectRatio="none"
-				style={{visibility: isLoaded ? "hidden" : "visible"}}> 
-				<rect
-					x={'0'}
-					y={'0'}
-					rx={'2'}
-					ry={'2'}
-					width={'100%'}
-					height={props.height}
-					preserveAspectRatio={'none'} />
-			</ContentLoader>
-			<FullPicture
-				onLoad={(e) => {
-					set_isLoaded(true);
-					URL.revokeObjectURL(e.target.src);
-					URL.revokeObjectURL(pictureData.src);
-				}}
-				style={{opacity: isLoaded ? 1 : 0}}
-				alt={props.alt}
-				src={pictureData.src} />
-		</React.Fragment>
+		<FullPicture
+			ref={pictureRef}
+			onLoad={(e) => {
+				set_isLoaded(true);
+				URL.revokeObjectURL(pictureData);
+				URL.revokeObjectURL(e.target.src);
+			}}
+			onError={fetchPicture}
+			style={{opacity: isLoaded ? 1 : 0}}
+			alt={props.alt}
+			src={pictureData} />
 	)
-});
+};
 
-const PhotoCardWidth = React.memo((props) => {
+function	PhotoCardWidth(props) {
 	const	imageRef = useRef();
+	const	[shouldDisplay, set_shouldDisplay] = useState(false);
 	const	[visible, set_visible] = useState(false);
 	const	[height, set_height] = useState(props.height);
 	const	[width, set_width] = useState(props.width);
+	const	controller = new AbortController();
+	const	signal = controller.signal;
 
 	useEffect(() => {
 		let	_width = props.width;
@@ -158,9 +162,7 @@ const PhotoCardWidth = React.memo((props) => {
 		if (_width > maxWidth) {
 			set_height(600 * _height / _width);
 			set_width(600);
-			return undefined;
-		}
-		if (_height > 400) {
+		} else if (_height > 400) {
 			set_height(300);
 			set_width(300 * _width / _height);
 		} else {
@@ -169,12 +171,17 @@ const PhotoCardWidth = React.memo((props) => {
 		}
 	}, [props.width])
 
+
 	useIntersectionObserver({
 		target: imageRef,
 		onIntersect: ([{isIntersecting}], observerElement) => {
-			if (isIntersecting) {
+			if (isIntersecting && visible === false) {
 				set_visible(true);
-				observerElement.unobserve(imageRef.current);
+				set_shouldDisplay(true);
+				// observerElement.unobserve(imageRef.current);
+			} else if (!isIntersecting && visible === true) {
+				controller.abort()
+				set_visible(false);
 			}
 		}
 	});
@@ -190,11 +197,11 @@ const PhotoCardWidth = React.memo((props) => {
 				onClick={(e) => {e.stopPropagation(); props.onToggle()}}
 				isSelected={props.isSelected} />
 			<PhotoContainer ref={imageRef} height={height}>
-				{visible && <Picture height={height} {...props} />}
+				{shouldDisplay && <Picture visible={visible} height={height} signal={signal} {...props} />}
 			</PhotoContainer>
 			<Background isSelectMode={props.isSelectMode} />
 		</CardContainer>
 	);
-});
+};
 
 export default PhotoCardWidth;

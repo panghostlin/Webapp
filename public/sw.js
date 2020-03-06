@@ -36,7 +36,7 @@ function	GetBinary(file) {
 		};
 		fileReader.readAsArrayBuffer(file);
 	});
-};
+}
 function	GetFile(file) {
 	const	fileReader = new FileReader();
 	return new Promise((resolve, reject) => {
@@ -50,7 +50,7 @@ function	GetFile(file) {
 		fileReader.readAsArrayBuffer(file);
 		// fileReader.readAsDataURL(file);
 	});
-};
+}
 function	GetImage(image, options) {
 	const	originalImageWidth = options.width
 	const	originalImageHeight = options.height
@@ -72,7 +72,7 @@ function	GetImage(image, options) {
 			resolve({blob, width: rWidth, height: rHeight})
 		})
 	});
-};
+}
 
 /* IMAGE UPLOAD */
 function	ChunckSender(chunk, chunkID, parts, file, options) {
@@ -129,7 +129,7 @@ function	ChunkUploader(file, options, eventPort) {
 }
 
 async function	UploadPicture(image, options, eventPort) {
-	let		encryptionData = undefined;
+	let		encryptionData = null;
 	encryptionData = await EncryptData(image, options.cryptoPublicKey);
 	encryptionData.Width = options.width;
 	encryptionData.Height = options.height;
@@ -161,7 +161,7 @@ self.addEventListener('message', async (event) => {
 	{
 		let	imageResult = await GetImage(event.data.image, event.data.options);
 		event.ports[0].postMessage(imageResult);
-		imageResult = undefined;
+		imageResult = null;
 	}
 
 	else if (event.data.type === 'uploadPicture')
@@ -172,4 +172,4 @@ self.addEventListener('message', async (event) => {
 			event.ports[0]
 		);
 	}
-});
+})

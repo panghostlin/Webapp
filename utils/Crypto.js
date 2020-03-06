@@ -5,7 +5,7 @@
 ** @Filename:				Crypto.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 22:22:32
+** @Last modified time:		Thursday 05 March 2020 - 14:34:26
 *******************************************************************************/
 
 function _arrayBufferToBase64(buffer) {
@@ -155,10 +155,11 @@ export async function	DecryptData(dataToDecrypt, privateKey, IV, encodedSecretKe
 
 	const	blob = new Blob([decrypted]);
 	const	urlCreator = window.URL || window.webkitURL;
-	
 	const	src = urlCreator.createObjectURL(blob);
 
-	return ({src, blob});
+	// URL.revokeObjectURL(src);
+
+	return (src);
 }
 
 export async function	ConvertJwkToPrivatePem(key) {

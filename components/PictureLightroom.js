@@ -5,7 +5,7 @@
 ** @Filename:				PictureLightroom.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 05 March 2020 - 10:56:25
+** @Last modified time:		Thursday 05 March 2020 - 14:31:39
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -152,35 +152,34 @@ function	PictureLightroom(props) {
 
 	async function	fetchPicture() {
 		const	_currentPicture = await API.GetImage(props.list[index].uri)
-		set_currentPicture(_currentPicture.src);
-		mapping.push(_currentPicture.src);
+		set_currentPicture(_currentPicture);
+		mapping.push(_currentPicture);
 
 		if (hasNext()) {
 			const	_nextPicture = await API.GetImage(props.list[index + 1].uri)
-			set_nextPicture(_nextPicture.src);
-			mapping.push(_nextPicture.src);
+			set_nextPicture(_nextPicture);
+			mapping.push(_nextPicture);
 		}
 
 		if (hasPrevious()) {
 			const	_previousPicture = await API.GetImage(props.list[index - 1].uri)
-			set_previousPicture(_previousPicture.src);
-			mapping.push(_previousPicture.src);
+			set_previousPicture(_previousPicture);
+			mapping.push(_previousPicture);
 		}
 		set_isReady(true)
 	}
 	async function	fetchPrevious() {
 		if (hasPrevious()) {
 			const	_previousPicture = await API.GetImage(props.list[index - 1].uri)
-			console.log(_previousPicture)
-			set_previousPicture(_previousPicture.src);
-			mapping.push(_previousPicture.src);
+			set_previousPicture(_previousPicture);
+			mapping.push(_previousPicture);
 		}
 	}
 	async function	fetchNext() {
 		if (hasNext()) {
 			const	_nextPicture = await API.GetImage(props.list[index + 1].uri)
-			set_nextPicture(_nextPicture.src);
-			mapping.push(_nextPicture.src);
+			set_nextPicture(_nextPicture);
+			mapping.push(_nextPicture);
 		}
 	}
 

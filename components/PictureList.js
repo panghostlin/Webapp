@@ -5,13 +5,13 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 22:52:53
+** @Last modified time:		Friday 06 March 2020 - 11:47:47
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
 import	styled							from	'styled-components';
 import	PhotoCardWidth					from	'./PhotoCardWidth';
-import	{PerDayInfiniteList}			from	'./InfiniteList';
+import	InfiniteList					from	'./InfiniteList';
 import	AlbumSelectionModal				from	'./AlbumSelectionModal';
 import	ToastUpload						from	'./ToastUpload';
 import	ToastSuccess					from	'./ToastSuccess';
@@ -21,7 +21,6 @@ import	* as API						from	'../utils/API';
 import	{ActionBar}						from	'./Navbar';
 import	useKeyPress						from	'../hooks/useKeyPress';
 import	convertToMoment					from	'../utils/ConvertDate';
-import	* as Crypto						from	'../utils/Crypto';
 import	* as Worker						from	'../utils/Worker';
 
 const	Toggle = styled.div`
@@ -80,15 +79,14 @@ const	StyledDate = styled.div`
 `;
 
 function	Uploader(props) {
-	let		cryptoPrivateKey = undefined;
-	let		cryptoPublicKey = undefined;
-	const	[update, set_update] = useState(0);
+	let		cryptoPrivateKey = null;
+	let		cryptoPublicKey = null;
 	const	[uploader, set_uploader] = useState(false);
 	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
 	const	[uploaderLength, set_uploaderLength] = useState(0);
 	const	[uploaderCurrentIndex, set_uploaderCurrentIndex] = useState(0);
 	const	[uploaderCurrentStep, set_uploaderCurrentStep] = useState(0);
-	const	[uploaderCurrentFile, set_uploaderCurrentFile] = useState(undefined);
+	const	[uploaderCurrentFile, set_uploaderCurrentFile] = useState(null);
 	const	imgref = React.useRef(null);
 
 	/**************************************************************************
@@ -160,7 +158,7 @@ function	Uploader(props) {
 				})
 			})
 		});
-	};
+	}
 
 	async function	recursiveWorkerUpload(currentWorker, toProcess, index, options, versions) {
 		const	isLast = index === (toProcess.length - 1);
@@ -205,7 +203,7 @@ function	Uploader(props) {
 			set_uploaderLength(0);
 			set_uploaderCurrentIndex(0);
 			set_uploaderCurrentStep(0);
-			set_uploaderCurrentFile(undefined);
+			set_uploaderCurrentFile(null);
 			return;
 		}
 		const	currentWorker = Worker.register();
@@ -214,11 +212,11 @@ function	Uploader(props) {
 		/* ********************************************************************
 		**	Let's get the keys if we do not have them
 		******************************************************************** */
-		if (cryptoPublicKey === undefined) {
+		if (cryptoPublicKey === null) {
 			const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
 			cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
 		}
-		if (cryptoPrivateKey === undefined) {
+		if (cryptoPrivateKey === null) {
 			const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
 			cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
 		}
@@ -333,9 +331,7 @@ function	PictureList(props) {
 	function	onSetAlbumCover() {
 		API.SetAlbumCover({
 			albumID: props.albumID,
-			coverPicture0ID: selectedPictures[0] || '',
-			coverPicture1ID: selectedPictures[1] || '',
-			coverPicture2ID: selectedPictures[2] || '',
+			coverPicture: selectedPictures[0] || '',
 		}).then((e) => {
 			set_successToast(true);
 			set_selectedPictures([]);
@@ -512,7 +508,7 @@ function	PictureList(props) {
 				onDeletePicture={onDeletePicture}
 				onSetCover={onSetAlbumCover}
 				len={selectedPictures.length} />
-			<PerDayInfiniteList
+			<InfiniteList
 				renderChildren={renderImage}
 				renderDaySeparator={renderDaySeparator}
 				childrenContainer={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 16}}

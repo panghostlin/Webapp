@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 15:36:47
+** @Last modified time:		Thursday 05 March 2020 - 13:57:22
 *******************************************************************************/
 
 import	react, {useEffect, useState}	from	'react';
@@ -72,9 +72,9 @@ const	UploadStatus = styled.p`
 `;
 
 
-let		isAnimatedTimeout = undefined;
-let		isDisplayedTimeout = undefined;
-let		isMountedTimeout = undefined;
+let		isAnimatedTimeout = null;
+let		isDisplayedTimeout = null;
+let		isMountedTimeout = null;
 let		zIndex = 500;
 function	ToastSuccess(props) {
 

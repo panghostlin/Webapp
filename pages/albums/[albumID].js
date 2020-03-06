@@ -5,7 +5,7 @@
 ** @Filename:				[albumID].js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 18 February 2020 - 16:50:06
+** @Last modified time:		Thursday 05 March 2020 - 13:57:46
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -100,8 +100,8 @@ function Album(props) {
 	const	[currentAlbum, set_currentAlbum] = useState({});
 	const	[name, set_name] = useState('');
 	const	[isReady, set_isReady] = useState(false);
-	const	[successToast, set_successToast] = useState(undefined);
-	const	[successToastMessage, set_successToastMessage] = useState(undefined);
+	const	[successToast, set_successToast] = useState(null);
+	const	[successToastMessage, set_successToastMessage] = useState(null);
 	
 	useEffect(() => {
 		API.GetAlbumPictures({albumID: props.albumID}).then((e) => {

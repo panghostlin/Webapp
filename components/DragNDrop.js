@@ -5,7 +5,7 @@
 ** @Filename:				DragNDrop.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 13 February 2020 - 18:40:24
+** @Last modified time:		Thursday 05 March 2020 - 12:18:26
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -122,7 +122,7 @@ function	DragNDrop(props) {
 		</DragNDropContainer>
 	);
 }
-function DragNDropControler(props) {
+function	DragNDropControler(props) {
 	if (!props.isOpen)
 		return (null);
 	return <DragNDrop {...props} />

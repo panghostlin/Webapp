@@ -5,14 +5,13 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 15:56:30
+** @Last modified time:		Thursday 05 March 2020 - 15:05:21
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
 import	Gallery							from 	'react-photo-gallery';
-import	useInfiniteScroll				from	'../hooks/useInfiniteScroll';
 
-function	PerDayInfiniteList(props) {
+function	InfiniteList(props) {
 	const	[picturesByDay, set_picturesByDay] = useState({});
 
 	useEffect(() => {
@@ -66,39 +65,4 @@ function	PerDayInfiniteList(props) {
 	);
 }
 
-const		InfiniteList = React.memo((props) => {
-	const	[_, set_isFetching] = useInfiniteScroll(fetchMoreListItems);
-	const	[pictureList, set_pictureList] = useState([]);
-	const	[numberOfLines, set_numberOfLines] = useState(3);
-
-	useEffect(() => {
-		set_pictureList(props.pictureList)
-	}, [props.pictureList])
-
-	function fetchMoreListItems() {
-		set_numberOfLines(_prev => _prev + 3)
-		set_isFetching(false)
-	}
-
-	function	renderChildrens() {
-		const	data0 = pictureList.filter((d, i) => i % 3 === 0).slice(0, numberOfLines);
-		const	data1 = pictureList.filter((d, i) => i % 3 === 1).slice(0, numberOfLines);
-		const	data2 = pictureList.filter((d, i) => i % 3 === 2).slice(0, numberOfLines);
-
-		return (
-			<div style={props.childrenContainer}>
-				<div style={{width: '32%'}}>{data0.map((e, k) => props.renderChildren(e, k))}</div>
-				<div style={{width: '32%'}}>{data1.map((e, k) => props.renderChildren(e, k))}</div>
-				<div style={{width: '32%'}}>{data2.map((e, k) => props.renderChildren(e, k))}</div>
-			</div>
-		);
-	}
-	return (
-		<div style={{width: '100%'}}>
-			{renderChildrens()}
-		</div>
-	);
-});
-
-export {PerDayInfiniteList};
 export default InfiniteList;

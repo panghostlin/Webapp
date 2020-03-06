@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 23:03:13
+** @Last modified time:		Friday 06 March 2020 - 13:51:24
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -118,7 +118,6 @@ export	const	WSCreateChunkPicture = (performAction, onMessage) => {
 				performAction(response.UUID)
 			} else {
 				if (response.Step === 4) {
-					console.log(`Socket will close for ${response.UUID}`)
 					socket.close()
 				}
 				onMessage(response);
@@ -127,7 +126,7 @@ export	const	WSCreateChunkPicture = (performAction, onMessage) => {
 			socket.close();
 		}
 	}
-	socket.onclose = () => console.log("Socket closed")
+	socket.onclose = () => null
 	socket.onerror = e => console.warn(e)
 }
 
@@ -158,16 +157,17 @@ export	const	CreateMember = args => performFetch('newMember/', 'POST', args, nul
 export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null);
 export	const	CheckMember = (args, cookies) => performFetch('checkMember/', 'POST', args, cookies);
 
-let		cryptoPrivateKey = undefined;
-export const	GetImage = async (uri) =>
+let		cryptoPrivateKey = null;
+export const	GetImage = async (uri, signal) =>
 {
-	if (cryptoPrivateKey === undefined) {
+	if (cryptoPrivateKey === null) {
 		const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
 		cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
 	}
 
 	return (
 		fetch(`${API}/downloadPicture/max500/${uri}`, {
+			signal,
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'

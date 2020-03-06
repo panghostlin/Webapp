@@ -5,18 +5,14 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 23 February 2020 - 22:10:04
+** @Last modified time:		Thursday 05 March 2020 - 12:08:20
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
-import	styled, {css, keyframes}				from	'styled-components';
+import	styled									from	'styled-components';
 import	useIntersectionObserver					from	'../hooks/useIntersectionObserver';
-import ContentLoader from 'react-content-loader'
+import	ContentLoader							from	'react-content-loader'
 
-const animation = keyframes`
-	0% {opacity: 0;}
-	100 {opacity: 1;}
-`;
 const	Toggle = styled.div`
 	cursor: pointer;
 	mask: ${props => props.isSelected ? `url('/static/icons/checked.svg')` : `url('/static/icons/unchecked.svg')`};

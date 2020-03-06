@@ -5,7 +5,7 @@
 ** @Filename:				useDragNDrop.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 11:42:09
+** @Last modified time:		Thursday 05 March 2020 - 13:57:29
 *******************************************************************************/
 
 import {useEffect, useRef, useState} from "react";
@@ -25,8 +25,8 @@ const useDragNDrop = () => {
 			node.ondragleave = handleDragLeave
 
 			return () => {
-				node.ondragenter = undefined
-				node.ondragleave = undefined
+				node.ondragenter = null
+				node.ondragleave = null
 			};
 		}
 	}, [ref.current]);

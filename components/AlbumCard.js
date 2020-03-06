@@ -5,21 +5,22 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 28 February 2020 - 10:22:11
+** @Last modified time:		Friday 06 March 2020 - 13:33:02
 *******************************************************************************/
 
 
-import	React							from	'react';
+import	React, {useState, useEffect, useRef}	from	'react';
 import	Link							from	'next/link';
 import	styled							from	'styled-components';
-import	Img								from	'./Img';
-import	{API}							from	'../utils/API'
+import	* as API						from	'../utils/API'
 
-const	Image = styled(Img)`
+const	FullPicture = styled.img`
+	contain: strict;
 	position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	transition: opacity 500ms ease 0ms;
 	object-fit: cover;
 `;
 const	AlbumFake = styled.div`
@@ -53,7 +54,7 @@ const	AlbumContainer = styled.div`
 	cursor: ${props => props.isPreview ? 'default' : 'pointer'};
 	/* margin-bottom: 32px; */
 
-	& ${Image}.last {
+	& ${FullPicture}.last {
 		filter: ${props => (props.isPreview ? 'brightness(0.5)' : 'unset')};
 	}
 
@@ -76,19 +77,17 @@ const	AlbumContainer = styled.div`
     	white-space: nowrap;
 	}
 `;
-
 const	AlbumImages = styled.div`
 	position: relative;
     margin-bottom: 8px;
     padding-bottom: 70%;
     box-shadow: 0 8px 10px -2px rgba(0,0,0,.45);
 	&:hover {
-		& ${Image} {
+		& ${FullPicture} {
 			opacity: ${props => (props.isPreview ? 1 : 0.85)};
 		}
 	}
 `;
-
 const	LeftImage = styled.div``;
 const	RightImages = styled.div``;
 const	AlbumInner = styled.div`
@@ -137,9 +136,41 @@ const	MoreCounter = styled.div`
 	text-shadow: 0 1px 1px rgba(0,0,0, 0.15);
 `;
 
-function	AlbumsCard(props) {
-	const	album = props.album;
+function	Picture(props) {
+	const	[isLoaded, set_isLoaded] = useState(false);
+	const	[pictureData, set_pictureData] = useState(null);
+	const	pictureRef = useRef();
 
+	useEffect(() => {
+		fetchPicture()
+		return (() => {
+			URL.revokeObjectURL(pictureRef.current);
+			URL.revokeObjectURL(pictureData);
+			pictureRef.current.src = ''
+			pictureRef.current = null
+		})
+	}, [])
+
+	async function	fetchPicture() {
+		const	image = await API.GetImage(props.uri)
+		set_pictureData(image);
+	}
+
+	return (
+		<FullPicture
+			ref={pictureRef}
+			alt={'coverPicture'}
+			onLoad={(e) => {
+				set_isLoaded(true);
+				URL.revokeObjectURL(pictureData);
+				URL.revokeObjectURL(e.target.src);
+			}}
+			style={{opacity: isLoaded ? 1 : 0}}
+			src={pictureData} />
+	);
+};
+
+function	AlbumsCard(props) {
 	function	convertToMoment(toConvert) {
 		const	date = toConvert ? new Date(toConvert) : new Date();
 		const	months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
@@ -151,48 +182,22 @@ function	AlbumsCard(props) {
 	}
 
 	function	rendeCover() {
-		if (album.coverPicture0ID && album.coverPicture1ID && album.coverPicture2ID) {
-			return (
-				<AlbumInner>
-					<LeftImage>
-						<Image
-							alt={`${album.name} image 1`}
-							src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
-					</LeftImage>
-					<RightImages>
-						<div>
-							<Image
-								alt={`${album.name} image 2`}
-								src={`${API}/downloadPicture/max500/${album.coverPicture1ID}`} />
-						</div>
-						<div>
-							<Image
-								alt={`${album.name} image 3`}
-								src={`${API}/downloadPicture/max500/${album.coverPicture2ID}`} />
-						</div>
-					</RightImages>
-				</AlbumInner>
-			);
-		}
 		return (
 			<AlbumInner>
-				<Image
-					alt={`${album.name} image 1`}
-					srcErr={`https://source.unsplash.com/max500/?${album.name}`}
-					src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
+				<Picture uri={props.album.coverPicture} />
 			</AlbumInner>
 		);
 	}
 
 
 	return (
-		<Link href={'/Albums/[album]'} as={`/Albums/${album.albumID}`}>
+		<Link href={'/Albums/[album]'} as={`/Albums/${props.album.albumID}`}>
 			<AlbumContainer>
 				<AlbumImages>
 					{rendeCover()}
 				</AlbumImages>
-				<AlbumTitle>{album.name}</AlbumTitle>
-				<AlbumDescription>{`${album.NumberOfPictures || 0} photos - ${convertToMoment(album.creationTime)}`}</AlbumDescription>
+				<AlbumTitle>{props.album.name}</AlbumTitle>
+				<AlbumDescription>{`${props.album.NumberOfPictures || 0} photos - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
 			</AlbumContainer>
 		</Link>
 	);
@@ -215,29 +220,11 @@ function	AlbumsCardPreview(props) {
 	const	album = props.album;
 
 	function	rendeCover() {
-		if (album.coverPicture0ID && album.coverPicture1ID && album.coverPicture2ID) {
-			return (
-				<AlbumInner>
-					<LeftImage>
-						<Image alt={`${album.name} image 1`} src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
-					</LeftImage>
-					<RightImages>
-						<div>
-							<Image alt={`${album.name} image 2`} src={`${API}/downloadPicture/max500/${album.coverPicture1ID}`} />
-						</div>
-						<div>
-							<Image className={album.selectedCount > 3 && 'last'} alt={`${album.name} image 3`} src={`${API}/downloadPicture/max500/${album.coverPicture2ID}`} />
-							<MoreCounter>{album.selectedCount > 3 ? `+ ${album.selectedCount - 3}` : ''}</MoreCounter>
-						</div>
-					</RightImages>
-				</AlbumInner>
-			);
-		}
 		return (
 			<AlbumInner>
-				<Image
+				<FullPicture
 					alt={`${album.name} image 1`}
-					src={`${API}/downloadPicture/max500/${album.coverPicture0ID}`} />
+					src={`${API}/downloadPicture/max500/${album.coverPicture}`} />
 			</AlbumInner>
 		);
 	}
