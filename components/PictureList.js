@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 11:47:47
+** @Last modified time:		Friday 06 March 2020 - 15:32:03
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -143,15 +143,13 @@ function	Uploader(props) {
 	};
 	function	CreateThumbnailImage(image, target) {
 		return new Promise((resolve) => {
-			const	canvas = new OffscreenCanvas(image.width, image.height);
-			const	c = canvas.getContext('2d');
 			const	ratio = Math.min(target / image.width, target / image.height);
 			const	rWidth = Math.round(image.width * ratio);
 			const	rHeight = Math.round(image.height * ratio);
-			const	newWidth = (((rWidth - image.width) / rWidth) * -0.01)
-			const	newHeight = (((rHeight - image.height) / rHeight) * -0.01)
-			c.drawImage(image, 0, 0, image.width, image.height);
-			c.scale(newWidth, newHeight);
+			const	canvas = new OffscreenCanvas(rWidth, rHeight);
+			const	c = canvas.getContext('2d');
+
+			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, rWidth, rHeight);
 			canvas.convertToBlob({type: 'image/jpeg', quality: 0.8}).then((blob) => {
 				blob.arrayBuffer().then((arrayBuffer) => {
 					resolve({data: arrayBuffer, width: rWidth, height: rHeight});
