@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 13:51:24
+** @Last modified time:		Monday 09 March 2020 - 10:51:02
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';

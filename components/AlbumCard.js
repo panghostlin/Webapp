@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 13:33:02
+** @Last modified time:		Monday 09 March 2020 - 10:57:17
 *******************************************************************************/
 
 
@@ -15,9 +15,7 @@ import	styled							from	'styled-components';
 import	* as API						from	'../utils/API'
 
 const	FullPicture = styled.img`
-	contain: strict;
-	position: absolute;
-	left: 0;
+	contain: layout;
 	width: 100%;
 	height: 100%;
 	transition: opacity 500ms ease 0ms;
@@ -81,59 +79,21 @@ const	AlbumImages = styled.div`
 	position: relative;
     margin-bottom: 8px;
     padding-bottom: 70%;
-    box-shadow: 0 8px 10px -2px rgba(0,0,0,.45);
 	&:hover {
 		& ${FullPicture} {
 			opacity: ${props => (props.isPreview ? 1 : 0.85)};
 		}
 	}
 `;
-const	LeftImage = styled.div``;
-const	RightImages = styled.div``;
 const	AlbumInner = styled.div`
 	position: absolute;
 	width: 100%;
 	height: 100%;
 	display: flex;
 	border-radius: 6px;
-	perspective: 1px;
 	overflow: hidden;
 	transition: all .1s ease-in-out;
-
-	& > ${LeftImage} {
-		width: 70%;
-		background: #f5f5f5;
-		position: relative;
-	}
-	& > ${RightImages} {
-		display: flex;
-		flex-direction: column;
-		width: 30%;
-		margin-left: 2px;
-		position: relative;
-		& > div:first-child {
-			margin-bottom: 2px;
-		}
-		& > div {
-			flex-grow: 1;
-			background: #f5f5f5;
-			position: relative;
-		}
-	}
-`;
-const	MoreCounter = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
-    color: #FFFFFF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 30px;
-	text-shadow: 0 1px 1px rgba(0,0,0, 0.15);
+	background: #242a3b;
 `;
 
 function	Picture(props) {
@@ -143,12 +103,6 @@ function	Picture(props) {
 
 	useEffect(() => {
 		fetchPicture()
-		return (() => {
-			URL.revokeObjectURL(pictureRef.current);
-			URL.revokeObjectURL(pictureData);
-			pictureRef.current.src = ''
-			pictureRef.current = null
-		})
 	}, [])
 
 	async function	fetchPicture() {
