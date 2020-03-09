@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 15:32:03
+** @Last modified time:		Monday 09 March 2020 - 10:18:50
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -135,7 +135,6 @@ function	Uploader(props) {
 			const img = imgref.current;
 
 			img.onload = function(e) {
-				// window.URL.revokeObjectURL(img.src);
 				resolve(img);
 			}
 			img.src = objectURL
@@ -192,7 +191,6 @@ function	Uploader(props) {
 		});
 		recursiveWorkerUpload(currentWorker, [1000, 500], 0, options, versions);
 	}
-
 	async function	onDropFile(oldWorker, index, files) {
 		Worker.terminate(oldWorker)
 

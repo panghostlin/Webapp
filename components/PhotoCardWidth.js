@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 15:40:49
+** @Last modified time:		Friday 06 March 2020 - 15:41:54
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -100,17 +100,6 @@ function	Picture(props) {
 	const	[pictureData, set_pictureData] = useState(null);
 	const	pictureRef = useRef();
 
-	// useEffect(() => {
-	// 	return (() => {
-	// 		if (pictureRef && pictureRef.current) {
-	// 			URL.revokeObjectURL(pictureRef.current);
-	// 			URL.revokeObjectURL(pictureData);
-	// 			// pictureRef.current.src = ''
-	// 			// pictureRef.current = null
-	// 		}
-	// 	});
-	// })
-
 	useEffect(() => {
 		if (props.visible) {
 			fetchPicture()
@@ -120,7 +109,6 @@ function	Picture(props) {
 	async function	fetchPicture() {
 		const	image = await API.GetImage(props.uri, props.signal)
 		set_pictureData(image);
-		console.log(image)
 	}
 
 	if (!pictureData) {
@@ -134,12 +122,9 @@ function	Picture(props) {
 				URL.revokeObjectURL(pictureData);
 				URL.revokeObjectURL(e.target.src);
 			}}
-			// onError={fetchPicture}
 			style={{opacity: isLoaded ? 1 : 0}}
 			alt={props.alt}
-			// src={`https://source.unsplash.com/random/?${props.uri}`}
-			src={pictureData}
-			/>
+			src={pictureData} />
 	)
 };
 

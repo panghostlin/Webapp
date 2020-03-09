@@ -85,7 +85,7 @@ function	ChunckSender(chunk, chunkID, parts, file, options) {
 	formData.append('fileSizeType', file.SizeType);
 	formData.append('fileWidth', file.Width);
 	formData.append('fileHeight', file.Height);
-	formData.append('fileAlbumID', options.albumID || '');
+	formData.append('fileAlbumID', options.fileAlbumID || '');
 	formData.append('fileChunkID', chunkID);
 	formData.append('fileParts', parts);
 	formData.append('encryptionKey', file.Key);
