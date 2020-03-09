@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 10:57:17
+** @Last modified time:		Monday 09 March 2020 - 19:39:02
 *******************************************************************************/
 
 
@@ -145,7 +145,7 @@ function	AlbumsCard(props) {
 
 
 	return (
-		<Link href={'/Albums/[album]'} as={`/Albums/${props.album.albumID}`}>
+		<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
 			<AlbumContainer>
 				<AlbumImages>
 					{rendeCover()}

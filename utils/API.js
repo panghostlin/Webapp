@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 10:51:02
+** @Last modified time:		Monday 09 March 2020 - 11:02:08
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -156,6 +156,7 @@ export	const	SetAlbumName = args => performFetch('albums/set/name/', 'POST', arg
 export	const	CreateMember = args => performFetch('newMember/', 'POST', args, null);
 export	const	LoginMember = args => performFetch('loginMember/', 'POST', args, null);
 export	const	CheckMember = (args, cookies) => performFetch('checkMember/', 'POST', args, cookies);
+export	const	GetMember = args => performFetch('getMember/', 'POST', args, null);
 
 let		cryptoPrivateKey = null;
 export const	GetImage = async (uri, signal) =>
