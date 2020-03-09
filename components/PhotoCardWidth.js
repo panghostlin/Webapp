@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 15:41:54
+** @Last modified time:		Monday 09 March 2020 - 10:26:33
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -108,6 +108,7 @@ function	Picture(props) {
 
 	async function	fetchPicture() {
 		const	image = await API.GetImage(props.uri, props.signal)
+		console.log(props.uri)
 		set_pictureData(image);
 	}
 

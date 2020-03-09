@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 10:18:50
+** @Last modified time:		Monday 09 March 2020 - 10:33:31
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -86,7 +86,7 @@ function	Uploader(props) {
 	const	[uploaderLength, set_uploaderLength] = useState(0);
 	const	[uploaderCurrentIndex, set_uploaderCurrentIndex] = useState(0);
 	const	[uploaderCurrentStep, set_uploaderCurrentStep] = useState(0);
-	const	[uploaderCurrentFile, set_uploaderCurrentFile] = useState(null);
+	const	[uploaderCurrentBlobURL, set_uploaderCurrentBlobURL] = useState(null);
 	const	imgref = React.useRef(null);
 
 	/**************************************************************************
@@ -199,7 +199,7 @@ function	Uploader(props) {
 			set_uploaderLength(0);
 			set_uploaderCurrentIndex(0);
 			set_uploaderCurrentStep(0);
-			set_uploaderCurrentFile(null);
+			set_uploaderCurrentBlobURL(null);
 			return;
 		}
 		const	currentWorker = Worker.register();
@@ -227,7 +227,7 @@ function	Uploader(props) {
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
 		set_uploader(true);
-		set_uploaderCurrentFile(imgObject)
+		set_uploaderCurrentBlobURL(imgObject)
 
 		API.WSCreateChunkPicture(
 			(UUID) => {
@@ -251,12 +251,9 @@ function	Uploader(props) {
 						set_uploaderCurrentIndex(index => index + 1);
 						set_uploaderCurrentStep(0);
 						set_uploaderUpdate(_prev => _prev + 1);
-						window.URL.revokeObjectURL(imgObject);
-
 						onDropFile(currentWorker, index + 1, files);
 					} else {
 						console.error(`ERROR WITH ${index}`);
-						window.URL.revokeObjectURL(imgObject);
 						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
 					}
 				} else {
@@ -280,7 +277,7 @@ function	Uploader(props) {
 				}} />
 			<ToastUpload
 				open={uploader}
-				file={uploaderCurrentFile}
+				fileAsBlobURL={uploaderCurrentBlobURL}
 				total={uploaderLength}
 				current={uploaderCurrentIndex}
 				step={uploaderCurrentStep} />

@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 04 March 2020 - 18:34:39
+** @Last modified time:		Monday 09 March 2020 - 10:32:48
 *******************************************************************************/
 
 import	react, {useEffect, useState}	from	'react';
@@ -89,16 +89,13 @@ const	ToastUploadCompleteImage = styled.div`
 	}
 `;
 
-const	ToastUploadImage = styled.div`
-	background-color: #e8eaed;
-    background-size: cover;
+const	ToastUploadImage = styled.img`
+    object-fit: cover;
+	object-position: center;
     border-radius: 3px 0 0 3px;
     height: 96px;
     width: 96px;
     min-width: 96px;
-	background-size: cover;
-	background-position: center;
-	background-image: ${props => props.picture}
 `;
 const	ToastUploadMeta = styled.div`
     padding: 8px 16px;
@@ -168,7 +165,9 @@ function	ToastUploadProgress(props) {
 				<ToastUploadImage
 					height={96}
 					width={96}
-					picture={`url(${props.file})`} />
+					src={props.fileAsBlobURL}
+					onLoad={() => URL.revokeObjectURL(props.fileAsBlobURL)} />
+
 				<ToastUploadMeta>
 						{renderProgressText()}
 					<UploadStatus>{`${props.current + 1} sur ${props.total}`}</UploadStatus>
