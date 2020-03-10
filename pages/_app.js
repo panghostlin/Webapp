@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 05 March 2020 - 13:57:41
+** @Last modified time:		Tuesday 10 March 2020 - 14:43:42
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -15,7 +15,7 @@ import	* as API						from	'../utils/API';
 import	NavBar							from	'../components/Navbar';
 
 const GlobalStyle = createGlobalStyle`
-	*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:Roboto,Helvetica,Arial,sans-serif;padding-inline-start: 0;font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; scroll-behavior: smooth;}
+	*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:Roboto,Helvetica,Arial,sans-serif;padding-inline-start: 0;font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;}
 	::-webkit-scrollbar {width: 0 !important;}
 	body{background-color: #1e2331;box-sizing: content-box;height:100%;padding:0;margin:0;}
 	#__next{height:100%;width:100%;overflow-y: auto;padding:0;margin:0;};

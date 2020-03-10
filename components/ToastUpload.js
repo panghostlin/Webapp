@@ -5,10 +5,9 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 12:11:27
+** @Last modified time:		Tuesday 10 March 2020 - 12:16:57
 *******************************************************************************/
 
-import	react, {useEffect, useState}	from	'react';
 import	styled, {css, keyframes}		from	'styled-components';
 
 const	animation = keyframes`

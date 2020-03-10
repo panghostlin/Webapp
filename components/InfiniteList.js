@@ -5,14 +5,16 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 05 March 2020 - 15:05:21
+** @Last modified time:		Tuesday 10 March 2020 - 14:59:18
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
 import	Gallery							from 	'react-photo-gallery';
+import	useDimensions					from	'../hooks/useDimensions';
 
 function	InfiniteList(props) {
 	const	[picturesByDay, set_picturesByDay] = useState({});
+	const	[wrapperRef, dimensions] = useDimensions();
 
 	useEffect(() => {
 		const	_picturesByDay = {};
@@ -27,6 +29,10 @@ function	InfiniteList(props) {
 		set_picturesByDay(_picturesByDay)
 
 	}, [props.pictureList])
+
+	useEffect(() => {
+		props.set_infiniteListHeight(dimensions.height);
+	}, [dimensions.height])
 
 	function	renderChildrens() {
 		const	dayToRender = [];
@@ -59,7 +65,7 @@ function	InfiniteList(props) {
 	}
 
 	return (
-		<div style={{width: 'calc(100% + 7px)', contain: 'layout'}}>
+		<div style={{width: 'calc(100% + 7px)', contain: 'layout'}} ref={wrapperRef}>
 			{renderChildrens()}
 		</div>
 	);

@@ -5,10 +5,10 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 12:08:25
+** @Last modified time:		Tuesday 10 March 2020 - 16:12:49
 *******************************************************************************/
 
-import	React, {useState, useEffect}	from	'react';
+import	React, {useState, useEffect, useLayoutEffect}	from	'react';
 import	styled							from	'styled-components';
 import	PhotoCardWidth					from	'./PhotoCardWidth';
 import	InfiniteList					from	'./InfiniteList';
@@ -33,7 +33,6 @@ const	Toggle = styled.div`
 	mask-position: center;
 	transition: 0.3s;
 `;
-
 const	StyledDate = styled.div`
 	font-size: 14px;
 	color: #B5B7DF;
@@ -322,11 +321,80 @@ function	Uploader(props) {
 	);
 }
 
+function	Timeline(props) {
+	const	StyledTimeline = styled.div`
+		position: fixed;
+		right: 8px;
+		top: 92px;
+		bottom: 16px;
+		width: 100px;
+		opacity: 0; //TODO: change ;
+		transition: 0.2s;
+		&:hover {
+			opacity: 1;
+		}
+	`;
+	const	StyledDate = styled.div`
+		position: absolute;
+		right: 0;
+		top: ${props => props.top}%;
+		color: #FFFFFF;
+		pointer-events: none;
+	`;
+	const	StyledDayIndicator = styled.div`
+		height: 2px;
+		z-index: 1;
+		background: #FFFFFF;
+	    pointer-events: none;
+    	position: absolute;
+    	right: 0;
+    	width: 72px;
+	`;
+	const cursor = React.useRef();
+
+	useLayoutEffect(() => {
+		const moveHandler = (e) => {
+			e.preventDefault();
+			requestAnimationFrame(() => cursor.current && (cursor.current.style.transform = `translateY(${e.clientY - 95}px)`));
+		};
+		document.addEventListener('mousemove', moveHandler);
+		return () => {
+			document.removeEventListener('mousemove', moveHandler);
+		};
+	}, []);
+
+	function	scrollOnClick(e) {
+		const	timelineClickPosition = e.clientY - 92;
+		const	timelineHeight = e.target.offsetHeight;
+		const	totalHeight = window.document.body.offsetHeight;
+		const	percentToScroll = timelineClickPosition / timelineHeight;
+		const	distanceFromPageTop = window.document.body.getBoundingClientRect().top;
+		const	distanceToScroll = (totalHeight * percentToScroll) - 92;
+		const	distanceSinceLastPosition = distanceToScroll + distanceFromPageTop
+
+		window.scrollTo({top: distanceToScroll, left: 0, behavior: distanceSinceLastPosition < 800 ? 'smooth' : 'auto'})
+	}
+
+	return (
+		<StyledTimeline onClick={scrollOnClick}>
+			{
+				props.data.map((eachPeriod) => {
+					return (
+						<StyledDate key={eachPeriod} top={eachPeriod[1]}>{eachPeriod[0]}</StyledDate>
+					)
+				})
+			}
+			<StyledDayIndicator ref={cursor} />
+		</StyledTimeline>
+	)
+}
+
 function	PictureList(props) {
 	const	[update, set_update] = useState(0);
 	const	[isReady, set_isReady] = useState(false);
 
 	const	[pictureList, set_pictureList] = useState(props.pictureList);
+	const	[timelineData, set_timelineData] = useState([]);
 	
 	const	[selectMode, set_selectMode] = useState(false);
 	const	[selectedPictures, set_selectedPictures] = useState([]);
@@ -339,12 +407,43 @@ function	PictureList(props) {
 	
 	const	isShift = useKeyPress('Shift');
 	const	[lastCheck, set_lastCheck] = useState(-1);
+	const	[infiniteListHeight, set_infiniteListHeight] = useState(0);
+
+	const	domElements = [];
 
 	useEffect(() => {
+		const	arrayDay = [];
+		props.pictureList.forEach((each) => {
+			if (!arrayDay[each.dateAsKey])
+				arrayDay[each.dateAsKey] = [];
+			arrayDay[each.dateAsKey].push(each)
+		})
+
 		set_pictureList(props.pictureList);
 		set_update(prev => prev + 1);
 		set_isReady(true);
 	}, [props.pictureList])
+
+	useEffect(() => {setTimelineData()}, [infiniteListHeight])
+
+	function	setTimelineData() {
+		const	pageSize = infiniteListHeight;
+		const	timelineScrollerData = [];
+		const	exists = []
+
+		domElements.forEach((e) => {
+			const	element = document.getElementById(e);
+			const	relativeFromTop = element?.offsetTop / pageSize * 100;
+			if (!exists[getMonthYear(e)]) {
+				exists[getMonthYear(e)] = true
+				timelineScrollerData.push([getMonthYear(e), relativeFromTop])
+			} else {
+				timelineScrollerData.push(['•', relativeFromTop])
+
+			}
+		})
+		set_timelineData(timelineScrollerData)
+	}
 
 	if (!isReady)
 		return (null);
@@ -368,6 +467,13 @@ function	PictureList(props) {
 			set_selectedDays({});
 			set_selectMode(false);
 		})
+	}
+
+	function	getMonthYear(day) {
+		const	months = [`Janvier`, `Février`, `Mars`, `Avril`, `Mai`, `Juin`, `Juillet`, `Août`, `Septembre`, `Octobre`, `Novembre`, `Décembre`];
+		const	fullDate = new Date(day);
+
+		return (`${months[fullDate.getMonth()]} ${fullDate.getFullYear()}`)
 	}
 
 	/**************************************************************************
@@ -505,18 +611,18 @@ function	PictureList(props) {
 				alt={'img'} />
 		);
 	}
-
 	function	renderDaySeparator(day) {
 		const	days = [`Dimanche`, `Lundi`, `Mardi`, `Mercredi`, `Jeudi`, `Vendredi`, `Samedi`];
 		const	months = [`Janvier`, `Février`, `Mars`, `Avril`, `Mai`, `Juin`, `Juillet`, `Août`, `Septembre`, `Octobre`, `Novembre`, `Décembre`];
 
 		const	fullDate = new Date(day);
-
 		return (
 			<StyledDate
+				id={`${day}`}
+				ref={() => domElements.push(`${day}`)}
 				isToggleSelected={selectedDays[day] === 'FULL'}
 				isToggleSome={selectedDays[day] === 'SOME'}
-				onClick={() => onDayToggleClick(day)}>
+				onClick={() => {test();onDayToggleClick(day)}}>
 				<Toggle />
 
 				<p>{`${days[fullDate.getDay()]} ${fullDate.getDate()} ${months[fullDate.getMonth()]} ${fullDate.getFullYear()}`}</p>
@@ -539,6 +645,7 @@ function	PictureList(props) {
 				onSetCover={onSetAlbumCover}
 				len={selectedPictures.length} />
 			<InfiniteList
+				set_infiniteListHeight={set_infiniteListHeight}
 				renderChildren={renderImage}
 				renderDaySeparator={renderDaySeparator}
 				childrenContainer={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 16}}
@@ -553,6 +660,9 @@ function	PictureList(props) {
 				}}
 				albumList={props.albumList}
 				selected={selectedPictures} />
+			<Timeline
+				data={timelineData}
+			/>
 			<ToastSuccess
 				isOpen={successToast}
 				onClose={() => set_successToast(false)}
