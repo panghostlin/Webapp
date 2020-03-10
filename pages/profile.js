@@ -5,7 +5,7 @@
 ** @Filename:				profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 19:35:34
+** @Last modified time:		Tuesday 10 March 2020 - 11:05:04
 *******************************************************************************/
 
 import	React, {useState, useEffect}				from	'react';
@@ -51,7 +51,7 @@ function	Profile(props) {
 	const	[email, set_email] = useState(props.email || '');
 	const	[usedStorage, set_usedStorage] = useState(0);
 	const	[fullUsedStorage, set_fullUsedStorage] = useState(0);
-	const	[availableStorage, set_availableStorage] = useState(5*1024*1024*1024);
+	const	[availableStorage, set_availableStorage] = useState(5 * 1024 * 1024 * 1024);
 	const	[publicKey, set_publicKey] = useState(props.publicKey || '');
 	const	[privateKey, set_privateKey] = useState(props.privateKey || '');
 
@@ -88,9 +88,7 @@ function	Profile(props) {
 		return (value / 1073741824).toFixed(0);
 	}
 	function	renderAvailableStorage(used, max) {
-		return (
-			`${converByteToMegaByte(used)} Mo / ${converByteToGigaByte(max)} Go`
-		)
+		return (`${converByteToMegaByte(used)} Mo / ${converByteToGigaByte(max)} Go`);
 	}
 
 	return (

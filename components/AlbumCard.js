@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 19:39:02
+** @Last modified time:		Tuesday 10 March 2020 - 11:19:11
 *******************************************************************************/
 
 
@@ -44,8 +44,9 @@ const	AlbumFake = styled.div`
 const	AlbumTitle = styled.p``;
 const	AlbumDescription = styled.p``;
 const	AlbumContainer = styled.div`
-	width: 20vw;
-	height: 20vw;
+	width: calc(20.1vw);
+	height: calc(20.1vw);
+	margin: 0.6vw;
 	border-radius: 4px;
 	max-width: ${props => props.isPreview ? 'unset' : '100%'};
 	min-width: ${props => props.isPreview ? 'unset' : '300px'};
@@ -106,7 +107,7 @@ function	Picture(props) {
 	}, [])
 
 	async function	fetchPicture() {
-		const	image = await API.GetImage(props.uri)
+		const	image = await API.GetImage(props.uri, null, 'max500')
 		set_pictureData(image);
 	}
 
@@ -136,13 +137,15 @@ function	AlbumsCard(props) {
 	}
 
 	function	rendeCover() {
+		if (props.album.coverPicture === undefined) {
+			return (<AlbumInner />);
+		}
 		return (
 			<AlbumInner>
 				<Picture uri={props.album.coverPicture} />
 			</AlbumInner>
 		);
 	}
-
 
 	return (
 		<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>

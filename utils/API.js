@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 11:02:08
+** @Last modified time:		Tuesday 10 March 2020 - 11:02:45
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -159,7 +159,7 @@ export	const	CheckMember = (args, cookies) => performFetch('checkMember/', 'POST
 export	const	GetMember = args => performFetch('getMember/', 'POST', args, null);
 
 let		cryptoPrivateKey = null;
-export const	GetImage = async (uri, signal) =>
+export const	GetImage = async (uri, signal, size = 'max500') =>
 {
 	if (cryptoPrivateKey === null) {
 		const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
@@ -167,7 +167,7 @@ export const	GetImage = async (uri, signal) =>
 	}
 
 	return (
-		fetch(`${API}/downloadPicture/max500/${uri}`, {
+		fetch(`${API}/downloadPicture/${size}/${uri}`, {
 			signal,
 			method: 'GET',
 			headers: {

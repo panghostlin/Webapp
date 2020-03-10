@@ -5,7 +5,7 @@
 ** @Filename:				PictureLightroom.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 05 March 2020 - 14:31:39
+** @Last modified time:		Tuesday 10 March 2020 - 11:04:00
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -151,18 +151,18 @@ function	PictureLightroom(props) {
 	//create mapping with blobs uri
 
 	async function	fetchPicture() {
-		const	_currentPicture = await API.GetImage(props.list[index].uri)
+		const	_currentPicture = await API.GetImage(props.list[index].uri, null, 'original')
 		set_currentPicture(_currentPicture);
 		mapping.push(_currentPicture);
 
 		if (hasNext()) {
-			const	_nextPicture = await API.GetImage(props.list[index + 1].uri)
+			const	_nextPicture = await API.GetImage(props.list[index + 1].uri, null, 'original')
 			set_nextPicture(_nextPicture);
 			mapping.push(_nextPicture);
 		}
 
 		if (hasPrevious()) {
-			const	_previousPicture = await API.GetImage(props.list[index - 1].uri)
+			const	_previousPicture = await API.GetImage(props.list[index - 1].uri, null, 'original')
 			set_previousPicture(_previousPicture);
 			mapping.push(_previousPicture);
 		}
@@ -170,14 +170,14 @@ function	PictureLightroom(props) {
 	}
 	async function	fetchPrevious() {
 		if (hasPrevious()) {
-			const	_previousPicture = await API.GetImage(props.list[index - 1].uri)
+			const	_previousPicture = await API.GetImage(props.list[index - 1].uri, null, 'original')
 			set_previousPicture(_previousPicture);
 			mapping.push(_previousPicture);
 		}
 	}
 	async function	fetchNext() {
 		if (hasNext()) {
-			const	_nextPicture = await API.GetImage(props.list[index + 1].uri)
+			const	_nextPicture = await API.GetImage(props.list[index + 1].uri, null, 'original')
 			set_nextPicture(_nextPicture);
 			mapping.push(_nextPicture);
 		}
@@ -226,13 +226,13 @@ function	PictureLightroom(props) {
 				src={currentPicture} />
 
 			{hasPrevious() && previousPicture && <PreviousPicture
-				key={previousPicture}
+				key={`${previousPicture}_${index}`}
 				ratio={optionRatio}
 				visible={optionVisible}
 				isLoaded={shouldPushSideLeft}
 				src={previousPicture} />}
 			{hasNext() && nextPicture && <NextPicture
-				key={nextPicture}
+				key={`${nextPicture}_${index}`}
 				ratio={optionRatio}
 				visible={optionVisible}
 				isLoaded={shouldPushSideRight}

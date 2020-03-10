@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 10:33:31
+** @Last modified time:		Tuesday 10 March 2020 - 11:27:33
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -156,6 +156,27 @@ function	Uploader(props) {
 			})
 		});
 	}
+	function	Create16mpxImage(image) {
+		return new Promise((resolve) => {
+			const	imageOriginalWidth = image.width
+			const	imageOriginalHeight = image.height
+			const	hvRatio = imageOriginalWidth / imageOriginalHeight
+			const	vhRatio = imageOriginalHeight / imageOriginalWidth
+			const	imageHvRatio = 16000000 * hvRatio
+			const	imageVhRatio = 16000000 * vhRatio
+			const	newWidth = Math.sqrt(imageHvRatio)
+			const	newHeight = Math.sqrt(imageVhRatio)
+			const	canvas = new OffscreenCanvas(newWidth, newHeight);
+			const	c = canvas.getContext('2d');
+
+			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, newWidth, newHeight);
+			canvas.convertToBlob({type: 'image/jpeg', quality: 0.8}).then((blob) => {
+				blob.arrayBuffer().then((arrayBuffer) => {
+					resolve({data: arrayBuffer, width: newWidth, height: newHeight});
+				})
+			})
+		});
+	}
 
 	async function	recursiveWorkerUpload(currentWorker, toProcess, index, options, versions) {
 		const	isLast = index === (toProcess.length - 1);
@@ -178,17 +199,33 @@ function	Uploader(props) {
 		recursiveWorkerUpload(currentWorker, toProcess, index + 1, options, versions)
 	}
 	async function	performWorkerUpload(currentWorker, options, versions) {
-		await Worker.postMessage(currentWorker, {
-			type: 'uploadPicture',
-			file: versions.arrayBuffer,
-			options: {
-				width: versions.image.width,
-				height: versions.image.height,
-				targetSize: 'original',
-				isLast: false,
-				...options
-			}
-		});
+		if (true || 'user is not premium') {
+			const	original = await Create16mpxImage(versions.image);
+			
+			await Worker.postMessage(currentWorker, {
+				type: 'uploadPicture',
+				file: original.data,
+				options: {
+					width: original.width,
+					height: original.height,
+					targetSize: 'original',
+					isLast: false,
+					...options
+				}
+			});
+		} else {
+			await Worker.postMessage(currentWorker, {
+				type: 'uploadPicture',
+				file: versions.arrayBuffer,
+				options: {
+					width: versions.image.width,
+					height: versions.image.height,
+					targetSize: 'original',
+					isLast: false,
+					...options
+				}
+			});
+		}
 		recursiveWorkerUpload(currentWorker, [1000, 500], 0, options, versions);
 	}
 	async function	onDropFile(oldWorker, index, files) {
