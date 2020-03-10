@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:27:33
+** @Last modified time:		Tuesday 10 March 2020 - 12:08:25
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';

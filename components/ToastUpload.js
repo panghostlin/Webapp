@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 09 March 2020 - 10:32:48
+** @Last modified time:		Tuesday 10 March 2020 - 12:11:27
 *******************************************************************************/
 
 import	react, {useEffect, useState}	from	'react';
@@ -113,23 +113,23 @@ const	UploadStatus = styled.p`
 	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-weight: 700;
 	width: 100%;
-    /* text-align: right; */
 `;
 
 const	UploadProgressBar = styled.div`
 	width: 100%;
-	background: #8BC34A60;
 	height: 5px;
 	position: absolute;
 	left: 0;
 	bottom: 0;
-	&::before {
-		display: flex;
-		background: #8BC34A;
-		height: 5px;
-		width: ${props => `${props.percent}%`};
-		content: "";
-	}
+	background: #8BC34A60;
+`;
+const	UploadProgress = styled.div`
+	background: #8BC34A;
+	height: 5px;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	right: 0;
 `;
 
 function	ToastUploadComplete(props) {
@@ -171,7 +171,9 @@ function	ToastUploadProgress(props) {
 				<ToastUploadMeta>
 						{renderProgressText()}
 					<UploadStatus>{`${props.current + 1} sur ${props.total}`}</UploadStatus>
-					<UploadProgressBar percent={props.total > 0 ? (props.current / props.total) * 100 : 0}/>
+						<UploadProgressBar>
+							<UploadProgress style={{width: `${props.total > 0 ? (props.current / props.total) * 100 : 0}%`}} />
+						</UploadProgressBar>
 				</ToastUploadMeta>
 			</ToastUploadElement>
 		</ToastUploadContainer>

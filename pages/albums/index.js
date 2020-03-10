@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:15:05
+** @Last modified time:		Tuesday 10 March 2020 - 11:38:31
 *******************************************************************************/
 
 import	React, {useState}					from	'react';
@@ -21,11 +21,9 @@ const	AlbumsContainer = styled.div`
 	margin: 0 auto;
 	border-radius: 4px;
 	padding: 32px calc(8.33% - 16px) 32px calc(8.33% - 16px);
-
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	/* justify-content: space-between; */
 `;
 
 function AlbumList() {
