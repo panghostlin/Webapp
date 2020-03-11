@@ -5,7 +5,7 @@
 ** @Filename:				Timebar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 15:22:39
+** @Last modified time:		Wednesday 11 March 2020 - 15:24:12
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -150,7 +150,7 @@ const	Timebar = React.memo((props) => {
 			timer = setTimeout(() => {
 				if (timebarContainer.current)
 					timebarContainer.current.style.opacity = null;
-		  	}, 1000);
+		  	}, 600);
 		};
 
 		document.addEventListener('scroll', scrollHandler);
