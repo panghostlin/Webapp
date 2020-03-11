@@ -5,7 +5,7 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 14:59:18
+** @Last modified time:		Wednesday 11 March 2020 - 10:37:10
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
