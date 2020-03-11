@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 14:27:25
+** @Last modified time:		Wednesday 11 March 2020 - 15:13:23
 *******************************************************************************/
 
 import	React, {useState, useEffect, useLayoutEffect}	from	'react';
@@ -17,8 +17,9 @@ import	ToastUpload						from	'./ToastUpload';
 import	ToastSuccess					from	'./ToastSuccess';
 import	PictureLightroom				from	'./PictureLightroom';
 import	DragNDrop						from	'./DragNDrop';
-import	* as API						from	'../utils/API';
+import	Timebar							from	'./Timebar';
 import	{ActionBar}						from	'./Navbar';
+import	* as API						from	'../utils/API';
 import	useKeyPress						from	'../hooks/useKeyPress';
 import	useEffectOnce					from	'../hooks/useEffectOnce';
 import	convertToMoment					from	'../utils/ConvertDate';
@@ -322,229 +323,6 @@ function	Uploader(props) {
 	);
 }
 
-const	StyledCursorIndicator = styled.div`
-	height: 2px;
-	z-index: 1;
-	background: #FFFFFF;
-	pointer-events: none;
-	position: absolute;
-	right: 0;
-	width: 72px;
-	will-change: transform;
-	opacity: 0;
-	& > p {
-		position: absolute;
-		pointer-events: none;
-		color: #FFFFFF;
-		font-size: 1.1em;
-		white-space: nowrap;
-		top: -1.2em;
-		right: 8px;
-	}
-`;
-const	StyledTimeline = styled.div`
-	position: fixed;
-	top: 92px;
-	right: 0;
-	bottom: 32px;
-	width: 120px;
-	opacity: 0; //TODO: change ;
-	transition: 0.2s;
-	cursor: pointer;
-	overflow: auto;
-	z-index: 10;
-	will-change: opacity;
-	&:hover {
-		opacity: 1;
-		& > ${StyledCursorIndicator} {
-			opacity: 1
-		}
-	}
-`;
-const	StyledSeparatorDate = styled.div`
-	position: absolute;
-	right: 8px;
-	white-space: nowrap;
-	top: ${props => props.top}%;
-	color: #FFFFFF;
-	pointer-events: none;
-`;
-const	StyledScrollIndicator = styled.div`
-	height: 1px;
-	z-index: 1;
-	background: #FFFFFF;
-	pointer-events: none;
-	position: absolute;
-	right: 0;
-	width: 52px;
-	will-change: transform;
-	& > p {
-		position: absolute;
-		pointer-events: none;
-		color: #FFFFFF;
-		font-size: 1.1em;
-		white-space: nowrap;
-		top: -1.2em;
-		right: 8px;
-	}
-`;
-
-const		Timeline = React.memo((props) => {
-	let		timer = null;
-	const	timelineContainer = React.useRef();
-	const	cursor = React.useRef();
-	const	scrollCursor = React.useRef();
-	const	[ranges, _set_ranges] = useState(null)
-	const	rangesRef = React.useRef(ranges);
-	const	set_ranges = x => {rangesRef.current = x; _set_ranges(x);};
-
-	/**************************************************************************
-	**	Setup the ranges and get the current scroll position when the data is
-	**	updated
-	**************************************************************************/
-	useEffect(() => {
-		set_ranges(props.data.map((each, index, data) => {
-			return ([index === 0 ? -10 : each[2], data[index + 1] ? data[index + 1][2] : 100, each[1]])
-		}));
-
-		const [scrollPosition, label] = getScrollPosition()
-		if (scrollCursor.current)
-			scrollCursor.current.children[0].innerHTML = label
-		requestAnimationFrame(() => {
-			if (scrollCursor.current) {
-				scrollCursor.current.style.transform = `translateY(${scrollPosition}px)`;
-			}
-		})
-	}, [props.data])
-
-	/**************************************************************************
-	**	Register the mousemove behaviour
-	**************************************************************************/
-	useEffectOnce(() => {
-		const	moveHandler = (e) => {
-			e.preventDefault();
-			const label = getCursorLabelPosition(e.clientY - 95)
-			if (cursor.current && getComputedStyle(cursor.current).opacity === '1') {
-				cursor.current.children[0].innerHTML = label;
-				if (scrollCursor.current)
-					scrollCursor.current.children[0].innerHTML = '';
-			}
-			requestAnimationFrame(() => cursor.current && (cursor.current.style.transform = `translateY(${e.clientY - 95}px)`));
-		};
-		document.addEventListener('mousemove', moveHandler);
-		return () => document.removeEventListener('mousemove', moveHandler);
-	});
-
-	/**************************************************************************
-	**	Register the on scroll behaviour
-	**************************************************************************/
-	useEffectOnce(() => {
-		const	scrollHandler = (e) => {
-			e.preventDefault();
-			const [scrollPosition, label] = getScrollPosition()
-
-			if (cursor.current && getComputedStyle(cursor.current).opacity === '1' && scrollCursor.current)
-				scrollCursor.current.children[0].innerHTML = '';
-			else if (scrollCursor.current)
-				scrollCursor.current.children[0].innerHTML = label;
-
-			if (timelineContainer.current)
-				timelineContainer.current.style.opacity = 1;
-			requestAnimationFrame(() => {
-				if (scrollCursor.current)
-					scrollCursor.current.style.transform = `translateY(${scrollPosition}px)`;
-			});
-			if (timer !== null)
-				clearTimeout(timer);
-			timer = setTimeout(() => {
-				if (timelineContainer.current)
-					timelineContainer.current.style.opacity = null;
-		  	}, 1000);
-		};
-
-		document.addEventListener('scroll', scrollHandler);
-		return () => {
-			document.removeEventListener('scroll', scrollHandler)
-			clearTimeout(timer);
-		};
-	});
-
-	/**************************************************************************
-	**	Register the drag behaviour
-	**************************************************************************/
-	useEffectOnce(() => {
-		const	mousedown = () => {
-			timelineContainer.current.addEventListener('mousemove', mousemove);
-		};
-
-		const	mousemove = (e) => {
-			const	timelineClickPosition = e.clientY - 93;
-			const	timelineHeight = timelineContainer.current?.offsetHeight;
-			const	totalHeight = window.document.body.offsetHeight - window.innerHeight;
-			const	percentToScroll = timelineClickPosition / timelineHeight;
-			const	distanceToScroll = (totalHeight * percentToScroll);
-			window.scrollTo({top: distanceToScroll, left: 0, behavior: 'auto'})
-		};
-
-		const	mouseup = () => {
-			timelineContainer.current.removeEventListener('mousemove', mousemove)
-		};
-
-		timelineContainer.current.addEventListener('mousedown', mousedown);
-		timelineContainer.current.addEventListener('mouseup', mouseup);
-		return () => {
-			timelineContainer.current.removeEventListener('mousedown', mousedown)
-			timelineContainer.current.removeEventListener('mouseup', mouseup)
-			timelineContainer.current.removeEventListener('mousemove', mousemove)
-		};
-	});
-
-	function	getScrollPosition() {
-		const	totalHeight = window.document.body.offsetHeight - window.innerHeight;
-		const	distanceFromTop = window.pageYOffset;
-		const	timelineHeight = timelineContainer.current?.offsetHeight;
-		const	scrollPosition = ((distanceFromTop * timelineHeight) / totalHeight);
-		const	relativePosition = scrollPosition / timelineHeight * 100;
-		const	find = rangesRef.current.find(e => relativePosition > e[0] && relativePosition < e[1]);
-
-		return	[scrollPosition - 1, find ? find[2] : ''];
-	}
-
-	function	getCursorLabelPosition(position) {
-		const	timelineHeight = timelineContainer.current?.offsetHeight;
-		const	relativePosition = position / timelineHeight * 100;
-		const	find = rangesRef.current.find(e => relativePosition > e[0] && relativePosition < e[1]);
-
-		return	find ? find[2] : '';
-	}
-
-	function	scrollOnClick(e) {
-		const	timelineClickPosition = e.clientY - 93;
-		const	timelineHeight = timelineContainer.current?.offsetHeight;
-		const	totalHeight = window.document.body.offsetHeight - window.innerHeight;
-		const	percentToScroll = timelineClickPosition / timelineHeight;
-		const	distanceFromPageTop = window.document.body.getBoundingClientRect().top;
-		const	distanceToScroll = (totalHeight * percentToScroll);
-		const	distanceSinceLastPosition = distanceToScroll + distanceFromPageTop;
-
-		window.scrollTo({top: distanceToScroll, left: 0, behavior: distanceSinceLastPosition < 2000 && distanceSinceLastPosition > -2000 ? 'smooth' : 'auto'})
-	}
-
-	return (
-		<StyledTimeline ref={timelineContainer} onClick={scrollOnClick}>
-			{
-				props.data.map((eachPeriod) => {
-					return (
-						<StyledSeparatorDate key={eachPeriod} top={eachPeriod[2]}>{eachPeriod[0]}</StyledSeparatorDate>
-					)
-				})
-			}
-			<StyledCursorIndicator ref={cursor}><p></p></StyledCursorIndicator>
-			<StyledScrollIndicator ref={scrollCursor}><p></p></StyledScrollIndicator>
-		</StyledTimeline>
-	)
-})
-
 function	PictureList(props) {
 	const	[update, set_update] = useState(0);
 	const	[isReady, set_isReady] = useState(false);
@@ -816,7 +594,7 @@ function	PictureList(props) {
 				}}
 				albumList={props.albumList}
 				selected={selectedPictures} />
-			<Timeline
+			<Timebar
 				data={timelineData}
 			/>
 			<ToastSuccess
