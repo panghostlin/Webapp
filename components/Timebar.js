@@ -5,7 +5,7 @@
 ** @Filename:				Timebar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 15:13:47
+** @Last modified time:		Wednesday 11 March 2020 - 15:22:39
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -26,7 +26,7 @@ const	StyledCursorIndicator = styled.div`
 		position: absolute;
 		pointer-events: none;
 		color: #FFFFFF;
-		font-size: 1.1em;
+		font-size: 1em;
 		white-space: nowrap;
 		top: -1.2em;
 		right: 8px;
@@ -41,7 +41,6 @@ const	StyledTimebar = styled.div`
 	opacity: 0;
 	transition: 0.2s;
 	cursor: pointer;
-	overflow: auto;
 	z-index: 10;
 	will-change: opacity;
 	&:hover {
@@ -58,6 +57,8 @@ const	StyledSeparatorDate = styled.div`
 	top: ${props => props.top}%;
 	color: #FFFFFF;
 	pointer-events: none;
+	font-variant-caps: all-small-caps;
+    font-size: 0.8em;
 `;
 const	StyledScrollIndicator = styled.div`
 	height: 1px;
@@ -72,7 +73,7 @@ const	StyledScrollIndicator = styled.div`
 		position: absolute;
 		pointer-events: none;
 		color: #FFFFFF;
-		font-size: 1.1em;
+		font-size: 1em;
 		white-space: nowrap;
 		top: -1.2em;
 		right: 8px;
@@ -81,10 +82,10 @@ const	StyledScrollIndicator = styled.div`
 
 const	Timebar = React.memo((props) => {
 	let		timer = null;
+	const	[ranges, _set_ranges] = useState(null)
 	const	timebarContainer = React.useRef();
 	const	cursor = React.useRef();
 	const	scrollCursor = React.useRef();
-	const	[ranges, _set_ranges] = useState(null)
 	const	rangesRef = React.useRef(ranges);
 	const	set_ranges = x => {rangesRef.current = x; _set_ranges(x);};
 

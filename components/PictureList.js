@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 15:13:23
+** @Last modified time:		Wednesday 11 March 2020 - 15:23:17
 *******************************************************************************/
 
 import	React, {useState, useEffect, useLayoutEffect}	from	'react';
@@ -370,9 +370,9 @@ function	PictureList(props) {
 			const	relativeFromTop = element?.offsetTop / pageSize * 100;
 			if (!exists[getMonthYear(e)]) {
 				exists[getMonthYear(e)] = true
-				timelineScrollerData.push([getMonthYear(e), getMonthYear(e), relativeFromTop])
+				timelineScrollerData.push([getMonthYear(e), getDate(e), relativeFromTop])
 			} else {
-				timelineScrollerData.push(['•', getMonthYear(e), relativeFromTop])
+				timelineScrollerData.push(['•', getDate(e), relativeFromTop])
 
 			}
 		})
@@ -408,6 +408,12 @@ function	PictureList(props) {
 		const	fullDate = new Date(day);
 
 		return (`${months[fullDate.getMonth()]} ${fullDate.getFullYear()}`)
+	}
+	function	getDate(day) {
+		const	months = [`Janvier`, `Février`, `Mars`, `Avril`, `Mai`, `Juin`, `Juillet`, `Août`, `Septembre`, `Octobre`, `Novembre`, `Décembre`];
+		const	fullDate = new Date(day);
+
+		return (`${fullDate.getDate()} ${months[fullDate.getMonth()]} ${fullDate.getFullYear()}`);
 	}
 
 	/**************************************************************************
@@ -519,7 +525,6 @@ function	PictureList(props) {
 			set_update(prev => prev + 1);
 		}
 	}
-
 	function	renderImage(element, elemIndex) {
 		return (
 			<PhotoCardWidth
@@ -556,7 +561,7 @@ function	PictureList(props) {
 				ref={() => domElements.push(`${day}`)}
 				isToggleSelected={selectedDays[day] === 'FULL'}
 				isToggleSome={selectedDays[day] === 'SOME'}
-				onClick={() => {test();onDayToggleClick(day)}}>
+				onClick={() => onDayToggleClick(day)}>
 				<Toggle />
 
 				<p>{`${days[fullDate.getDay()]} ${fullDate.getDate()} ${months[fullDate.getMonth()]} ${fullDate.getFullYear()}`}</p>
