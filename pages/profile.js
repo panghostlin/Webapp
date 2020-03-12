@@ -5,7 +5,7 @@
 ** @Filename:				profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:05:04
+** @Last modified time:		Thursday 12 March 2020 - 11:57:06
 *******************************************************************************/
 
 import	React, {useState, useEffect}				from	'react';
@@ -82,13 +82,16 @@ function	Profile(props) {
 	}
 
 	function	converByteToMegaByte(value) {
-		return (value / 1048576).toFixed(2);
+		const	mega = value / 1048576;
+		if (mega > 1000)
+			return converByteToGigaByte(value, 2);
+		return `${(mega).toFixed(2)} Mo`;
 	}
-	function	converByteToGigaByte(value) {
-		return (value / 1073741824).toFixed(0);
+	function	converByteToGigaByte(value, fixed) {
+		return `${(value / 1073741824).toFixed(fixed)} Go`;
 	}
 	function	renderAvailableStorage(used, max) {
-		return (`${converByteToMegaByte(used)} Mo / ${converByteToGigaByte(max)} Go`);
+		return (`${converByteToMegaByte(used)} / ${converByteToGigaByte(max, 0)}`);
 	}
 
 	return (
