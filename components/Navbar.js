@@ -5,10 +5,10 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 17 February 2020 - 01:29:28
+** @Last modified time:		Thursday 12 March 2020 - 12:39:45
 *******************************************************************************/
 
-import	React						from	'react';
+import	React, {useState}			from	'react';
 import	styled						from	'styled-components';
 import	Router						from	'next/router'
 
@@ -19,6 +19,7 @@ import	GgClose						from	'../Icons/Cross';
 import	GgAdd						from	'../Icons/Add';
 import	GgTrash						from	'../Icons/Trash';
 import	GgProfile					from	'../Icons/Profile';
+import	GgCheckbox					from	'../Icons/Checkbox';
 import	GgCoverTemplate				from	'../Icons/CoverTemplate';
 
 const	backgroundColor = '#191c28';
@@ -124,6 +125,7 @@ function	NavBar(props) {
 }
 
 function	ActionBar(props) {
+	const	[isChecked, set_isChecked] = useState(false)
 	return (
 		<StyledActionbar isEnabled={props.isEnabled}>
 			<Menu>
@@ -140,6 +142,13 @@ function	ActionBar(props) {
 
 				<MenuItem
 					style={{marginLeft: 'auto'}}
+					content={'Select all'}
+					onClick={props.allPictureSelected ? props.onUnselectAll : props.onSelectAll}
+					// onClick={() => set_isChecked(!isChecked)}
+					>
+					<GgCheckbox checked={props.allPictureSelected} />
+				</MenuItem>
+				<MenuItem
 					content={'Ajouter à un album'}
 					onClick={props.onAddToAlbum}>
 					<GgAdd />

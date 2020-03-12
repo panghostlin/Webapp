@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 10:34:50
+** @Last modified time:		Thursday 12 March 2020 - 12:16:14
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';

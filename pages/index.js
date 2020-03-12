@@ -5,7 +5,7 @@
 ** @Filename:				index.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 22 February 2020 - 11:27:45
+** @Last modified time:		Thursday 12 March 2020 - 12:11:50
 *******************************************************************************/
 
 import	React, {useState}		from	'react';
@@ -38,6 +38,7 @@ const	Page = styled.main`
 	flex-grow: 1;
 	flex-direction: column;
 	width: 100%;
+	min-height: 100vh;
 `;
 
 const	Container = styled.section`

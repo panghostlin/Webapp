@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 15:23:17
+** @Last modified time:		Thursday 12 March 2020 - 13:06:28
 *******************************************************************************/
 
 import	React, {useState, useEffect, useLayoutEffect}	from	'react';
@@ -525,6 +525,22 @@ function	PictureList(props) {
 			set_update(prev => prev + 1);
 		}
 	}
+	function	onSelectAll() {
+		const	_selectedDays = {};
+		const	_selectedPictures = pictureList.map(e => e.uri)
+		pictureList.map(e => _selectedDays[e.dateAsKey] = `FULL`)
+
+		set_lastCheck(-1);
+		set_selectedPictures(_selectedPictures);
+		set_selectedDays(_selectedDays);
+	}
+	function	onUnselectAll() {
+		set_lastCheck(-1);
+		set_selectedPictures([]);
+		set_selectedDays({});
+		set_selectMode(false);
+	}
+
 	function	renderImage(element, elemIndex) {
 		return (
 			<PhotoCardWidth
@@ -573,6 +589,7 @@ function	PictureList(props) {
 		<div>
 			<ActionBar
 				isEnabled={selectMode}
+				allPictureSelected={selectMode && pictureList.length === selectedPictures.length}
 				albumID={props.albumID}
 				onCancel={() => {
 					set_selectedPictures([]);
@@ -582,6 +599,8 @@ function	PictureList(props) {
 				onAddToAlbum={() => set_albumSelectionModal(true)}
 				onDeletePicture={onDeletePicture}
 				onSetCover={onSetAlbumCover}
+				onSelectAll={onSelectAll}
+				onUnselectAll={onUnselectAll}
 				len={selectedPictures.length} />
 			<InfiniteList
 				set_infiniteListHeight={set_infiniteListHeight}
