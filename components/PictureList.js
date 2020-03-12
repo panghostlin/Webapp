@@ -5,14 +5,15 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 13:06:28
+** @Last modified time:		Thursday 12 March 2020 - 22:53:14
 *******************************************************************************/
 
 import	React, {useState, useEffect, useLayoutEffect}	from	'react';
 import	styled							from	'styled-components';
 import	PhotoCardWidth					from	'./PhotoCardWidth';
 import	InfiniteList					from	'./InfiniteList';
-import	AlbumSelectionModal				from	'./AlbumSelectionModal';
+import	ModalAlbumSelection				from	'./ModalAlbumSelection';
+import	ModalDayPicker					from	'./ModalDayPicker';
 import	ToastUpload						from	'./ToastUpload';
 import	ToastSuccess					from	'./ToastSuccess';
 import	PictureLightroom				from	'./PictureLightroom';
@@ -328,12 +329,14 @@ function	PictureList(props) {
 	const	[isReady, set_isReady] = useState(false);
 
 	const	[pictureList, set_pictureList] = useState(props.pictureList);
+	const	[mappedPictureList, set_mappedPictureList] = useState([]);
 	const	[timelineData, set_timelineData] = useState([]);
 	
 	const	[selectMode, set_selectMode] = useState(false);
 	const	[selectedPictures, set_selectedPictures] = useState([]);
 	const	[selectedDays, set_selectedDays] = useState({});
 	const	[albumSelectionModal, set_albumSelectionModal] = useState(false);
+	const	[changeDateModal, set_changeDateModal] = useState(false);
 	const	[successToast, set_successToast] = useState(false);
 	
 	const	[lightRoom, set_lightRoom] = useState(false);
@@ -346,15 +349,11 @@ function	PictureList(props) {
 	const	domElements = [];
 
 	useEffect(() => {
-		const	arrayDay = [];
-		props.pictureList.forEach((each) => {
-			if (!arrayDay[each.dateAsKey])
-				arrayDay[each.dateAsKey] = [];
-			arrayDay[each.dateAsKey].push(each)
-		})
+		const	_mappedPictureList = [];
+		props.pictureList.forEach(each => _mappedPictureList[each.uri] = each)
 
+		set_mappedPictureList(_mappedPictureList);
 		set_pictureList(props.pictureList);
-		set_update(prev => prev + 1);
 		set_isReady(true);
 	}, [props.pictureList])
 
@@ -434,7 +433,6 @@ function	PictureList(props) {
 		updateDaysCheckBox(daysToRecheck, _selectedPictures);
 		set_selectedPictures(_selectedPictures);
 		set_selectMode(_selectedPictures.length > 0);
-		set_update(prev => prev + 1);
 	}
 	function	batchUpdateSelectedPictures(element, elemIndex) {
 		const	_selectedPictures = selectedPictures;
@@ -463,7 +461,6 @@ function	PictureList(props) {
 		updateDaysCheckBox(daysToRecheck, _selectedPictures)
 		set_selectedPictures(_selectedPictures);
 		set_selectMode(_selectedPictures.length > 0);
-		set_update(prev => prev + 1);
 	}
 	function	updateDaysCheckBox(daysToCheck, _selectedPictures) {
 		const	_selectedDays = selectedDays;
@@ -496,7 +493,6 @@ function	PictureList(props) {
 			set_selectedPictures(_selectedPictures);
 			set_selectedDays(_selectedDays);
 			set_selectMode(true);
-			set_update(prev => prev + 1);
 			set_lastCheck(pictureList.find(e => e.uri === dayPictures[dayPictures.length - 1]).originalIndex)
 		} else if (selectedDayPictures.length === dayPictures.length) {
 			/* SHOULD UNSELECT ALL */
@@ -509,7 +505,6 @@ function	PictureList(props) {
 			set_selectedPictures(_selectedPictures);
 			set_selectedDays(_selectedDays);
 			set_selectMode(_selectedPictures.length > 0);
-			set_update(prev => prev + 1);
 		} else {
 			/* SHOULD SELECT SOME */
 			const	toSelect = dayPictures.filter(elem => selectedDayPictures.indexOf(elem) === -1);
@@ -522,7 +517,6 @@ function	PictureList(props) {
 			set_selectedPictures(_selectedPictures);
 			set_selectedDays(_selectedDays);
 			set_selectMode(true);
-			set_update(prev => prev + 1);
 		}
 	}
 	function	onSelectAll() {
@@ -597,18 +591,20 @@ function	PictureList(props) {
 					set_selectMode(false);
 				}}
 				onAddToAlbum={() => set_albumSelectionModal(true)}
+				onChangeDate={() => set_changeDateModal(true)}
 				onDeletePicture={onDeletePicture}
 				onSetCover={onSetAlbumCover}
 				onSelectAll={onSelectAll}
 				onUnselectAll={onUnselectAll}
 				len={selectedPictures.length} />
 			<InfiniteList
+			update={update}
 				set_infiniteListHeight={set_infiniteListHeight}
 				renderChildren={renderImage}
 				renderDaySeparator={renderDaySeparator}
 				childrenContainer={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 16}}
 				pictureList={pictureList} />
-			<AlbumSelectionModal
+			<ModalAlbumSelection
 				isOpen={albumSelectionModal}
 				onClose={() => {
 					set_albumSelectionModal(false);
@@ -617,6 +613,34 @@ function	PictureList(props) {
 					set_selectMode(false);
 				}}
 				albumList={props.albumList}
+				selected={selectedPictures} />
+			<ModalDayPicker
+				isOpen={changeDateModal}
+				onConfirm={(newDate) => {
+					const	_mappedPictureList = [];
+					const	_pictureList = pictureList.map((each) => {
+						if (selectedPictures.includes(each.uri)) {
+							each.originalTime = newDate;
+							each.dateAsKey = convertToMoment(newDate)
+						}
+						_mappedPictureList[each.uri] = each
+						return (each);
+					});
+
+					set_changeDateModal(false);
+					set_selectedPictures([]);
+					set_selectedDays({});
+					set_selectMode(false);
+					set_mappedPictureList(_mappedPictureList);
+					set_pictureList(_pictureList);
+				}}
+				onClose={() => {
+					set_changeDateModal(false);
+					set_selectedPictures([]);
+					set_selectedDays({});
+					set_selectMode(false);
+				}}
+				selectedObject={mappedPictureList[selectedPictures[0]]}
 				selected={selectedPictures} />
 			<Timebar
 				data={timelineData}

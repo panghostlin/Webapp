@@ -5,7 +5,7 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 10:37:10
+** @Last modified time:		Thursday 12 March 2020 - 22:33:24
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -27,7 +27,6 @@ function	InfiniteList(props) {
 			_picturesByDay[each.dateAsKey].push(each)
 		});
 		set_picturesByDay(_picturesByDay)
-
 	}, [props.pictureList])
 
 	useEffect(() => {

@@ -5,12 +5,12 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:38:31
+** @Last modified time:		Thursday 12 March 2020 - 13:34:26
 *******************************************************************************/
 
 import	React, {useState}					from	'react';
 import	styled								from	'styled-components';
-import	AlbumSelectionModal					from	'../../components/AlbumSelectionModal';
+import	ModalAlbumSelection					from	'../../components/ModalAlbumSelection';
 import	AlbumCard, {AlbumsCardPreviewFake}	from	'../../components/AlbumCard';
 import	useEffectOnce						from	'../../hooks/useEffectOnce';
 import	* as API							from	'../../utils/API';
@@ -43,7 +43,7 @@ function AlbumList() {
 		<AlbumsContainer>
 			{albumList.map(e => <AlbumCard key={e.albumID} album={e} />)}
 			<AlbumsCardPreviewFake onClick={() => set_albumSelectionModal(true)} />
-			<AlbumSelectionModal
+			<ModalAlbumSelection
 				isOpen={albumSelectionModal}
 				onCloseSuccess={(name, albumID) => {
 					set_albumList(_prev => [..._prev, {albumID, name}])

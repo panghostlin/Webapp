@@ -2,10 +2,10 @@
 ** @Author:					Thomas Bouder <Tbouder>
 ** @Email:					Tbouder@protonmail.com
 ** @Date:					Wednesday 15 January 2020 - 10:46:09
-** @Filename:				AlbumSelectionModal.js
+** @Filename:				ModalAlbumSelection.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 06 March 2020 - 11:48:31
+** @Last modified time:		Thursday 12 March 2020 - 13:34:04
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -172,7 +172,7 @@ const	AlbumButton = styled.button`
 	}
 `;
 
-function AlbumSelectionModal(props) {
+function ModalAlbumSelection(props) {
 	useLockBodyScroll()
 
 	const	[content, set_content] = useState(props.content || 'selection')
@@ -311,10 +311,10 @@ function AlbumSelectionModal(props) {
 	)
 }
 
-function AlbumSelectionModalControler(props) {
+function rolerAlbumSelectionModalCont(props) {
 	if (!props.isOpen)
 		return (null);
-	return <AlbumSelectionModal {...props} />
+	return <ModalAlbumSelection {...props} />
 }
 
-export default AlbumSelectionModalControler;
+export default rolerAlbumSelectionModalCont;

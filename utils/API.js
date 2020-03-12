@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:02:45
+** @Last modified time:		Thursday 12 March 2020 - 21:56:08
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -138,6 +138,8 @@ export	const	GetMemberPictures = args => performFetch('pictures/getby/member/', 
 export	const	GetAlbumPictures = args => performFetch('pictures/getby/album/', 'POST', args, null);
 
 export	const	SetPicturesAlbum = args => performFetch('pictures/set/album/', 'POST', args, null);
+export	const	SetPicturesDate = args => performFetch('pictures/set/date/', 'POST', args, null);
+
 export	const	DeletePictures = args => performFetch('deletePictures/', 'POST', args, null);
 
 /******************************************************************************
