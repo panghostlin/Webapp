@@ -5,12 +5,13 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:02:05
+** @Last modified time:		Thursday 12 March 2020 - 10:34:50
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
 import	styled									from	'styled-components';
 import	* as API								from	'../utils/API';
+import	useEffectOnce							from	'../hooks/useEffectOnce';
 import	useIntersectionObserver					from	'../hooks/useIntersectionObserver';
 
 const	Toggle = styled.div`
@@ -137,6 +138,8 @@ function	PhotoCardWidth(props) {
 	const	controller = new AbortController();
 	const	signal = controller.signal;
 
+	useEffectOnce(() => controller.abort())
+
 	useEffect(() => {
 		let	_width = props.width;
 		let	_height = props.height;
@@ -168,7 +171,7 @@ function	PhotoCardWidth(props) {
 				set_shouldDisplay(true);
 				// observerElement.unobserve(imageRef.current);
 			} else if (!isIntersecting && visible === true) {
-				controller.abort()
+				controller.abort();
 				set_visible(false);
 			}
 		}
