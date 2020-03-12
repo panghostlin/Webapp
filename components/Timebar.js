@@ -5,7 +5,7 @@
 ** @Filename:				Timebar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 11 March 2020 - 15:24:12
+** @Last modified time:		Thursday 12 March 2020 - 12:02:52
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -40,7 +40,7 @@ const	StyledTimebar = styled.div`
 	width: 120px;
 	opacity: 0;
 	transition: 0.2s;
-	cursor: pointer;
+	cursor: ns-resize;
 	z-index: 10;
 	will-change: opacity;
 	&:hover {
@@ -174,19 +174,26 @@ const	Timebar = React.memo((props) => {
 			const	totalHeight = window.document.body.offsetHeight - window.innerHeight;
 			const	percentToScroll = timebarClickPosition / timebarHeight;
 			const	distanceToScroll = (totalHeight * percentToScroll);
-			window.scrollTo({top: distanceToScroll, left: 0, behavior: 'auto'})
+			requestAnimationFrame(() => {
+				window.scrollTo({top: distanceToScroll, left: 0, behavior: 'auto'})
+			});
 		};
 
 		const	mouseup = () => {
 			timebarContainer.current.removeEventListener('mousemove', mousemove)
 		};
+		const	mouseleave = () => {
+			timebarContainer.current.removeEventListener('mousemove', mousemove)
+		};
 
 		timebarContainer.current.addEventListener('mousedown', mousedown);
 		timebarContainer.current.addEventListener('mouseup', mouseup);
+		timebarContainer.current.addEventListener('mouseleave', mouseleave);
 		return () => {
 			timebarContainer.current.removeEventListener('mousedown', mousedown)
 			timebarContainer.current.removeEventListener('mouseup', mouseup)
 			timebarContainer.current.removeEventListener('mousemove', mousemove)
+			timebarContainer.current.addEventListener('mouseleave', mouseleave);
 		};
 	});
 
