@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 22:53:14
+** @Last modified time:		Saturday 14 March 2020 - 12:43:04
 *******************************************************************************/
 
 import	React, {useState, useEffect, useLayoutEffect}	from	'react';
@@ -461,6 +461,7 @@ function	PictureList(props) {
 		updateDaysCheckBox(daysToRecheck, _selectedPictures)
 		set_selectedPictures(_selectedPictures);
 		set_selectMode(_selectedPictures.length > 0);
+		set_update(update + 1);
 	}
 	function	updateDaysCheckBox(daysToCheck, _selectedPictures) {
 		const	_selectedDays = selectedDays;
@@ -478,6 +479,7 @@ function	PictureList(props) {
 			}
 		})
 		set_selectedDays(_selectedDays);
+		set_update(update + 1);
 	}
 	function	onDayToggleClick(day) {
 		const	dayPictures = pictureList.filter(elem => elem.dateAsKey === day).map(e => e.uri);
@@ -518,6 +520,7 @@ function	PictureList(props) {
 			set_selectedDays(_selectedDays);
 			set_selectMode(true);
 		}
+		set_update(update + 1);
 	}
 	function	onSelectAll() {
 		const	_selectedDays = {};
@@ -527,12 +530,14 @@ function	PictureList(props) {
 		set_lastCheck(-1);
 		set_selectedPictures(_selectedPictures);
 		set_selectedDays(_selectedDays);
+		set_update(update + 1);
 	}
 	function	onUnselectAll() {
 		set_lastCheck(-1);
 		set_selectedPictures([]);
 		set_selectedDays({});
 		set_selectMode(false);
+		set_update(update + 1);
 	}
 
 	function	renderImage(element, elemIndex) {
@@ -598,7 +603,6 @@ function	PictureList(props) {
 				onUnselectAll={onUnselectAll}
 				len={selectedPictures.length} />
 			<InfiniteList
-			update={update}
 				set_infiniteListHeight={set_infiniteListHeight}
 				renderChildren={renderImage}
 				renderDaySeparator={renderDaySeparator}
