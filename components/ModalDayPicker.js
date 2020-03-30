@@ -5,7 +5,7 @@
 ** @Filename:				ModalDayPicker.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 22:53:27
+** @Last modified time:		Tuesday 24 March 2020 - 18:59:17
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -58,10 +58,10 @@ const	Modal = styled.div`
 				box-sizing: border-box;
 				& > h1 {
 					font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-					font-size: 32px;
+					font-size: 20px;
 					color: #FFFFFF;
 					margin-top: 32px;
-					margin-bottom: 32px;
+					margin-bottom: 16px;
 					background: transparent;
 				}
 			}

@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 12:16:14
+** @Last modified time:		Monday 23 March 2020 - 19:48:48
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -48,8 +48,6 @@ const	Background = styled.div`
 `;
 const	CardContainer = styled.div`
 	contain: layout;
-	width: ${props => `${props.width - 4}px`};
-	height: ${props => `${props.height - 4}px`};
 	margin: 8px;
 	cursor: pointer;
 	position: relative;
@@ -162,7 +160,6 @@ function	PhotoCardWidth(props) {
 		}
 	}, [props.width])
 
-
 	useIntersectionObserver({
 		target: imageRef,
 		onIntersect: ([{isIntersecting}], observerElement) => {
@@ -180,8 +177,7 @@ function	PhotoCardWidth(props) {
 	return (
 		<CardContainer
 			key={props.uri}
-			height={height}
-			width={width}
+			style={{width: width - 4, height: height -4}}
 			onClick={props.isSelectMode ? props.onToggle : props.onClick}>
 			<Toggle
 				isSelectMode={props.isSelectMode}

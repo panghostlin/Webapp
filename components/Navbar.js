@@ -5,7 +5,7 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 19:55:57
+** @Last modified time:		Saturday 14 March 2020 - 13:35:38
 *******************************************************************************/
 
 import	React						from	'react';
@@ -22,6 +22,8 @@ import	GgProfile					from	'../Icons/Profile';
 import	GgTime						from	'../Icons/Time';
 import	GgCheckbox					from	'../Icons/Checkbox';
 import	GgCoverTemplate				from	'../Icons/CoverTemplate';
+import	GgRotateRight				from	'../Icons/RotateRight';
+import	GgRotateLeft				from	'../Icons/RotateLeft';
 
 const	backgroundColor = '#191c28';
 const	backgroundAltColor = '#1e2331';
@@ -131,39 +133,52 @@ function	ActionBar(props) {
 			<Menu>
 				<MenuItem
 					noSpaceLeft
-					content={'Annuler'}
-					onClick={props.onCancel}>
-					<GgClose />
-				</MenuItem>
-
-				<Text>
-					{`${props.len || 0} photo${props.len > 1 ? 's' : ''} sélectionnée${props.len > 1 ? 's' : ''}`}
-				</Text>
-
-				<MenuItem
-					style={{marginLeft: 'auto'}}
 					content={'Select all'}
 					onClick={props.allPictureSelected ? props.onUnselectAll : props.onSelectAll}>
 					<GgCheckbox checked={props.allPictureSelected} />
 				</MenuItem>
 				<MenuItem
+					noSpaceLeft
+					content={'Annuler'}
+					onClick={props.onCancel}>
+					<GgClose />
+				</MenuItem>
+				<Text>
+					{`${props.len || 0} photo${props.len > 1 ? 's' : ''} sélectionnée${props.len > 1 ? 's' : ''}`}
+				</Text>
+
+
+				<MenuItem
+					style={{marginLeft: 'auto'}}
 					content={'Change date'}
 					onClick={props.onChangeDate}>
 					<GgTime />
 				</MenuItem>
+
 				<MenuItem
-					content={'Ajouter à un album'}
+					content={'Rotate Left'}
+					onClick={() => props.onRotate('left')}>
+					<GgRotateLeft />
+				</MenuItem>
+				<MenuItem
+					content={'Rotate right'}
+					onClick={() => props.onRotate('right')}>
+					<GgRotateRight />
+				</MenuItem>
+
+				<MenuItem
+					content={'Add to album'}
 					onClick={props.onAddToAlbum}>
 					<GgAdd />
 				</MenuItem>
 				{props.albumID && <MenuItem
-					content={'Définir en tant que photos de couverture'}
+					content={'Set as cover picture'}
 					onClick={props.onSetCover}>
 					<GgCoverTemplate />
 				</MenuItem>}
 				<MenuItem
 					noSpaceRight
-					content={'Supprimer'}
+					content={'Delete'}
 					onClick={() => props.onDeletePicture()}>
 					<GgTrash />
 				</MenuItem>

@@ -5,7 +5,7 @@
 ** @Filename:				Buttons.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 15:52:21
+** @Last modified time:		Tuesday 24 March 2020 - 19:04:01
 *******************************************************************************/
 
 import	styled			from	'styled-components';
@@ -18,7 +18,7 @@ const	DefaultButton = styled.button`
 	border-radius: 4px;
 	cursor: ${props => props.disabled ? 'default' : 'pointer'};
 	box-sizing: border-box;
-	padding: 16px 32px;
+	padding: 8px 16px;
 	border: none;
 	width: 100%;
 	margin-top: 8px;
@@ -29,13 +29,22 @@ const	DefaultButton = styled.button`
 
 
 const	PrimaryButton = styled(DefaultButton)`
-	background-color: ${props => props.disabled ? '#9D9D9D' : '#B5B7DF'};
+	background-color: ${props => props.disabled ? '#9D9D9D' : '#EC407A'};
 	color: #FFFFFF;
 	&:hover {
-		background-color: ${props => props.disabled ? '#9D9D9D' : '#B5B7DF80'};
+		background-color: ${props => props.disabled ? '#9D9D9D' : '#EC407A80'};
 		color: #FFFFFF;
 	}
 
 `;
 
-export {PrimaryButton};
+const	TextButton = styled(DefaultButton)`
+	display: flex;
+	align-items: center;
+	text-align: center;
+	text-transform: uppercase;
+	color: #98A7B9;
+	font-weight: normal;
+`
+
+export {PrimaryButton, TextButton};

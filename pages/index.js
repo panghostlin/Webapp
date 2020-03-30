@@ -5,10 +5,11 @@
 ** @Filename:				index.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 12:11:50
+** @Last modified time:		Monday 23 March 2020 - 19:39:04
 *******************************************************************************/
 
 import	React, {useState}		from	'react';
+import	Router					from	'next/router';
 import	styled					from	'styled-components';
 import	Input, {InputLabel}		from	'../components/Input';
 import	{PrimaryButton}			from	'../components/Buttons';
@@ -250,7 +251,7 @@ function	LoginForm(props) {
 
 				Crypto.RetrievePemKeysFromPassword(password, Crypto.FromBase64(keys.PrivateKey), Crypto.FromBase64(keys.PrivateSalt), Crypto.FromBase64(keys.PrivateIV)).then((decryptedPrivateKey) => {
 					setSessionsKey(decryptedPrivateKey, Crypto.FromBase64(keys.PublicKey))
-					props.router.push('/gallery')
+					Router.push('/gallery')
 				})
 
 				return;

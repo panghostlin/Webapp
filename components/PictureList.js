@@ -5,15 +5,16 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 14 March 2020 - 12:43:04
+** @Last modified time:		Monday 30 March 2020 - 13:41:50
 *******************************************************************************/
 
-import	React, {useState, useEffect, useLayoutEffect}	from	'react';
+import	React, {useState, useEffect, forwardRef, useImperativeHandle}	from	'react';
 import	styled							from	'styled-components';
 import	PhotoCardWidth					from	'./PhotoCardWidth';
 import	InfiniteList					from	'./InfiniteList';
 import	ModalAlbumSelection				from	'./ModalAlbumSelection';
 import	ModalDayPicker					from	'./ModalDayPicker';
+import	ModalConfirmation				from	'./ModalConfirmation';
 import	ToastUpload						from	'./ToastUpload';
 import	ToastSuccess					from	'./ToastSuccess';
 import	PictureLightroom				from	'./PictureLightroom';
@@ -22,7 +23,6 @@ import	Timebar							from	'./Timebar';
 import	{ActionBar}						from	'./Navbar';
 import	* as API						from	'../utils/API';
 import	useKeyPress						from	'../hooks/useKeyPress';
-import	useEffectOnce					from	'../hooks/useEffectOnce';
 import	convertToMoment					from	'../utils/ConvertDate';
 import	* as Worker						from	'../utils/Worker';
 
@@ -80,9 +80,16 @@ const	StyledDate = styled.div`
 
 `;
 
-function	Uploader(props) {
+const Uploader = forwardRef((props, ref) => {
+	useImperativeHandle(ref, () => ({
+		Reupload(oldWorker, index, files, fileUUID) {
+			Reupload(oldWorker, index, files, fileUUID);
+		}
+	}));
+
 	let		cryptoPrivateKey = null;
 	let		cryptoPublicKey = null;
+	const	quality = 1; //0.8
 	const	[uploader, set_uploader] = useState(false);
 	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
 	const	[uploaderLength, set_uploaderLength] = useState(0);
@@ -91,53 +98,15 @@ function	Uploader(props) {
 	const	[uploaderCurrentBlobURL, set_uploaderCurrentBlobURL] = useState(null);
 	const	imgref = React.useRef(null);
 
-	/**************************************************************************
-	**	The pictureCompress function takes an image as a file and resize it
-	**	to the max size of 16 mega pixels
-	**************************************************************************/
-	function	PictureCompress(file, callback) {
-		const fileName = file.name;
-		const reader = new FileReader();
-
-		reader.readAsDataURL(file);
-		reader.onload = event => {
-			const img = new Image();
-			img.src = event.target.result;
-			img.name = fileName;
-			img.onload = (e) => {
-				if (e.target.width * e.target.height > 16000000) {
-					const	imageOriginalWidth = e.target.width
-					const	imageOriginalHeight = e.target.height
-
-					const	hvRatio = imageOriginalWidth / imageOriginalHeight
-					const	vhRatio = imageOriginalHeight / imageOriginalWidth
-
-					const	imageHvRatio = 16000000 * hvRatio
-					const	imageVhRatio = 16000000 * vhRatio
-
-					const	newWidth = Math.sqrt(imageHvRatio)
-					const	newHeight = Math.sqrt(imageVhRatio)
-
-					const canvas = document.createElement('canvas');
-					canvas.width = newWidth;
-					canvas.height = newHeight;
-
-					const ctx = canvas.getContext('2d');
-					ctx.drawImage(img, 0, 0, newWidth, newHeight);
-					canvas.toBlob(blob => callback(blob), file.type, 0.85);
-				} else {
-					callback(file, event.target.result);
-				}
-			}
-		};
-	}
-
 	function	CreateOriginalImage(objectURL) {
 		return new Promise((resolve) => {
 			const img = imgref.current;
 
 			img.onload = function(e) {
 				resolve(img);
+			}
+			img.onerror = function(message) {
+				console.log(message)
 			}
 			img.src = objectURL
 		});
@@ -151,7 +120,7 @@ function	Uploader(props) {
 			const	c = canvas.getContext('2d');
 
 			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, rWidth, rHeight);
-			canvas.convertToBlob({type: 'image/jpeg', quality: 0.8}).then((blob) => {
+			canvas.convertToBlob({type: 'image/jpeg', quality}).then((blob) => {
 				blob.arrayBuffer().then((arrayBuffer) => {
 					resolve({data: arrayBuffer, width: rWidth, height: rHeight});
 				})
@@ -172,7 +141,7 @@ function	Uploader(props) {
 			const	c = canvas.getContext('2d');
 
 			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, newWidth, newHeight);
-			canvas.convertToBlob({type: 'image/jpeg', quality: 0.8}).then((blob) => {
+			canvas.convertToBlob({type: 'image/jpeg', quality}).then((blob) => {
 				blob.arrayBuffer().then((arrayBuffer) => {
 					resolve({data: arrayBuffer, width: newWidth, height: newHeight});
 				})
@@ -269,6 +238,7 @@ function	Uploader(props) {
 		set_uploaderCurrentBlobURL(imgObject)
 
 		API.WSCreateChunkPicture(
+			undefined,
 			(UUID) => {
 				const	options = {
 					fileUUID: UUID,
@@ -277,6 +247,81 @@ function	Uploader(props) {
 					name: file.name,
 					lastModified: file.lastModified,
 					type: file.type
+				};
+				const	versions = {file, arrayBuffer: fileAsArrayBuffer, image: fileAsImg};
+				performWorkerUpload(currentWorker, options, versions)
+			},
+			(response) => {
+				if (response.Step === 4) {
+					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
+						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
+
+						props.set_pictureList(_prev => [..._prev, response.Picture])
+						set_uploaderCurrentIndex(index => index + 1);
+						set_uploaderCurrentStep(0);
+						set_uploaderUpdate(_prev => _prev + 1);
+						onDropFile(currentWorker, index + 1, files);
+					} else {
+						console.error(`ERROR WITH ${index}`);
+						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
+					}
+				} else {
+					set_uploaderCurrentStep(response.Step)
+				}	
+			}
+		);
+	}
+
+	async function	Reupload(oldWorker, index, files, fileUUID) {
+		if (oldWorker)
+			Worker.terminate(oldWorker)
+
+		if (index >= files.length) {
+			set_uploader(false);
+			set_uploaderLength(0);
+			set_uploaderCurrentIndex(0);
+			set_uploaderCurrentStep(0);
+			set_uploaderCurrentBlobURL(null);
+			return;
+		}
+		const	currentWorker = Worker.register();
+		const	file = files[index];
+
+		/* ********************************************************************
+		**	Let's get the keys if we do not have them
+		******************************************************************** */
+		if (cryptoPublicKey === null) {
+			const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
+			cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
+		}
+		if (cryptoPrivateKey === null) {
+			const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
+			cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
+		}
+		
+		/* ********************************************************************
+		**	Now, for each image, we need to :
+		**	- Generate a secret key
+		**	- Generate an IV
+		**	- Encrypt the image
+		******************************************************************** */
+		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
+		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
+		const	fileAsImg = await CreateOriginalImage(imgObject); //error here
+		set_uploader(true);
+		set_uploaderCurrentBlobURL(imgObject)
+
+		API.WSCreateChunkPicture(
+			fileUUID,
+			(UUID) => {
+				const	options = {
+					fileUUID: UUID,
+					fileAlbumID: props.albumID,
+					cryptoPublicKey,
+					name: file.name,
+					lastModified: file.lastModified,
+					type: file.type,
+					isReupload: true
 				};
 				const	versions = {file, arrayBuffer: fileAsArrayBuffer, image: fileAsImg};
 				performWorkerUpload(currentWorker, options, versions)
@@ -322,7 +367,8 @@ function	Uploader(props) {
 				step={uploaderCurrentStep} />
 		</>
 	);
-}
+});
+
 
 function	PictureList(props) {
 	const	[update, set_update] = useState(0);
@@ -339,12 +385,17 @@ function	PictureList(props) {
 	const	[changeDateModal, set_changeDateModal] = useState(false);
 	const	[successToast, set_successToast] = useState(false);
 	
+	const	[modalConfirmationStatus, set_modalConfirmationStatus] = useState(false);
+	const	[pendingAction, set_pendingAction] = useState(undefined);
+
 	const	[lightRoom, set_lightRoom] = useState(false);
 	const	[lightRoomIndex, set_lightRoomIndex] = useState(0);
 	
 	const	isShift = useKeyPress('Shift');
 	const	[lastCheck, set_lastCheck] = useState(-1);
 	const	[infiniteListHeight, set_infiniteListHeight] = useState(0);
+	const	imgref = React.useRef(null);
+	const	uploaderRef = React.useRef(null);
 
 	const	domElements = [];
 
@@ -539,6 +590,57 @@ function	PictureList(props) {
 		set_selectMode(false);
 		set_update(update + 1);
 	}
+	function	onRotate(direction) {
+		selectedPictures.forEach(async (each) => {
+			let		image = await API.GetImage(each, null, 'original')
+			let		imageToRotate = new Image();
+
+			imageToRotate.onload = function() {
+				URL.revokeObjectURL(image.src)
+				const	canvas = new OffscreenCanvas(imageToRotate.width, imageToRotate.height);
+				const	c = canvas.getContext('2d');
+				let		cw = imageToRotate.width;
+				let		ch = imageToRotate.height;
+
+				canvas.width = ch;
+				canvas.height = cw;
+				cw = canvas.width;
+				ch = canvas.height;
+
+				c.save();
+				c.translate(cw, ch / cw);
+				if (direction === 'left') {
+					c.rotate(-Math.PI / 2);
+					c.drawImage(imageToRotate, -ch, -cw);
+				} else {
+					c.rotate(Math.PI / 2);
+					c.drawImage(imageToRotate, 0, 0);
+				}
+				c.restore();
+
+				// imageToRotate = null;
+				image = null;
+
+				canvas.convertToBlob({type: 'image/jpeg', quality: 1}).then((blob) => {
+					// imgref.current.src = URL.createObjectURL(blob);
+					// imgref.current.onload = null
+
+					const	file = new File([blob], '');
+					file.width = imageToRotate.height
+					file.height = imageToRotate.width
+
+					uploaderRef.current.Reupload(null, 0, [file], each)
+
+
+
+					// blob.arrayBuffer().then((arrayBuffer) => {
+					// 	console.log({data: arrayBuffer, width: imageToRotate.width, height: imageToRotate.height});
+					// })
+				})
+			}
+			imageToRotate.src = image
+		})
+	}
 
 	function	renderImage(element, elemIndex) {
 		return (
@@ -586,6 +688,9 @@ function	PictureList(props) {
 
 	return (
 		<div>
+			<div style={{width: 500, maxHeight: 500}}>
+				<img id={'image'} ref={imgref} style={{opacity: 1, pointerEvent: 'none', objectFit: 'cover', overflow: 'scroll'}} />
+				</div>
 			<ActionBar
 				isEnabled={selectMode}
 				allPictureSelected={selectMode && pictureList.length === selectedPictures.length}
@@ -601,6 +706,10 @@ function	PictureList(props) {
 				onSetCover={onSetAlbumCover}
 				onSelectAll={onSelectAll}
 				onUnselectAll={onUnselectAll}
+				onRotate={(direction) => {
+					set_pendingAction(() => () => onRotate(direction));
+					set_modalConfirmationStatus(true)
+				}}
 				len={selectedPictures.length} />
 			<InfiniteList
 				set_infiniteListHeight={set_infiniteListHeight}
@@ -646,6 +755,23 @@ function	PictureList(props) {
 				}}
 				selectedObject={mappedPictureList[selectedPictures[0]]}
 				selected={selectedPictures} />
+			<ModalConfirmation
+				isOpen={true || modalConfirmationStatus}
+				onClose={() => {
+					set_selectedPictures([]);
+					set_selectedDays({});
+					set_selectMode(false);
+					set_pendingAction(undefined);
+				}}
+				onConfirm={() => {
+					set_modalConfirmationStatus(false);
+					pendingAction();
+					set_selectedPictures([]);
+					set_selectedDays({});
+					set_selectMode(false);
+				}}
+				text={'Are you sure you want to rotate these 5 images?'}
+			/>
 			<Timebar
 				data={timelineData}
 			/>
@@ -654,6 +780,7 @@ function	PictureList(props) {
 				onClose={() => set_successToast(false)}
 				status={'Les photos de couverture de l\'album ont été mises à jour'} />
 			<Uploader
+				ref={uploaderRef}
 				memberPublicKey={props.memberPublicKey}
 				albumID={props.albumID}
 				set_pictureList={props.set_pictureList}

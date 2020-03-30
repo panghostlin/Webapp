@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 21:56:08
+** @Last modified time:		Tuesday 24 March 2020 - 18:01:13
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -109,8 +109,13 @@ export	const	upload = (url, file, UUID, albumID) => {
 
 export	const	CreateChunkPicture = (UUID, file, albumID) => upload('uploadPicture/', file, UUID, albumID);
 
-export	const	WSCreateChunkPicture = (performAction, onMessage) => {
-	const	socket = new WebSocket(`${WSAPI}/ws/uploadPicture/`);
+export	const	WSCreateChunkPicture = (UUID = undefined, performAction, onMessage) => {
+	let	uri = `${WSAPI}/ws/uploadPicture/`
+
+	if (UUID)
+		uri += UUID
+
+	const	socket = new WebSocket(uri);
 	socket.onmessage = (e) => {
 		if (onMessage) {
 			const	response = JSON.parse(e.data);

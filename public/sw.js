@@ -39,6 +39,7 @@ function	GetBinary(file) {
 }
 function	GetFile(file) {
 	const	fileReader = new FileReader();
+
 	return new Promise((resolve, reject) => {
 		fileReader.onerror = () => {
 			fileReader.abort();
@@ -91,6 +92,7 @@ function	ChunckSender(chunk, chunkID, parts, file, options) {
 	formData.append('encryptionKey', file.Key);
 	formData.append('encryptionIV', file.IV);
 	formData.append('isLast', file.IsLast);
+	formData.append('isReupload', options.isReupload);
 
 	return (
 		fetch(`${API}/uploadPicture/`, {
