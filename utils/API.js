@@ -5,17 +5,17 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 01 April 2020 - 12:08:08
+** @Last modified time:		Tuesday 14 April 2020 - 16:29:33
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
 import	* as Crypto from './Crypto';
 
-// export const	API = `https://api.${process.env.BACKEND}`;
-// const	WSAPI = `wss://api.${process.env.BACKEND}`;
+export const	API = `https://api.${process.env.BACKEND}`;
+const	WSAPI = `wss://api.${process.env.BACKEND}`;
 
-export const	API = `http://localhost:8000`;
-const	WSAPI = `ws://localhost:8000`;
+// export const	API = `http://localhost:8000`;
+// const	WSAPI = `ws://localhost:8000`;
 
 const	performFetch = (url, method, args, header) =>
 {
