@@ -1,5 +1,6 @@
 
-const	API = `http://localhost:8000`;
+// const	API = `http://localhost:8000`;
+const	API = `https://api.${process.env.BACKEND}`;
 
 /* Crypto helpers */
 function _arrayBufferToBase64(buffer) {
