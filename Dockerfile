@@ -7,10 +7,7 @@ COPY package*.json ./
 RUN yarn
 COPY . .
 
-# Building app
-# RUN npm run build
+RUN export IS_DEV=$IS_DEV
+CMD ["sh", "start.sh"]
 
-# Running the app
-# CMD ["npm", "start"]
-CMD ["yarn", "run", "dev"]
 EXPOSE 3000 49153

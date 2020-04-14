@@ -5,20 +5,14 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 17:29:29
+** @Last modified time:		Tuesday 14 April 2020 - 19:06:51
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
 import	* as Crypto from './Crypto';
 
-export const	API = `https://api.panghostlin.com`;
-const	WSAPI = `wss://api.panghostlin.com`;
-
-// export const	API = `https://api.${process.env.BACKEND}`;
-// const	WSAPI = `wss://api.${process.env.BACKEND}`;
-
-// export const	API = `http://localhost:8000`;
-// const	WSAPI = `ws://localhost:8000`;
+export const API = process.env.isDev ? `http://localhost:8000` : `https://api.${process.env.BACKEND}`;
+const WSAPI = process.env.isDev ? `ws://localhost:8000` : `wss://api.${process.env.BACKEND}`;
 
 const	performFetch = (url, method, args, header) =>
 {

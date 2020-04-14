@@ -7,7 +7,8 @@
     "devOnly": "next",
     "build": "next build",
     "start": "next start",
-    "now-build": "next build"
+    "now-build": "next build",
+    "buildAndStart": "next build && next start"
   },
   "dependencies": {
     "crypto-js": "^4.0.0",
