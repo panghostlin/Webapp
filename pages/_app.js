@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 23:04:20
+** @Last modified time:		Tuesday 14 April 2020 - 23:21:00
 *******************************************************************************/
 
 import	React, {useState, useRef, forwardRef, useImperativeHandle}		from	'react';
@@ -42,12 +42,11 @@ const	Toaster = forwardRef((props, ref) => {
 });
 
 function	MyApp(props) {
+	const	{Component, pageProps} = props;
 	const	router = useRouter();
 	const	[memberPublicKey, set_memberPublicKey] = useState(null);
 	const	[isDragNDrop, set_isDragNDrop] = useState(false);
 	const	toasterRef = useRef(null);
-
-	const	{Component, pageProps} = props;
 
 	return (
 		<WithTheme>
@@ -60,7 +59,7 @@ function	MyApp(props) {
 					set_isDragNDrop={set_isDragNDrop}
 					element={props.element}
 					memberPublicKey={memberPublicKey}
-					toasterRef={toasterRef.current}
+					toasterRef={toasterRef}
 					{...pageProps} />
 			</div>
 			<Toaster ref={toasterRef} />

@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 23:10:27
+** @Last modified time:		Tuesday 14 April 2020 - 23:22:45
 *******************************************************************************/
 
 import	React, {useState, useEffect, forwardRef, useImperativeHandle}	from	'react';
@@ -200,7 +200,7 @@ const	Uploader = forwardRef((props, ref) => {
 		Worker.terminate(oldWorker)
 
 		if (index >= files.length) {
-			props.toasterRef.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
+			props.toasterRef.current.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
 			return;
 		}
 		const	currentWorker = Worker.register();
@@ -227,7 +227,7 @@ const	Uploader = forwardRef((props, ref) => {
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
-		props.toasterRef.toggleToast(true, {
+		props.toasterRef.current.toggleToast(true, {
 			preview: imgObject,
 			total: files.length,
 			current: index,
@@ -260,7 +260,7 @@ const	Uploader = forwardRef((props, ref) => {
 						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
 					}
 				} else {
-					props.toasterRef.toggleToast(true, {
+					props.toasterRef.current.toggleToast(true, {
 						preview: imgObject,
 						total: files.length,
 						current: index,
@@ -276,9 +276,10 @@ const	Uploader = forwardRef((props, ref) => {
 			Worker.terminate(oldWorker)
 
 		if (index >= files.length) {
-			props.toasterRef.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
+			props.toasterRef.current.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
 			return;
 		}
+
 		const	currentWorker = Worker.register();
 		const	file = files[index];
 
@@ -303,7 +304,7 @@ const	Uploader = forwardRef((props, ref) => {
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject); //error here
-		props.toasterRef.toggleToast(true, {preview: imgObject, total: files.length, current: index, step: 0})
+		props.toasterRef.current.toggleToast(true, {preview: imgObject, total: files.length, current: index, step: 0})
 
 
 		API.WSCreateChunkPicture(
@@ -332,7 +333,7 @@ const	Uploader = forwardRef((props, ref) => {
 						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
 					}
 				} else {
-					props.toasterRef.toggleToast(true, {
+					props.toasterRef.current.toggleToast(true, {
 						preview: imgObject,
 						total: files.length,
 						current: index,
@@ -344,6 +345,8 @@ const	Uploader = forwardRef((props, ref) => {
 	}
 
 	function SetUploader() {
+		props.toasterRef.current.toggleToast(true, {total: -1, current: -1, step: 0});
+
 		// set_uploaderCurrentIndex(-1);
 		// set_uploader(true);
 	}
