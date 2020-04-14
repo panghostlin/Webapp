@@ -1,6 +1,6 @@
 
 // const	API = `http://localhost:8000`;
-const	API = `https://api.${process.env.BACKEND}`;
+const	API = `https://api.panghostlin.com`;
 
 /* Crypto helpers */
 function _arrayBufferToBase64(buffer) {
