@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 01 April 2020 - 12:24:04
+** @Last modified time:		Tuesday 14 April 2020 - 23:10:27
 *******************************************************************************/
 
 import	React, {useState, useEffect, forwardRef, useImperativeHandle}	from	'react';
@@ -15,7 +15,6 @@ import	InfiniteList					from	'./InfiniteList';
 import	ModalAlbumSelection				from	'./ModalAlbumSelection';
 import	ModalDayPicker					from	'./ModalDayPicker';
 import	ModalConfirmation				from	'./ModalConfirmation';
-import	ToastUpload						from	'./ToastUpload';
 import	ToastSuccess					from	'./ToastSuccess';
 import	PictureLightroom				from	'./PictureLightroom';
 import	DragNDrop						from	'./DragNDrop';
@@ -94,12 +93,6 @@ const	Uploader = forwardRef((props, ref) => {
 	let		cryptoPrivateKey = null;
 	let		cryptoPublicKey = null;
 	const	quality = 1; //0.8
-	const	[uploader, set_uploader] = useState(false);
-	const	[uploaderUpdate, set_uploaderUpdate] = useState(0);
-	const	[uploaderLength, set_uploaderLength] = useState(0);
-	const	[uploaderCurrentIndex, set_uploaderCurrentIndex] = useState(0);
-	const	[uploaderCurrentStep, set_uploaderCurrentStep] = useState(0);
-	const	[uploaderCurrentBlobURL, set_uploaderCurrentBlobURL] = useState(null);
 	const	imgref = React.useRef(null);
 
 	function	CreateOriginalImage(objectURL) {
@@ -207,11 +200,7 @@ const	Uploader = forwardRef((props, ref) => {
 		Worker.terminate(oldWorker)
 
 		if (index >= files.length) {
-			set_uploader(false);
-			set_uploaderLength(0);
-			set_uploaderCurrentIndex(0);
-			set_uploaderCurrentStep(0);
-			set_uploaderCurrentBlobURL(null);
+			props.toasterRef.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
 			return;
 		}
 		const	currentWorker = Worker.register();
@@ -238,8 +227,12 @@ const	Uploader = forwardRef((props, ref) => {
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
-		set_uploader(true);
-		set_uploaderCurrentBlobURL(imgObject)
+		props.toasterRef.toggleToast(true, {
+			preview: imgObject,
+			total: files.length,
+			current: index,
+			step: 0
+		});
 
 		API.WSCreateChunkPicture(
 			undefined,
@@ -261,16 +254,18 @@ const	Uploader = forwardRef((props, ref) => {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
 
 						props.set_pictureList(_prev => [..._prev, response.Picture])
-						set_uploaderCurrentIndex(index => index + 1);
-						set_uploaderCurrentStep(0);
-						set_uploaderUpdate(_prev => _prev + 1);
 						onDropFile(currentWorker, index + 1, files);
 					} else {
 						console.error(`ERROR WITH ${index}`);
 						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
 					}
 				} else {
-					set_uploaderCurrentStep(response.Step)
+					props.toasterRef.toggleToast(true, {
+						preview: imgObject,
+						total: files.length,
+						current: index,
+						step: response.Step
+					})
 				}	
 			}
 		);
@@ -279,15 +274,9 @@ const	Uploader = forwardRef((props, ref) => {
 	async function	Reupload(oldWorker, index, files, fileUUID) {
 		if (oldWorker)
 			Worker.terminate(oldWorker)
-		else
-			set_uploaderCurrentIndex(0);
 
 		if (index >= files.length) {
-			set_uploader(false);
-			set_uploaderLength(0);
-			set_uploaderCurrentIndex(0);
-			set_uploaderCurrentStep(0);
-			set_uploaderCurrentBlobURL(null);
+			props.toasterRef.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
 			return;
 		}
 		const	currentWorker = Worker.register();
@@ -314,8 +303,8 @@ const	Uploader = forwardRef((props, ref) => {
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject); //error here
-		set_uploader(true);
-		set_uploaderCurrentBlobURL(imgObject)
+		props.toasterRef.toggleToast(true, {preview: imgObject, total: files.length, current: index, step: 0})
+
 
 		API.WSCreateChunkPicture(
 			fileUUID,
@@ -336,26 +325,27 @@ const	Uploader = forwardRef((props, ref) => {
 				if (response.Step === 4) {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
-
 						props.set_pictureList(_prev => [..._prev, response.Picture])
-						set_uploaderCurrentIndex(index => index + 1);
-						set_uploaderCurrentStep(0);
-						set_uploaderUpdate(_prev => _prev + 1);
 						onDropFile(currentWorker, index + 1, files);
 					} else {
 						console.error(`ERROR WITH ${index}`);
 						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
 					}
 				} else {
-					set_uploaderCurrentStep(response.Step)
+					props.toasterRef.toggleToast(true, {
+						preview: imgObject,
+						total: files.length,
+						current: index,
+						step: response.Step
+					});
 				}	
 			}
 		);
 	}
 
 	function SetUploader() {
-		set_uploaderCurrentIndex(-1);
-		set_uploader(true);
+		// set_uploaderCurrentIndex(-1);
+		// set_uploader(true);
 	}
 
 	return (
@@ -367,15 +357,8 @@ const	Uploader = forwardRef((props, ref) => {
 				onDrop={(event) => {
 					const	currentWorker = Worker.register();
 					props.set_isDragNDrop(false);
-					set_uploaderLength(event.dataTransfer.files.length)
 					onDropFile(currentWorker, 0, event.dataTransfer.files)
 				}} />
-			<ToastUpload
-				open={uploader}
-				fileAsBlobURL={uploaderCurrentBlobURL}
-				total={uploaderLength}
-				current={uploaderCurrentIndex}
-				step={uploaderCurrentStep} />
 		</>
 	);
 });
@@ -864,6 +847,7 @@ function	PictureList(props) {
 				status={'Les photos de couverture de l\'album ont été mises à jour'} />
 			<Uploader
 				ref={uploaderRef}
+				toasterRef={props.toasterRef}
 				memberPublicKey={props.memberPublicKey}
 				albumID={props.albumID}
 				set_pictureList={props.set_pictureList}
