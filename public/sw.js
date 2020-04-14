@@ -1,7 +1,3 @@
-
-// const	API = `http://localhost:8000`;
-const	API = `https://api.panghostlin.com`;
-
 /* Crypto helpers */
 function _arrayBufferToBase64(buffer) {
 	var binary = '';
@@ -77,7 +73,7 @@ function	GetImage(image, options) {
 }
 
 /* IMAGE UPLOAD */
-function	ChunckSender(chunk, chunkID, parts, file, options) {
+function	ChunckSender(API, chunk, chunkID, parts, file, options) {
 	let		formData  = new FormData();
 	formData.append('file', new Blob([chunk]), file.name);
 	formData.append('fileUUID', options.fileUUID);
@@ -106,7 +102,7 @@ function	ChunckSender(chunk, chunkID, parts, file, options) {
 		})
 	);
 }
-function	ChunkUploader(file, options, eventPort) {
+function	ChunkUploader(API, file, options, eventPort) {
 	const	chunkSize = 16 * 64 * 1024; //1mo
 	const	chunksQuantity = Math.ceil(file.encryptedData.byteLength / chunkSize);
 	let		doneCount = 0;
@@ -121,7 +117,7 @@ function	ChunkUploader(file, options, eventPort) {
 		} else {
 			chunks = file.encryptedData.slice(currentByte, currentByte + chunkSize)
 		}
-		ChunckSender(chunks, currentIndex, chunksQuantity, file, options)
+		ChunckSender(API, chunks, currentIndex, chunksQuantity, file, options)
 		.then(() => {
 			doneCount++
 			if (doneCount === chunksQuantity)
@@ -131,7 +127,7 @@ function	ChunkUploader(file, options, eventPort) {
 	}
 }
 
-async function	UploadPicture(image, options, eventPort) {
+async function	UploadPicture(API, image, options, eventPort) {
 	let		encryptionData = null;
 	encryptionData = await EncryptData(image, options.cryptoPublicKey);
 	encryptionData.Width = options.width;
@@ -141,7 +137,7 @@ async function	UploadPicture(image, options, eventPort) {
 	encryptionData.IV = _arrayBufferToBase64(encryptionData.IV);
 	encryptionData.IsLast = options.isLast
 
-	ChunkUploader(encryptionData, options, eventPort)
+	ChunkUploader(API, encryptionData, options, eventPort)
 }
 
 self.addEventListener('message', async (event) => {
@@ -170,9 +166,11 @@ self.addEventListener('message', async (event) => {
 	else if (event.data.type === 'uploadPicture')
 	{
 		UploadPicture(
+			event.data.API,
 			event.data.file,
 			event.data.options,
 			event.ports[0]
 		);
 	}
 })
+
