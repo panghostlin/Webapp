@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 23:22:45
+** @Last modified time:		Tuesday 14 April 2020 - 23:31:22
 *******************************************************************************/
 
 import	React, {useState, useEffect, forwardRef, useImperativeHandle}	from	'react';
@@ -346,9 +346,6 @@ const	Uploader = forwardRef((props, ref) => {
 
 	function SetUploader() {
 		props.toasterRef.current.toggleToast(true, {total: -1, current: -1, step: 0});
-
-		// set_uploaderCurrentIndex(-1);
-		// set_uploader(true);
 	}
 
 	return (
@@ -848,14 +845,13 @@ function	PictureList(props) {
 				isOpen={successToast}
 				onClose={() => set_successToast(false)}
 				status={'Les photos de couverture de l\'album ont été mises à jour'} />
-			<Uploader
+			{/* <Uploader
 				ref={uploaderRef}
 				toasterRef={props.toasterRef}
-				memberPublicKey={props.memberPublicKey}
 				albumID={props.albumID}
 				set_pictureList={props.set_pictureList}
 				isDragNDrop={props.isDragNDrop}
-				set_isDragNDrop={props.set_isDragNDrop} />
+				set_isDragNDrop={props.set_isDragNDrop} /> */}
 			{lightRoom && <PictureLightroom
 				onClose={() => set_lightRoom(false)}
 				onDeletePicture={e => onDeletePicture([e.uri])}

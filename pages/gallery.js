@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 22:57:00
+** @Last modified time:		Tuesday 14 April 2020 - 23:32:36
 *******************************************************************************/
 
 import	React, {useState, useEffect}		from	'react';
@@ -47,7 +47,6 @@ function Albums(props) {
 				<Container>
 					<PictureList
 						toasterRef={props.toasterRef}
-						memberPublicKey={props.memberPublicKey}
 						isDragNDrop={props.isDragNDrop}
 						set_isDragNDrop={props.set_isDragNDrop}
 						pictureList={pictureList}

@@ -5,7 +5,7 @@
 ** @Filename:				Worker.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 20:29:53
+** @Last modified time:		Wednesday 15 April 2020 - 00:22:35
 *******************************************************************************/
 
 import {API} from './API';

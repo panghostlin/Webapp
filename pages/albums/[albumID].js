@@ -5,7 +5,7 @@
 ** @Filename:				[albumID].js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 05 March 2020 - 13:57:46
+** @Last modified time:		Tuesday 14 April 2020 - 23:32:39
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -179,7 +179,6 @@ function Album(props) {
 			</TitleEditor>
 
 			<PictureList
-				memberPublicKey={props.memberPublicKey}
 				albumID={props.albumID}
 				isDragNDrop={props.isDragNDrop}
 				set_isDragNDrop={props.set_isDragNDrop}
