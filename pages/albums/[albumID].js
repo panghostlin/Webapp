@@ -5,7 +5,7 @@
 ** @Filename:				[albumID].js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 23:32:39
+** @Last modified time:		Wednesday 15 April 2020 - 01:14:28
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -93,7 +93,13 @@ function	convertToMoment(each) {
 	return `${year}-${month}-${day}`;
 }
 
-function Album(props) {
+const	Albums = React.forwardRef((props, ref) => {
+	React.useImperativeHandle(ref, () => ({
+		onUploaded(e) {
+			set_pictureList(e);
+		}
+	}));
+
 	const	[update, set_update] = useState(0);
 	const	[pictureList, set_pictureList] = useState([]);
 	const	[albumList, set_albumList] = useState([]);
@@ -191,12 +197,12 @@ function Album(props) {
 				status={successToastMessage} />
 		</Container>
 	);
-}
+});
 
 
-Album.getInitialProps = (all) => {
+Albums.getInitialProps = (all) => {
 	return {albumID: all.query.albumID};
 };
 
-export default Album;
+export default Albums;
 

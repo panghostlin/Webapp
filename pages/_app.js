@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 00:41:54
+** @Last modified time:		Wednesday 15 April 2020 - 01:21:52
 *******************************************************************************/
 
 import	React, {useState, useRef, forwardRef, useImperativeHandle}		from	'react';
@@ -133,11 +133,6 @@ const	Uploader = forwardRef((props, ref) => {
 	async function	performWorkerUpload(currentWorker, options, versions) {
 		if (true || 'user is not premium') {
 			const	original = await Create16mpxImage(versions.image);
-
-			console.log(currentWorker)
-			console.log(options)
-			console.log(versions)
-
 			
 			await Worker.postMessage(currentWorker, {
 				type: 'uploadPicture',
@@ -208,7 +203,7 @@ const	Uploader = forwardRef((props, ref) => {
 			(UUID) => {
 				const	options = {
 					fileUUID: UUID,
-					// fileAlbumID: props.albumID,
+					fileAlbumID: (props.router.pathname === '/albums/[albumID]' && props.router.query.albumID) || '',
 					cryptoPublicKey,
 					name: file.name,
 					lastModified: file.lastModified,
@@ -223,7 +218,7 @@ const	Uploader = forwardRef((props, ref) => {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
 
-						// props.set_pictureList(_prev => [..._prev, response.Picture])
+						props.onUploaded(_prev => [..._prev, response.Picture])
 						onUploadFile(currentWorker, index + 1, files);
 					} else {
 						console.error(`ERROR WITH ${index}`);
@@ -252,7 +247,6 @@ const	Uploader = forwardRef((props, ref) => {
 				isOpen={props.isDragNDrop}
 				onDragLeave={() => props.set_isDragNDrop(false)}
 				onDrop={(event) => {
-					// const	currentWorker = Worker.register();
 					props.set_isDragNDrop(false);
 					onUploadFile(undefined, 0, event.dataTransfer.files)
 				}} />
@@ -266,6 +260,7 @@ function	MyApp(props) {
 	const	[isDragNDrop, set_isDragNDrop] = useState(false);
 	const	toasterRef = useRef(null);
 	const	uploaderRef = useRef(null);
+	const	componentRef = useRef(null);
 
 	return (
 		<WithTheme>
@@ -274,6 +269,7 @@ function	MyApp(props) {
 				onDragEnter={() => set_isDragNDrop(true)}
 				style={{width: '100%', minHeight: '100vh'}}>
 				<Component
+					ref={componentRef}
 					isDragNDrop={isDragNDrop}
 					set_isDragNDrop={set_isDragNDrop}
 					element={props.element}
@@ -284,11 +280,10 @@ function	MyApp(props) {
 			<Uploader
 				ref={uploaderRef}
 				toasterRef={toasterRef}
-				albumID={props.albumID}
-				set_pictureList={props.set_pictureList}
-
+				router={router}
 				isDragNDrop={isDragNDrop}
-				set_isDragNDrop={set_isDragNDrop} />
+				set_isDragNDrop={set_isDragNDrop}
+				onUploaded={data => componentRef.current.onUploaded(data)} />
 		</WithTheme>
 	);
 }

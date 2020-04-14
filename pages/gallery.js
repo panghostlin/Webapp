@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 23:32:36
+** @Last modified time:		Wednesday 15 April 2020 - 01:12:58
 *******************************************************************************/
 
 import	React, {useState, useEffect}		from	'react';
@@ -15,7 +15,13 @@ import	* as API							from	'../utils/API';
 import	convertToMoment						from	'../utils/ConvertDate';
 import	{PageContainer, Section, Container}	from	'../style/Frame';
 
-function Albums(props) {
+const	Gallery = React.forwardRef((props, ref) => {
+	React.useImperativeHandle(ref, () => ({
+		onUploaded(e) {
+			set_pictureList(e);
+		}
+	}));
+
 	const	[pictureList, set_pictureList] = useState([]);
 	const	[albumList, set_albumList] = useState([]);
 	const	[isReady, set_isReady] = useState(false);
@@ -46,9 +52,6 @@ function Albums(props) {
 			<Section fluid background={'neutral'} paddingBottom={2}>
 				<Container>
 					<PictureList
-						toasterRef={props.toasterRef}
-						isDragNDrop={props.isDragNDrop}
-						set_isDragNDrop={props.set_isDragNDrop}
 						pictureList={pictureList}
 						set_pictureList={set_pictureList}
 						albumList={albumList} />
@@ -56,6 +59,6 @@ function Albums(props) {
 				</Section>
 		</PageContainer>
 	);
-}
+});
 
-export default Albums;
+export default Gallery;

@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 23:31:22
+** @Last modified time:		Wednesday 15 April 2020 - 00:56:02
 *******************************************************************************/
 
 import	React, {useState, useEffect, forwardRef, useImperativeHandle}	from	'react';
@@ -17,13 +17,11 @@ import	ModalDayPicker					from	'./ModalDayPicker';
 import	ModalConfirmation				from	'./ModalConfirmation';
 import	ToastSuccess					from	'./ToastSuccess';
 import	PictureLightroom				from	'./PictureLightroom';
-import	DragNDrop						from	'./DragNDrop';
 import	Timebar							from	'./Timebar';
 import	{ActionBar}						from	'./Navbar';
 import	useKeyPress						from	'../hooks/useKeyPress';
 import	* as API						from	'../utils/API';
 import	{convertToMoment, formatDate}	from	'../utils/ConvertDate';
-import	* as Worker						from	'../utils/Worker';
 import	{Row, Col}						from	'../style/Frame';
 
 const	Toggle = styled.div`
@@ -79,290 +77,6 @@ const	StyledDate = styled.div`
 	}
 
 `;
-
-const	Uploader = forwardRef((props, ref) => {
-	useImperativeHandle(ref, () => ({
-		Reupload(oldWorker, index, files, fileUUID) {
-			Reupload(oldWorker, index, files, fileUUID);
-		},
-		SetUploader() {
-			SetUploader();
-		}
-	}));
-
-	let		cryptoPrivateKey = null;
-	let		cryptoPublicKey = null;
-	const	quality = 1; //0.8
-	const	imgref = React.useRef(null);
-
-	function	CreateOriginalImage(objectURL) {
-		return new Promise((resolve) => {
-			const img = imgref.current;
-
-			img.onload = function(e) {
-				resolve(img);
-			}
-			img.onerror = function(message) {
-				console.log(message)
-			}
-			img.src = objectURL
-		});
-	};
-	function	CreateThumbnailImage(image, target) {
-		return new Promise((resolve) => {
-			const	ratio = Math.min(target / image.width, target / image.height);
-			const	rWidth = Math.round(image.width * ratio);
-			const	rHeight = Math.round(image.height * ratio);
-			const	canvas = new OffscreenCanvas(rWidth, rHeight);
-			const	c = canvas.getContext('2d');
-
-			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, rWidth, rHeight);
-			canvas.convertToBlob({type: 'image/jpeg', quality}).then((blob) => {
-				blob.arrayBuffer().then((arrayBuffer) => {
-					resolve({data: arrayBuffer, width: rWidth, height: rHeight});
-				})
-			})
-		});
-	}
-	function	Create16mpxImage(image) {
-		return new Promise((resolve) => {
-			const	imageOriginalWidth = image.width
-			const	imageOriginalHeight = image.height
-			const	hvRatio = imageOriginalWidth / imageOriginalHeight
-			const	vhRatio = imageOriginalHeight / imageOriginalWidth
-			const	imageHvRatio = 16000000 * hvRatio
-			const	imageVhRatio = 16000000 * vhRatio
-			const	newWidth = Math.sqrt(imageHvRatio)
-			const	newHeight = Math.sqrt(imageVhRatio)
-			const	canvas = new OffscreenCanvas(newWidth, newHeight);
-			const	c = canvas.getContext('2d');
-
-			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, newWidth, newHeight);
-			canvas.convertToBlob({type: 'image/jpeg', quality}).then((blob) => {
-				blob.arrayBuffer().then((arrayBuffer) => {
-					resolve({data: arrayBuffer, width: newWidth, height: newHeight});
-				})
-			})
-		});
-	}
-
-	async function	recursiveWorkerUpload(currentWorker, toProcess, index, options, versions) {
-		const	isLast = index === (toProcess.length - 1);
-		const	target = toProcess[index];
-		const	thumbnail = await CreateThumbnailImage(versions.image, target);
-		
-		await Worker.postMessage(currentWorker, {
-			type: 'uploadPicture',
-			file: thumbnail.data,
-			options: {
-				width: thumbnail.width,
-				height: thumbnail.height,
-				targetSize: target,
-				isLast,
-				...options
-			}
-		});
-		if (isLast)
-			return
-		recursiveWorkerUpload(currentWorker, toProcess, index + 1, options, versions)
-	}
-	async function	performWorkerUpload(currentWorker, options, versions) {
-		if (true || 'user is not premium') {
-			const	original = await Create16mpxImage(versions.image);
-			
-			await Worker.postMessage(currentWorker, {
-				type: 'uploadPicture',
-				file: original.data,
-				options: {
-					width: original.width,
-					height: original.height,
-					targetSize: 'original',
-					isLast: false,
-					...options
-				}
-			});
-		} else {
-			await Worker.postMessage(currentWorker, {
-				type: 'uploadPicture',
-				file: versions.arrayBuffer,
-				options: {
-					width: versions.image.width,
-					height: versions.image.height,
-					targetSize: 'original',
-					isLast: false,
-					...options
-				}
-			});
-		}
-		recursiveWorkerUpload(currentWorker, [1000, 500], 0, options, versions);
-	}
-	async function	onDropFile(oldWorker, index, files) {
-		Worker.terminate(oldWorker)
-
-		if (index >= files.length) {
-			props.toasterRef.current.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
-			return;
-		}
-		const	currentWorker = Worker.register();
-		const	file = files[index];
-
-		/* ********************************************************************
-		**	Let's get the keys if we do not have them
-		******************************************************************** */
-		if (cryptoPublicKey === null) {
-			const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
-			cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
-		}
-		if (cryptoPrivateKey === null) {
-			const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
-			cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
-		}
-		
-		/* ********************************************************************
-		**	Now, for each image, we need to :
-		**	- Generate a secret key
-		**	- Generate an IV
-		**	- Encrypt the image
-		******************************************************************** */
-		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
-		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
-		const	fileAsImg = await CreateOriginalImage(imgObject);
-		props.toasterRef.current.toggleToast(true, {
-			preview: imgObject,
-			total: files.length,
-			current: index,
-			step: 0
-		});
-
-		API.WSCreateChunkPicture(
-			undefined,
-			(UUID) => {
-				const	options = {
-					fileUUID: UUID,
-					fileAlbumID: props.albumID,
-					cryptoPublicKey,
-					name: file.name,
-					lastModified: file.lastModified,
-					type: file.type
-				};
-				const	versions = {file, arrayBuffer: fileAsArrayBuffer, image: fileAsImg};
-				performWorkerUpload(currentWorker, options, versions)
-			},
-			(response) => {
-				if (response.Step === 4) {
-					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
-						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
-
-						props.set_pictureList(_prev => [..._prev, response.Picture])
-						onDropFile(currentWorker, index + 1, files);
-					} else {
-						console.error(`ERROR WITH ${index}`);
-						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
-					}
-				} else {
-					props.toasterRef.current.toggleToast(true, {
-						preview: imgObject,
-						total: files.length,
-						current: index,
-						step: response.Step
-					})
-				}	
-			}
-		);
-	}
-
-	async function	Reupload(oldWorker, index, files, fileUUID) {
-		if (oldWorker)
-			Worker.terminate(oldWorker)
-
-		if (index >= files.length) {
-			props.toasterRef.current.toggleToast(false, {preview: null, total: 0, current: 0, step: 0})
-			return;
-		}
-
-		const	currentWorker = Worker.register();
-		const	file = files[index];
-
-		/* ********************************************************************
-		**	Let's get the keys if we do not have them
-		******************************************************************** */
-		if (cryptoPublicKey === null) {
-			const	publicKey = JSON.parse(sessionStorage.getItem(`Pub`))
-			cryptoPublicKey = await window.crypto.subtle.importKey("jwk", publicKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["encrypt"])
-		}
-		if (cryptoPrivateKey === null) {
-			const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
-			cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
-		}
-		
-		/* ********************************************************************
-		**	Now, for each image, we need to :
-		**	- Generate a secret key
-		**	- Generate an IV
-		**	- Encrypt the image
-		******************************************************************** */
-		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
-		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
-		const	fileAsImg = await CreateOriginalImage(imgObject); //error here
-		props.toasterRef.current.toggleToast(true, {preview: imgObject, total: files.length, current: index, step: 0})
-
-
-		API.WSCreateChunkPicture(
-			fileUUID,
-			(UUID) => {
-				const	options = {
-					fileUUID: UUID,
-					fileAlbumID: props.albumID,
-					cryptoPublicKey,
-					name: file.name,
-					lastModified: file.lastModified,
-					type: file.type,
-					isReupload: true
-				};
-				const	versions = {file, arrayBuffer: fileAsArrayBuffer, image: fileAsImg};
-				performWorkerUpload(currentWorker, options, versions)
-			},
-			(response) => {
-				if (response.Step === 4) {
-					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
-						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
-						props.set_pictureList(_prev => [..._prev, response.Picture])
-						onDropFile(currentWorker, index + 1, files);
-					} else {
-						console.error(`ERROR WITH ${index}`);
-						onDropFile(currentWorker, index + 1, files) //SKIP THE FAILURE
-					}
-				} else {
-					props.toasterRef.current.toggleToast(true, {
-						preview: imgObject,
-						total: files.length,
-						current: index,
-						step: response.Step
-					});
-				}	
-			}
-		);
-	}
-
-	function SetUploader() {
-		props.toasterRef.current.toggleToast(true, {total: -1, current: -1, step: 0});
-	}
-
-	return (
-		<>
-			<img id={'image'} ref={imgref} style={{opacity: 0, pointerEvent: 'none'}} />
-			<DragNDrop
-				isOpen={props.isDragNDrop}
-				onDragLeave={() => props.set_isDragNDrop(false)}
-				onDrop={(event) => {
-					const	currentWorker = Worker.register();
-					props.set_isDragNDrop(false);
-					onDropFile(currentWorker, 0, event.dataTransfer.files)
-				}} />
-		</>
-	);
-});
-
 
 const	Modals = forwardRef((props, ref) => {
 	function	init() {
@@ -832,9 +546,9 @@ function	PictureList(props) {
 				<Col xs={2} sm={4} md={12} lg={12}>
 					<InfiniteList
 						set_infiniteListHeight={set_infiniteListHeight}
-				renderChildren={renderImage}
-				renderDaySeparator={renderDaySeparator}
-				childrenContainer={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 16}}
+						renderChildren={renderImage}
+						renderDaySeparator={renderDaySeparator}
+						childrenContainer={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 16}}
 						pictureList={pictureList} />
 				</Col>
 			</Row>
@@ -845,13 +559,7 @@ function	PictureList(props) {
 				isOpen={successToast}
 				onClose={() => set_successToast(false)}
 				status={'Les photos de couverture de l\'album ont été mises à jour'} />
-			{/* <Uploader
-				ref={uploaderRef}
-				toasterRef={props.toasterRef}
-				albumID={props.albumID}
-				set_pictureList={props.set_pictureList}
-				isDragNDrop={props.isDragNDrop}
-				set_isDragNDrop={props.set_isDragNDrop} /> */}
+
 			{lightRoom && <PictureLightroom
 				onClose={() => set_lightRoom(false)}
 				onDeletePicture={e => onDeletePicture([e.uri])}
