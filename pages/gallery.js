@@ -5,24 +5,15 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 22:33:14
+** @Last modified time:		Wednesday 01 April 2020 - 12:15:54
 *******************************************************************************/
 
-import	React, {useState, useEffect}	from	'react';
-import	styled							from	'styled-components';
-import	PictureList						from	'../components/PictureList';
-import	useEffectOnce					from	'../hooks/useEffectOnce';
-import	* as API						from	'../utils/API';
-import	convertToMoment					from	'../utils/ConvertDate';
-
-const	Container = styled.div`
-	font-size: 10pt;
-	flex-direction: column;
-	display: flex;
-	flex: 1;
-	margin: 0 8.33%;
-	margin-top: 32px;
-`;
+import	React, {useState, useEffect}		from	'react';
+import	PictureList							from	'../components/PictureList';
+import	useEffectOnce						from	'../hooks/useEffectOnce';
+import	* as API							from	'../utils/API';
+import	convertToMoment						from	'../utils/ConvertDate';
+import	{PageContainer, Section, Container}	from	'../style/Frame';
 
 function Albums(props) {
 	const	[pictureList, set_pictureList] = useState([]);
@@ -41,8 +32,8 @@ function Albums(props) {
 			}) 
 			set_pictureList(_pictureList || [])
 		});
-		API.ListAlbums().then(e => set_albumList(e || []))
 		set_isReady(true);
+		API.ListAlbums().then(e => set_albumList(e || []))
 	});
 
 	useEffect(() => set_isReady(true), [])
@@ -51,15 +42,19 @@ function Albums(props) {
 		return (null);
 
 	return (
-		<Container>
-			<PictureList
-				memberPublicKey={props.memberPublicKey}
-				isDragNDrop={props.isDragNDrop}
-				set_isDragNDrop={props.set_isDragNDrop}
-				pictureList={pictureList}
-				set_pictureList={set_pictureList}
-				albumList={albumList} />
-		</Container>
+		<PageContainer fluid>
+			<Section fluid background={'neutral'} paddingBottom={2}>
+				<Container>
+					<PictureList
+						memberPublicKey={props.memberPublicKey}
+						isDragNDrop={props.isDragNDrop}
+						set_isDragNDrop={props.set_isDragNDrop}
+						pictureList={pictureList}
+						set_pictureList={set_pictureList}
+						albumList={albumList} />
+					</Container>
+				</Section>
+		</PageContainer>
 	);
 }
 

@@ -5,16 +5,16 @@
 ** @Filename:				Global.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 13:13:07
+** @Last modified time:		Tuesday 14 April 2020 - 14:16:29
 *******************************************************************************/
 
 import	styled, {createGlobalStyle}		from	'styled-components';
 
 export const GlobalStyle = createGlobalStyle`
-	*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:Roboto,Helvetica,Arial,sans-serif;padding-inline-start: 0;font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;}
+	*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:Roboto,Helvetica,Arial,sans-serif;;font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;}
 	::-webkit-scrollbar {width: 0 !important;}
-	body{background-color: #1e2331;box-sizing: content-box;height:100%;padding:0;margin:0;}
-	#__next{height:100%;width:100%;overflow-y: auto;padding:0;margin:0;};
+	body{background-color: #242E42;box-sizing: content-box;height:100%;padding:0;margin:0;}
+	#__next{height:100%;width:100%;padding:0;margin:0;};
 	#__next{ overflow: -moz-scrollbars-none; }
 	#__next { -ms-overflow-style: none; }
 

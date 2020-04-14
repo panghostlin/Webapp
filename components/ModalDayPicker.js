@@ -5,22 +5,37 @@
 ** @Filename:				ModalDayPicker.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 24 March 2020 - 18:59:17
+** @Last modified time:		Tuesday 31 March 2020 - 15:11:53
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
 import	styled							from	'styled-components';
-import	DayPicker						from	'react-day-picker';
-import '../public/Daypicker.css';
-
-import	* as API						from	'../utils/API';
+import	{convertDate}					from	'../utils/ConvertDate';
 import	useLockBodyScroll				from	'../hooks/useLockBodyScroll';
 import	Input, {InputLabel}				from	'./Input';
-import	{PrimaryButton}					from	'./Buttons';
 import	GgClose							from	'../Icons/Cross';
 
-const	ModalContent = styled.div`overflow: ${props => props.noOverflow ? 'hidden' : 'overlay'};`;
-const	ModalContainer = styled.div`height: ${props => props.adapt ? 'auto' : '620px'};`;
+import	{H4, P, PSmall, Blockquote}		from	'../style/Typo';
+import	{Container, Row, Col}			from	'../style/Frame';
+import	{Button, TextButton}			from	'../style/Button';
+
+const	ModalContainer = styled.div`
+	height: ${props => props.adapt ? 'auto' : '620px'};
+	width: 100%;
+	max-width: 560px;
+	pointer-events: auto;
+	border-radius: 4px;
+	box-shadow: 0 8px 16px rgba(0,0,0,.15);
+	min-width: 0;
+	margin: auto;
+	position: relative;
+	pointer-events: default;
+`;
+const	ModalContent = styled(Container)`
+	width: auto;
+	height: 100%;
+	border-radius: 4px;
+`;
 const	Modal = styled.div`
 	background-color: rgba(0,0,0,.6);
     cursor: zoom-out;
@@ -37,130 +52,115 @@ const	Modal = styled.div`
 		pointer-events: none;
 		cursor: default;
 		display: flex;
-		& > ${ModalContainer} {
-			width: 100%;
-			max-width: 560px;
-			pointer-events: auto;
-			border-radius: 4px;
-			box-shadow: 0 8px 16px rgba(0,0,0,.15);
-			min-width: 0;
-			margin: auto;
-			position: relative;
-			pointer-events: default;
-			& > ${ModalContent} {
-				background-color: #2A2B41;
-				position: relative;
-				padding: 0;
-				width: auto;
-				height: 100%;
-				padding: 0 40px 40px;
-				border-radius: 4px;
-				box-sizing: border-box;
-				& > h1 {
-					font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-					font-size: 20px;
-					color: #FFFFFF;
-					margin-top: 32px;
-					margin-bottom: 16px;
-					background: transparent;
-				}
-			}
-			& > ${GgClose} {
-				position: absolute;
-				top: 16px;
-				right: 0;
-				cursor: pointer;
-				padding: 16px;
-				/* margin: 16px; */
-			}
-		}
 	}
 `;
+
+
+
+/******************************************************************************
+**	With Calendar :
+**	import	DayPicker	from	'react-day-picker';
+**	import '../public/Daypicker.css';
+**
+**	const	[selectedDayPicker, set_selectedDayPicker] = useState(new Date(props.selectedObject.originalTime))
+**	
+**	<DayPicker
+**		locale={'en'}
+**		fixedWeeks
+**		enableOutsideDaysClick={false}
+**		firstDayOfWeek={1}
+**		selectedDays={selectedDayPicker}
+**		initialMonth={selectedDayPicker}
+**		onDayClick={(day) => {
+**			set_selectedDayInput(convertDate(day))
+**			set_selectedDayPicker(day)
+**		}}
+**	/>
+**
+**	set_selectedDayPicker(new Date(e.target.value))
+******************************************************************************/
 
 function ModalDayPicker(props) {
 	useLockBodyScroll()
 
-	const	[selectedDayInput, set_selectedDayInput] = useState(convertDate(new Date(props.selectedObject.originalTime)))
-	const	[selectedDayPicker, set_selectedDayPicker] = useState(new Date(props.selectedObject.originalTime))
+	const	reduceToFirst = arr => Object.values(arr)[0]
+	const	[selectedDayInput, set_selectedDayInput] = useState(convertDate(new Date(reduceToFirst(props.selectedObject).originalTime)))
 
-	function	convertDate(day) {
-		//Need to convert date to this format : yyyy-MM-ddThh:mm:ss
-		const	yyyy = day.getFullYear();
-		const	MM = day.getMonth() + 1 < 10 ? `0${day.getMonth() + 1}` : day.getMonth() + 1;
-		const	dd = day.getDate() < 10 ? `0${day.getDate()}` : day.getDate();
-		const	hh = day.getHours() < 10 ? `0${day.getHours()}` : day.getHours();
-		const	mm = day.getMinutes() < 10 ? `0${day.getMinutes()}` : day.getMinutes();
-		const	ss = day.getSeconds() < 10 ? `0${day.getSeconds()}` : day.getSeconds();
-		return (`${yyyy}-${MM}-${dd}T${hh}:${mm}:${ss}`);
+	function	onConfirm() {
+		props.onConfirm(selectedDayInput);
+	}
+	function	onCancel() {
+		props.onClose();
 	}
 
-	function	formatDate(day) {
-		const	yyyy = day.getFullYear();
-		const	MM = day.getMonth() + 1 < 10 ? `0${day.getMonth() + 1}` : day.getMonth() + 1;
-		const	dd = day.getDate() < 10 ? `0${day.getDate()}` : day.getDate();
-		const	hh = day.getHours() < 10 ? `0${day.getHours()}` : day.getHours();
-		const	mm = day.getMinutes() < 10 ? `0${day.getMinutes()}` : day.getMinutes();
-		const	ss = day.getSeconds() < 10 ? `0${day.getSeconds()}` : day.getSeconds();
-		return (`${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`);
+
+	function	renderDatePicker() {
+		return (
+			<>
+				<InputLabel>{'Date'}</InputLabel>
+				<Input
+					className={'unstyled'}
+					autoFocus
+					type={'datetime-local'}
+					required={'required'}
+					value={selectedDayInput}
+					onChange={(e) => {
+						set_selectedDayInput(e.target.value)
+					}} />
+			</>
+		);
 	}
 
 	function	renderContent() {
 		return (
-				<ModalContainer adapt onClick={e => {e.preventDefault(); e.stopPropagation();}}>
-					<ModalContent noOverflow>
-						<h1>{'Change the date'}</h1>
-						<InputLabel>{'Date'}</InputLabel>
-						<Input
-							className={'unstyled'}
-							autoFocus
-							type={'datetime-local'}
-							required={'required'}
-							value={selectedDayInput}
-							onChange={(e) => {
-								set_selectedDayInput(e.target.value)
-								set_selectedDayPicker(new Date(e.target.value))
-							}} />
-						<DayPicker
-							locale={'en'}
-							fixedWeeks
-							enableOutsideDaysClick={false}
-							firstDayOfWeek={1}
-							selectedDays={selectedDayPicker}
-							initialMonth={selectedDayPicker}
-							onDayClick={(day) => {
-								set_selectedDayInput(convertDate(day))
-								set_selectedDayPicker(day)
-							}}
-						/>
-						<PrimaryButton
-							onClick={() => {
-								const	newDate = formatDate(new Date(selectedDayInput));
-								API.SetPicturesDate({
-									newDate,
-									groupIDs: props.selected,
-								}).then(() => {
-									set_selectedDayInput('');
-									props.onConfirm(newDate);
-								});
-							}}
-							disabled={!selectedDayInput}
-							style={{width: 'auto', marginTop: 0, marginLeft: 'auto', display: 'flex'}}>
-							{'Save this date'}
-						</PrimaryButton>
-					</ModalContent>
-					<GgClose onClick={() => {props.onClose(); set_selectedDayInput('');}} />
-				</ModalContainer>
-			);
+			<ModalContainer adapt onClick={e => {e.preventDefault(); e.stopPropagation();}}>
+				<ModalContent background={'neutral-lighter'} padding={2}>
+					<Row justify={'space-between'} align={'center'}>
+						<Col xs={2} sm={4} md={8} lg={8}>
+							<H4 color={'white'}>{'Change taken date'}</H4>
+						</Col>
+						<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
+							<GgClose onClick={onCancel} />
+						</Col>
+					</Row>
+					<Row marginTop={1}>
+						<Col xs={2} sm={4} md={12} lg={12}>
+							{renderDatePicker()}
+						</Col>
+					</Row>
+					<Row marginTop={1} paddingVertical={2} background={'neutral-darker'}>
+						<Col xs={2} sm={4} md={12} lg={12}>
+							<PSmall color={'white-80'}>{'How does this work ?'}</PSmall>
+							<Blockquote color={'white-60'}>{'Since all your data and photos are encrypted by your secret key, we cannot modify them directly. Your browser will download each photo, make the changes, and send an encrypted version back to our servers in a secure manner. This process takes longer, but ensures the security of each of your photos.'}</Blockquote>
+						</Col>
+					</Row>
+					<Row marginTop={1}>
+						<Col xs={2} sm={4} md={12} lg={12} justify={'flex-end'} style={{flexDirection: 'row'}}>
+							<TextButton
+								secondary
+								marginRight={0.5}
+								onClick={onCancel}>
+								{'Cancel'}
+							</TextButton>
+
+							<Button
+								primary
+								marginLeft={0.5}
+								onClick={onConfirm}>
+								{'Save'}
+							</Button>
+						</Col>
+					</Row>
+				</ModalContent>
+			</ModalContainer>
+		);
 	}
 
 	if (!props.isOpen)
 		return (null);
 	
 	return (
-		<Modal
-			onClick={() => {
-				props.onClose();
-			}}>
+		<Modal onClick={() => props.onClose()}>
 			<div>
 				{renderContent()}
 			</div>

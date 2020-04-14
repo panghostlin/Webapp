@@ -5,7 +5,7 @@
 ** @Filename:				Input.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 14:28:05
+** @Last modified time:		Monday 30 March 2020 - 20:21:25
 *******************************************************************************/
 
 import styled from 'styled-components';
@@ -20,7 +20,7 @@ const	Input = styled.input`
 	display: block;
 	min-width: 0;
 	outline: none;
-	background: #00000030;
+	background: ${props => props.theme.colors['neutral-darker']};
 	border: none;
 	box-shadow: unset;
 	border-radius: 4px;
@@ -39,7 +39,7 @@ const	FakeInput = styled.div`
 	display: block;
 	min-width: 0;
 	outline: none;
-	background: #00000030;
+	background: ${props => props.theme.colors['neutral-darker']};
 	border: none;
 	box-shadow: unset;
 	border-radius: 4px;

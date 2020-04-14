@@ -5,7 +5,7 @@
 ** @Filename:				ModalAlbumSelection.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 24 March 2020 - 18:59:08
+** @Last modified time:		Tuesday 14 April 2020 - 14:44:09
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -14,78 +14,11 @@ import	* as API						from	'../utils/API';
 import	useLockBodyScroll				from	'../hooks/useLockBodyScroll';
 import	Input, {InputLabel}				from	'./Input';
 import	{AlbumsCardPreview}				from	'./AlbumCard';
-import	{PrimaryButton}					from	'./Buttons';
 import	GgClose							from	'../Icons/Cross';
+import	{H4, P, PSmall, Blockquote}		from	'../style/Typo';
+import	{Container, Row, Col}			from	'../style/Frame';
+import	{Button, TextButton}			from	'../style/Button';
 
-const	ModalContent = styled.div`overflow: ${props => props.noOverflow ? 'hidden' : 'overlay'};`;
-const	ModalContainer = styled.div`height: ${props => props.adapt ? 'auto' : '620px'};`;
-const	Modal = styled.div`
-	background-color: rgba(0,0,0,.6);
-    cursor: zoom-out;
-	position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 700;
-	& > div {
-		height: 100%;
-		padding: 64px 120px 100px;
-		outline: none;
-		pointer-events: none;
-		cursor: default;
-		display: flex;
-		& > ${ModalContainer} {
-			width: 100%;
-			max-width: 560px;
-			pointer-events: auto;
-			border-radius: 4px;
-			box-shadow: 0 8px 16px rgba(0,0,0,.15);
-			min-width: 0;
-			margin: auto;
-			position: relative;
-			pointer-events: default;
-			& > ${ModalContent} {
-				background-color: #2A2B41;
-				position: relative;
-				padding: 0;
-				width: auto;
-				height: 100%;
-				padding: 0 40px 40px;
-				border-radius: 4px;
-				box-sizing: border-box;
-				& > h1 {
-					font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-					font-size: 20px;
-					color: #FFFFFF;
-					margin-top: 32px;
-					margin-bottom: 16px;
-					background: transparent;
-				}
-			}
-			& > ${GgClose} {
-				position: absolute;
-				top: 16px;
-				right: 0;
-				cursor: pointer;
-				padding: 16px;
-				/* margin: 16px; */
-			}
-		}
-	}
-`;
-const	ModalShadow = styled.div`
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	height: 80px;
-	margin: 0 auto;
-	pointer-events: none;
-	box-shadow: inset 0 -40px 40px -30px #2A2B41;
-	z-index: 4;
-	border-radius: 0 0 4px 4px;
-`;
 const	NewAlbumButton = styled.button`
 	padding: 26px 19px;
 	border: 2px dashed #B5B7DF;
@@ -110,6 +43,7 @@ const	AlbumButton = styled.button`
     display: block;
     width: 100%;
     height: 80px;
+	min-height: 80px;
     border-radius: 5px;
     background-color: #f5f5f5;
     overflow: hidden;
@@ -171,6 +105,41 @@ const	AlbumButton = styled.button`
 		}
 	}
 `;
+const	ModalContainer = styled.div`
+	height: ${props => props.adapt ? 'auto' : '620px'};
+	width: 100%;
+	max-width: 560px;
+	pointer-events: auto;
+	border-radius: 4px;
+	box-shadow: 0 8px 16px rgba(0,0,0,.15);
+	min-width: 0;
+	margin: auto;
+	position: relative;
+	pointer-events: default;
+`;
+const	ModalContent = styled(Container)`
+	width: auto;
+	height: 100%;
+	border-radius: 4px;
+`;
+const	Modal = styled.div`
+	background-color: rgba(0,0,0,.6);
+    cursor: zoom-out;
+	position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 700;
+	& > div {
+		height: 100%;
+		padding: 64px 120px 100px;
+		outline: none;
+		pointer-events: none;
+		cursor: default;
+		display: flex;
+	}
+`;
 
 function ModalAlbumSelection(props) {
 	useLockBodyScroll()
@@ -178,20 +147,25 @@ function ModalAlbumSelection(props) {
 	const	[content, set_content] = useState(props.content || 'selection')
 	const	[newAlbumName, set_newAlbumName] = useState('')
 
+	function	renderAlbumNameInput() {
+		return (
+			<>
+				<InputLabel>{'Album name'}</InputLabel>
+				<Input
+					autoFocus
+					value={newAlbumName}
+					onChange={e => set_newAlbumName(e.target.value)} />
+			</>
+		);
+	}
+
 	function	renderAlbums() {
 		return (
 			props.albumList.map((album, index) => {
 				return (
 					<AlbumButton
 						key={`${album.albumID}_${index}`}
-						onClick={() => {
-							API.SetPicturesAlbum({
-								albumID: album.albumID,
-								groupIDs: props.selected,
-							}).then(() => {
-								props.onClose();
-							});
-						}}>
+						onClick={() => props.onConfirm(`appendToAlbum`, {albumID: album.albumID})}>
 						<img src={`${API.API}/downloadPicture/max500/${album.coverPicture}`} alt={album.name} />
 						<div>{album.name}</div>
 					</AlbumButton>
@@ -202,97 +176,139 @@ function ModalAlbumSelection(props) {
 	function	renderContent() {
 		if (content === 'selection') {
 			return (
-				<ModalContainer onClick={e => {e.preventDefault(); e.stopPropagation();}}>
-					<ModalShadow />
-					<ModalContent>
-						<h1>{'Ajouter à un album'}</h1>
-						<NewAlbumButton
-							onClick={() => set_content('albumCreationWithPict')}>
-							{'Créer un album'}
-						</NewAlbumButton>
-						{renderAlbums()}
+				<ModalContainer adapt onClick={e => {e.preventDefault(); e.stopPropagation();}}>
+					<ModalContent background={'neutral-lighter'} padding={2}>
+						<Row justify={'space-between'} align={'center'}>
+							<Col xs={2} sm={4} md={8} lg={8}>
+								<H4 color={'white'}>{'Add to album'}</H4>
+							</Col>
+							<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
+								<GgClose onClick={() => props.onClose()} />
+							</Col>
+						</Row>
+
+						<Row marginTop={1} paddingVertical={2} background={'neutral-darker'}>
+							<Col xs={2} sm={4} md={12} lg={12}>
+								<PSmall color={'white-80'}>{'How does this work ?'}</PSmall>
+								<Blockquote color={'white-60'}>{'Since all your data and photos are encrypted by your secret key, we cannot modify them directly. Your browser will download each photo, make the changes, and send an encrypted version back to our servers in a secure manner. This process takes longer, but ensures the security of each of your photos.'}</Blockquote>
+							</Col>
+						</Row>
+
+
+						<Row marginTop={1}>
+							<Col xs={2} sm={4} md={12} lg={12} style={{maxHeight: 400, overflow: 'scroll'}}>
+								<NewAlbumButton
+									onClick={() => set_content('albumCreationWithPict')}>
+									{'Créer un album'}
+								</NewAlbumButton>
+								{renderAlbums()}
+							</Col>
+						</Row>
 					</ModalContent>
-					<GgClose onClick={() => {
-						props.onClose();
-						set_content('selection');
-						set_newAlbumName('');
-					}} />
 				</ModalContainer>
-			)
+			);
 		}
 		else if (content === 'albumCreationWithPict') {
 			return (
-				<ModalContainer onClick={e => {e.preventDefault(); e.stopPropagation();}}>
-					<ModalContent noOverflow>
-						<h1>{'Création d\'un album'}</h1>
-						<InputLabel value={newAlbumName}>{'Nom de l\'album'}</InputLabel>
-						<Input
-							value={newAlbumName}
-							onChange={e => set_newAlbumName(e.target.value)} />
+				<ModalContainer adapt onClick={e => {e.preventDefault(); e.stopPropagation();}}>
+					<ModalContent background={'neutral-lighter'} padding={2}>
+						<Row justify={'space-between'} align={'center'}>
+							<Col xs={2} sm={4} md={8} lg={8}>
+								<H4 color={'white'}>{'Create album'}</H4>
+							</Col>
+							<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
+								<GgClose onClick={() => props.onClose()} />
+							</Col>
+						</Row>
 
-						<AlbumsCardPreview
-							album={{
-								albumID: undefined,
-								title: newAlbumName,
-								coverPicture: props.selected[0],
-								selectedCount: props.selected.length
-							}} />
-						<PrimaryButton
-							onClick={() => {
-								API.CreateAlbum({
-									name: newAlbumName,
-									coverPicture: props.selected[0],
-									pictures: props.selected,
-								}).then(() => {
-									props.onClose();
-									set_content('selection')
-									set_newAlbumName('')
-								});
-							}}
-							disabled={!newAlbumName}
-							style={{width: 'auto', marginTop: 0, marginLeft: 'auto', display: 'flex'}}>
-							{'Créer l\'album'}
-						</PrimaryButton>
+						<Row marginTop={1}>
+							<Col xs={2} sm={4} md={12} lg={12} style={{maxHeight: 400, overflow: 'scroll'}}>
+								{renderAlbumNameInput()}
+							</Col>
+						</Row>
+
+						<Row marginTop={1}>
+							<Col xs={2} sm={4} md={12} lg={12} justify={'center'}>
+								<AlbumsCardPreview
+									album={{
+										albumID: undefined,
+										title: newAlbumName,
+										coverPicture: props.selectedObject[0],
+										selectedCount: props.selectedObject.length
+									}} />
+							</Col>
+						</Row>
+
+
+						<Row marginTop={1}>
+							<Col xs={2} sm={4} md={12} lg={12} justify={'flex-end'} style={{flexDirection: 'row'}}>
+								<TextButton
+									secondary
+									marginRight={0.5}
+									onClick={() => props.onCancel()}>
+									{'Cancel'}
+								</TextButton>
+
+								<Button
+									primary
+									marginLeft={0.5}
+									onClick={() => props.onConfirm(`createAlbum`, {albumName: newAlbumName})}>
+									{'Create album'}
+								</Button>
+							</Col>
+						</Row>
 					</ModalContent>
-					<GgClose onClick={() => {
-						props.onClose();
-						set_content('selection');
-						set_newAlbumName('');
-					}} />
 				</ModalContainer>
 			);
 		}
+		
 		return (
-				<ModalContainer adapt onClick={e => {e.preventDefault(); e.stopPropagation();}}>
-					<ModalContent noOverflow>
-						<h1>{'Création d\'un album'}</h1>
-						<InputLabel value={newAlbumName}>
-							{'Nom de l\'album'}
-						</InputLabel>
-						<Input
-							autoFocus
-							value={newAlbumName}
-							onChange={e => set_newAlbumName(e.target.value)} />
-						<PrimaryButton
-							onClick={() => {
-								API.CreateAlbum({name: newAlbumName}).then((newAlbum) => {
-									props.onCloseSuccess(newAlbum.name, newAlbum.albumID);
-									set_content('selection')
-									set_newAlbumName('')
-								});
-							}}
-							disabled={!newAlbumName}
-							style={{width: 'auto', marginTop: 0, marginLeft: 'auto', display: 'flex'}}>
-							{'Créer l\'album'}
-						</PrimaryButton>
-					</ModalContent>
-					<GgClose onClick={() => {
-						props.onClose();
-						set_content('selection');
-						set_newAlbumName('');
-					}} />
-				</ModalContainer>
-			);
+			<ModalContainer adapt onClick={e => {e.preventDefault(); e.stopPropagation();}}>
+				<ModalContent background={'neutral-lighter'} padding={2}>
+					<Row justify={'space-between'} align={'center'}>
+						<Col xs={2} sm={4} md={8} lg={8}>
+							<H4 color={'white'}>{'Create a new album'}</H4>
+						</Col>
+						<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
+							<GgClose onClick={() => props.onClose()} />
+						</Col>
+					</Row>
+
+
+					<Row marginTop={1}>
+						<Col xs={2} sm={4} md={12} lg={12} style={{maxHeight: 400, overflow: 'scroll'}}>
+							{renderAlbumNameInput()}
+						</Col>
+					</Row>
+
+
+					<Row marginTop={1}>
+						<Col xs={2} sm={4} md={12} lg={12} justify={'flex-end'} style={{flexDirection: 'row'}}>
+							<TextButton
+								secondary
+								marginRight={0.5}
+								onClick={() => props.onCancel()}>
+								{'Cancel'}
+							</TextButton>
+
+							<Button
+								primary
+								marginLeft={0.5}
+								onClick={() => {
+									API.CreateAlbum({name: newAlbumName}).then((newAlbum) => {
+										props.onCloseSuccess(newAlbum.name, newAlbum.albumID);
+										set_content('selection')
+										set_newAlbumName('')
+									});
+								}}>
+								{'Create album'}
+							</Button>
+						</Col>
+					</Row>
+
+				</ModalContent>
+			</ModalContainer>
+		);
 	}
 
 	if (!props.isOpen)

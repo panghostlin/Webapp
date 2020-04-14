@@ -5,11 +5,11 @@
 ** @Filename:				ConvertDate.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 17:48:12
+** @Last modified time:		Tuesday 31 March 2020 - 14:59:30
 *******************************************************************************/
 
 
-function	convertToMoment(each) {
+export function	convertToMoment(each) {
 	const	date = each ? new Date(each) : new Date();
 
 	const	year = date.getFullYear();
@@ -23,6 +23,27 @@ function	convertToMoment(each) {
 	}
 
 	return `${year}-${month}-${day}`;
+}
+
+export function	convertDate(day) {
+	//Need to convert date to this format : yyyy-MM-ddThh:mm:ss
+	const	yyyy = day.getFullYear();
+	const	MM = day.getMonth() + 1 < 10 ? `0${day.getMonth() + 1}` : day.getMonth() + 1;
+	const	dd = day.getDate() < 10 ? `0${day.getDate()}` : day.getDate();
+	const	hh = day.getHours() < 10 ? `0${day.getHours()}` : day.getHours();
+	const	mm = day.getMinutes() < 10 ? `0${day.getMinutes()}` : day.getMinutes();
+	const	ss = day.getSeconds() < 10 ? `0${day.getSeconds()}` : day.getSeconds();
+	return (`${yyyy}-${MM}-${dd}T${hh}:${mm}:${ss}`);
+}
+
+export function	formatDate(day) {
+	const	yyyy = day.getFullYear();
+	const	MM = day.getMonth() + 1 < 10 ? `0${day.getMonth() + 1}` : day.getMonth() + 1;
+	const	dd = day.getDate() < 10 ? `0${day.getDate()}` : day.getDate();
+	const	hh = day.getHours() < 10 ? `0${day.getHours()}` : day.getHours();
+	const	mm = day.getMinutes() < 10 ? `0${day.getMinutes()}` : day.getMinutes();
+	const	ss = day.getSeconds() < 10 ? `0${day.getSeconds()}` : day.getSeconds();
+	return (`${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`);
 }
 
 export default convertToMoment;

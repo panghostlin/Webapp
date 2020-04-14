@@ -5,12 +5,13 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 14 March 2020 - 13:35:38
+** @Last modified time:		Tuesday 14 April 2020 - 14:24:31
 *******************************************************************************/
 
-import	React						from	'react';
+import	React, {useState, useRef}	from	'react';
 import	styled						from	'styled-components';
-import	Router						from	'next/router'
+import	{useRouter}					from	'next/router';
+import	useIntersectionObserver		from	'../hooks/useIntersectionObserver';
 
 import	GgImage						from	'../Icons/Image';
 import	GgAlbum						from	'../Icons/Album';
@@ -25,22 +26,22 @@ import	GgCoverTemplate				from	'../Icons/CoverTemplate';
 import	GgRotateRight				from	'../Icons/RotateRight';
 import	GgRotateLeft				from	'../Icons/RotateLeft';
 
-const	backgroundColor = '#191c28';
-const	backgroundAltColor = '#1e2331';
-const	backgroundAccentColor = '#242a3b';
-const	StyledNavbar = styled.nav`
+const	StyledNavbar = styled.header`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	height: 76px;
 	width: 100%;
-	position: fixed;
+	position: sticky;
 	top: 0;
 	left: 0%;
 	z-index: 500;
 	padding: 0px 8.33%;
-    background: ${backgroundAccentColor};
-	box-shadow: 0 3px 12px ${backgroundColor}AA;
+	border-bottom: 2px solid ${props => props.theme.colors['neutral-darker']};
+	background-color: ${props => props.theme.colors['neutral-90']};
+	backdrop-filter: blur(12px);
+	contain: layout;
+
 `;
 const	Menu = styled.menu`
 	display: flex;
@@ -99,31 +100,52 @@ const	Text = styled.p`
 `;
 const	StyledActionbar = styled(StyledNavbar)`
 	z-index: ${props => props.isEnabled ? 500 : -1};
+	background-color: ${props => props.theme.colors['neutral']};
+	position: fixed;
 `;
 
 function	NavBar(props) {
-	return (
-		<StyledNavbar>
-			<Menu>
-				<MenuItem content={'Mes albums'} onClick={() => Router.push(`/albums`)}>
-					<GgAlbum />
-				</MenuItem>
-				<MenuItem content={'Ma galerie'} onClick={() => Router.push(`/gallery`)}>
-					<GgImage />
-				</MenuItem>
+	const	navbarRef = useRef();
+	const	Router = useRouter()
+	const	[isSticky, set_isSticky] = useState(true)
 
-				<SearchBar placeholder={'Rechercher des photos'} />
-				<MenuItem content={'Importer'}>
-					<GgUpload />
-				</MenuItem>
-				<MenuItem
-					content={'Profil'}
-					noSpaceRight
-					onClick={() => Router.push(`/profile`, `/profile`)}>
-					<GgProfile />
-				</MenuItem>
-			</Menu>
-		</StyledNavbar>
+	useIntersectionObserver({
+		target: navbarRef,
+		onIntersect: ([{isIntersecting}]) => {
+			if (isIntersecting)
+				set_isSticky(true);
+			else
+				set_isSticky(false);
+		},
+		threshold: 0,
+		rootMargin: '0px'
+	});
+
+	return (
+		<>
+			<div ref={navbarRef} />
+			<StyledNavbar style={{borderBottom: isSticky && 'transparent'}}>
+				<Menu>
+					<MenuItem content={'Mes albums'} onClick={() => Router.push(`/albums`)}>
+						<GgAlbum />
+					</MenuItem>
+					<MenuItem content={'Ma galerie'} onClick={() => Router.push(`/gallery`)}>
+						<GgImage />
+					</MenuItem>
+
+					<SearchBar placeholder={'Rechercher des photos'} />
+					<MenuItem content={'Importer'}>
+						<GgUpload />
+					</MenuItem>
+					<MenuItem
+						content={'Profil'}
+						noSpaceRight
+						onClick={() => Router.push(`/profile`, `/profile`)}>
+						<GgProfile />
+					</MenuItem>
+				</Menu>
+			</StyledNavbar>
+		</>
 	);
 }
 

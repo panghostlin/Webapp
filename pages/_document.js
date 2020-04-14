@@ -5,13 +5,13 @@
 ** @Filename:				_document.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 15 February 2020 - 16:12:19
+** @Last modified time:		Monday 30 March 2020 - 22:54:07
 *******************************************************************************/
 
 
-import	React								from	'react';
-import	Document, {Head, Main, NextScript}	from	'next/document';
-import	{ServerStyleSheet}					from	'styled-components';
+import	React										from	'react';
+import	Document, {Html, Head, Main, NextScript}	from	'next/document';
+import	{ServerStyleSheet}							from	'styled-components';
 
 export default class MyDocument extends Document
 {
@@ -22,8 +22,7 @@ export default class MyDocument extends Document
 		try {
 			ctx.renderPage = () =>
 				originalRenderPage({
-					enhanceApp: App => props => sheet.collectStyles(<App {...props} />),
-					enhanceComponent: Component => Component,
+					enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
 				});
 
 			const initialProps = await Document.getInitialProps(ctx);
@@ -44,18 +43,17 @@ export default class MyDocument extends Document
 	render()
 	{
 		return (
-			<html lang={'fr'}>
+			<Html lang={'fr'}>
 				<title>{'Panghostlin'}</title>
 				<Head>
 					<link rel={'shortcut icon'} type={'image/x-icon'} href={'/static/images/favicon.ico'} />
 					<meta name={'viewport'} content={'width=device-width, initial-scale=1'} />
-					<meta property='og:title' content='Panghostlin' />
 				</Head>
 				<body>
 					<Main />
 					<NextScript />
 				</body>
-			</html>
+			</Html>
 		);
 	}
 }

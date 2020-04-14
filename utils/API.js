@@ -5,7 +5,7 @@
 ** @Filename:				API.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 24 March 2020 - 18:01:13
+** @Last modified time:		Wednesday 01 April 2020 - 12:08:08
 *******************************************************************************/
 
 import fetch from 'isomorphic-unfetch';
@@ -32,6 +32,11 @@ const	performFetch = (url, method, args, header) =>
 		})
 		.then(async (response) =>
 		{
+			if (response.status === 401) {
+				//The user is Unauthorized -> Invalid token/not connected, need for auth
+				window.location.href = '/';
+				return null;
+			}
 			const	json = await response.json();
 			return (json);
 		})

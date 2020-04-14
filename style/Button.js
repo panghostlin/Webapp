@@ -5,7 +5,7 @@
 ** @Filename:				Button.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 14:53:52
+** @Last modified time:		Tuesday 31 March 2020 - 13:21:04
 *******************************************************************************/
 
 import	styled					from	'styled-components';
@@ -16,7 +16,7 @@ export const	Button = Default.withComponent(styled.button`
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
-	width: fit-content;
+	width: ${props => props.fluid ? '100%' : 'fit-content'};
 	padding-top: ${props => `${props.large ? 16 : 12}px`};
 	padding-bottom: ${props => `${props.large ? 16 : 12}px`};
 	padding-left: ${props => `${props.large ? 20 : 16}px`};
@@ -59,30 +59,31 @@ export const	Button = Default.withComponent(styled.button`
 	}
 	&:focus {
 		background-color: ${props => (
-			props.primary && props.theme.colors['primary-darker'] ||
-			props.secondary && props.theme.colors['primary-5']
+			props.primary && props.theme.colors.primary ||
+			props.secondary && props.theme.colors.white
 		)};
 		color: ${props => (
-			props.primary && props.theme.colors.neutral ||
-			props.secondary && props.theme.colors.primary
+			props.primary && props.theme.colors.white ||
+			props.secondary && props.theme.colors.neutral
 		)};
 		border: ${props => (
-			props.primary && 'none' ||
-			props.secondary && `1px solid ${props.theme.colors.primary}`
+			props.primary && `1px solid ${props.primary && props.theme.colors.primary}` ||
+			props.secondary && `1px solid ${props.theme.colors['neutral-20']}`
 		)};
 	}
 	&:disabled {
-		color: ${props => (
-			props.primary && props.theme.colors['neutral-40'] ||
+		background-color: ${props => (
+			props.primary && props.theme.colors['neutral-disable'] ||
 			props.secondary && props.theme.colors['neutral-40']
 		)};
-		background-color: ${props => (
-			props.primary && props.theme.colors['neutral-15'] ||
-			props.secondary && props.theme.colors['neutral-15']
+		border-color: ${props => (
+			props.primary && props.theme.colors['neutral-disable'] ||
+			props.secondary && props.theme.colors['neutral-40']
 		)};
-		&::after {
-			content: none;
-		}
+		color: ${props => (
+			props.primary && props.theme.colors['white-40'] ||
+			props.secondary && props.theme.colors['neutral-40']
+		)};
 	}
 `);
 
@@ -104,6 +105,7 @@ export const	TextButton  = Default.withComponent(styled.button`
 	font-variant: all-small-caps;
 
 	color: ${props => (
+		props.theme.colors[props.color] ||
 		props.primary && props.theme.colors.white ||
 		props.secondary && props.theme.colors['neutral-darker']
 	)};
@@ -111,13 +113,14 @@ export const	TextButton  = Default.withComponent(styled.button`
 	&:hover {
 		color: ${props => (
 			props.primary && props.theme.colors.white ||
-			props.secondary && props.theme.colors.primary
+			props.secondary && props.theme.colors.white
 		)};
 	}
 	&:focus {
 		color: ${props => (
-			props.primary && props.theme.colors.neutral ||
-			props.secondary && props.theme.colors.primary
+			props.theme.colors[props.color] ||
+			props.primary && props.theme.colors.white ||
+			props.secondary && props.theme.colors['neutral-darker']
 		)};
 	}
 	&:disabled {

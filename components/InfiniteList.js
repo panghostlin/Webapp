@@ -5,7 +5,7 @@
 ** @Filename:				InfiniteList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 22:33:24
+** @Last modified time:		Wednesday 01 April 2020 - 12:20:58
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -64,7 +64,7 @@ function	InfiniteList(props) {
 	}
 
 	return (
-		<div style={{width: 'calc(100% + 7px)', contain: 'layout'}} ref={wrapperRef}>
+		<div style={{contain: 'layout'}} ref={wrapperRef}>
 			{renderChildrens()}
 		</div>
 	);

@@ -5,19 +5,16 @@
 ** @Filename:				ModalConfirmation.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 14:58:20
+** @Last modified time:		Tuesday 31 March 2020 - 13:23:20
 *******************************************************************************/
 
 import	React							from	'react';
 import	styled							from	'styled-components';
-import	{H4, P, PSmall, Blockquote}							from	'../style/Typo';
+import	{H4, P, PSmall, Blockquote}		from	'../style/Typo';
 import	{Container, Row, Col}			from	'../style/Frame';
-import	useLockBodyScroll				from	'../hooks/useLockBodyScroll';
-// import	{PrimaryButton, TextButton}		from	'./Buttons';
-import	GgClose							from	'../Icons/Cross';
 import	{Button, TextButton}			from	'../style/Button';
-
-
+import	useLockBodyScroll				from	'../hooks/useLockBodyScroll';
+import	GgClose							from	'../Icons/Cross';
 
 const	ModalContainer = styled.div`
 	height: ${props => props.adapt ? 'auto' : '620px'};
@@ -66,7 +63,7 @@ function	ModalConfirmation(props) {
 						<Col xs={2} sm={4} md={8} lg={8}>
 							<H4 color={'white'}>{'Confirmation'}</H4>
 						</Col>
-						<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'}>
+						<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
 							<GgClose onClick={() => props.onClose()} />
 						</Col>
 					</Row>
@@ -107,10 +104,7 @@ function	ModalConfirmation(props) {
 		return (null);
 	
 	return (
-		<Modal
-			onClick={() => {
-				props.onClose();
-			}}>
+		<Modal onClick={() => props.onClose()}>
 			<div>
 				{renderContent()}
 			</div>

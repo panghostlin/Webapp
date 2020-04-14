@@ -5,7 +5,7 @@
 ** @Filename:				References.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 14:47:45
+** @Last modified time:		Tuesday 14 April 2020 - 13:51:06
 *******************************************************************************/
 
 const	default_unit = 16;
@@ -21,7 +21,16 @@ const	colors = {
 	neutral: '#242E42',
 	'neutral-lighter': '#2F3B52',
 	'neutral-darker': '#20293C',
-	
+	'neutral-disable': '#44556B',
+	'neutral-90': 'rgba(36, 46, 66, 0.9)',
+	'neutral-80': 'rgba(36, 46, 66, 0.8)',
+	'neutral-60': 'rgba(36, 46, 66, 0.6)',
+	'neutral-40': 'rgba(36, 46, 66, 0.4)',
+	'neutral-20': 'rgba(36, 46, 66, 0.2)',
+	'neutral-15': 'rgba(36, 46, 66, 0.15)',
+	'neutral-10': 'rgba(36, 46, 66, 0.1)',
+	'neutral-5': 'rgba(36, 46, 66, 0.05)',
+
 
 	primary: '#EC407A',
 	'primary-80': 'rgba(236, 64, 122, 0.8)',
@@ -35,13 +44,8 @@ const	colors = {
 	secondary: '#F9CB40',
 	'secondary-lighter': '#FFDF6B',
 	'secondary-darker': '#D4A42C',
-	'neutral-80': 'rgba(0, 53, 67, 0.8)',
-	'neutral-60': 'rgba(0, 53, 67, 0.6)',
-	'neutral-40': 'rgba(0, 53, 67, 0.4)',
-	'neutral-20': 'rgba(0, 53, 67, 0.2)',
-	'neutral-15': 'rgba(0, 53, 67, 0.15)',
-	'neutral-10': 'rgba(0, 53, 67, 0.1)',
-	'neutral-5': 'rgba(0, 53, 67, 0.05)',
+
+
 	white: '#FFFFFF',
 	'white-80': 'rgba(255, 255, 255, 0.8)',
 	'white-60': 'rgba(255, 255, 255, 0.6)',

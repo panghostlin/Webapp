@@ -5,7 +5,7 @@
 ** @Filename:				PictureList.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 13:41:50
+** @Last modified time:		Wednesday 01 April 2020 - 12:24:04
 *******************************************************************************/
 
 import	React, {useState, useEffect, forwardRef, useImperativeHandle}	from	'react';
@@ -21,10 +21,11 @@ import	PictureLightroom				from	'./PictureLightroom';
 import	DragNDrop						from	'./DragNDrop';
 import	Timebar							from	'./Timebar';
 import	{ActionBar}						from	'./Navbar';
-import	* as API						from	'../utils/API';
 import	useKeyPress						from	'../hooks/useKeyPress';
-import	convertToMoment					from	'../utils/ConvertDate';
+import	* as API						from	'../utils/API';
+import	{convertToMoment, formatDate}	from	'../utils/ConvertDate';
 import	* as Worker						from	'../utils/Worker';
+import	{Row, Col}						from	'../style/Frame';
 
 const	Toggle = styled.div`
 	cursor: pointer;
@@ -80,10 +81,13 @@ const	StyledDate = styled.div`
 
 `;
 
-const Uploader = forwardRef((props, ref) => {
+const	Uploader = forwardRef((props, ref) => {
 	useImperativeHandle(ref, () => ({
 		Reupload(oldWorker, index, files, fileUUID) {
 			Reupload(oldWorker, index, files, fileUUID);
+		},
+		SetUploader() {
+			SetUploader();
 		}
 	}));
 
@@ -275,6 +279,8 @@ const Uploader = forwardRef((props, ref) => {
 	async function	Reupload(oldWorker, index, files, fileUUID) {
 		if (oldWorker)
 			Worker.terminate(oldWorker)
+		else
+			set_uploaderCurrentIndex(0);
 
 		if (index >= files.length) {
 			set_uploader(false);
@@ -347,6 +353,11 @@ const Uploader = forwardRef((props, ref) => {
 		);
 	}
 
+	function SetUploader() {
+		set_uploaderCurrentIndex(-1);
+		set_uploader(true);
+	}
+
 	return (
 		<>
 			<img id={'image'} ref={imgref} style={{opacity: 0, pointerEvent: 'none'}} />
@@ -370,6 +381,73 @@ const Uploader = forwardRef((props, ref) => {
 });
 
 
+const	Modals = forwardRef((props, ref) => {
+	function	init() {
+		return {
+			confirmation: {enabled: props.modals.confirmation.enabled, open: false, data: {}},
+			albums: {enabled: props.modals.albums.enabled, open: false, data: {}},
+			dayPicker: {enabled: props.modals.dayPicker.enabled, open: false, data: {}}
+		};
+	}
+	function	reducer(state, reduce) {
+		if (reduce.type === 'toggle') {
+			return ({...state, [reduce.modal]: {...state[reduce.modal], open: !state[reduce.modal].open}})
+		}
+		else if (reduce.type === 'open') {
+			return ({...state, [reduce.modal]: {...state[reduce.modal], open: true}})
+		}
+		else if (reduce.type === 'openWithData') {
+			return ({...state, [reduce.modal]: {...state[reduce.modal], open: true, data: reduce.data}})
+		}
+		else if (reduce.type === 'close') {
+			return ({...state, [reduce.modal]: {...state[reduce.modal], open: false}})
+		}
+	}
+
+	const [state, dispatch] = React.useReducer(reducer, init, init);
+
+	useImperativeHandle(ref, () => ({
+		Open(modal, data = undefined) {
+			if (data !== undefined) {
+				dispatch({type: 'openWithData', modal, data});
+			} else {
+				dispatch({type: 'open', modal});
+			}
+		},
+		Close(modal) {
+			onClose(modal);
+		}
+	}));
+
+	function	onClose(modal) {
+		dispatch({type: 'toggle', modal});
+		props.onClose()
+	}
+	
+	return (
+		<>
+			{state.dayPicker.enabled && <ModalDayPicker
+				isOpen={state.dayPicker.open}
+				onClose={() => onClose('dayPicker')}
+				onConfirm={props.modals.dayPicker.onConfirm}
+				selectedObject={props.selectedObject} />}
+			{state.confirmation.enabled && <ModalConfirmation
+				isOpen={state.confirmation.open}
+				onClose={() => onClose('confirmation')}
+				onConfirm={() => props.modals.confirmation.onConfirm(state.confirmation.data)}
+				selectedObject={props.selectedObject}
+				text={state.confirmation.data && `Are you sure you want to rotate ${state.confirmation.data.direction} these ${props.selectedObject.length} picture(s)?`} />}
+			{state.albums.enabled && <ModalAlbumSelection
+				isOpen={state.albums.open}
+				onClose={() => onClose('albums')}
+				albumList={state.albums.data.albumList}
+				selectedObject={props.selectedObject}
+				onConfirm={(action, data) => props.modals.albums.onConfirm(action, data)} />}
+		</>
+	)
+
+})
+
 function	PictureList(props) {
 	const	[update, set_update] = useState(0);
 	const	[isReady, set_isReady] = useState(false);
@@ -379,14 +457,12 @@ function	PictureList(props) {
 	const	[timelineData, set_timelineData] = useState([]);
 	
 	const	[selectMode, set_selectMode] = useState(false);
-	const	[selectedPictures, set_selectedPictures] = useState([]);
-	const	[selectedDays, set_selectedDays] = useState({});
-	const	[albumSelectionModal, set_albumSelectionModal] = useState(false);
-	const	[changeDateModal, set_changeDateModal] = useState(false);
-	const	[successToast, set_successToast] = useState(false);
 	
-	const	[modalConfirmationStatus, set_modalConfirmationStatus] = useState(false);
-	const	[pendingAction, set_pendingAction] = useState(undefined);
+	const	[selectedPictures, set_selectedPictures] = useState([]); //ALL THE OBJECT
+	const	[selectedPicturesKeys, set_selectedPicturesKeys] = useState([]); //ONLY THE KEYS
+
+	const	[selectedDays, set_selectedDays] = useState({});
+	const	[successToast, set_successToast] = useState(false);
 
 	const	[lightRoom, set_lightRoom] = useState(false);
 	const	[lightRoomIndex, set_lightRoomIndex] = useState(0);
@@ -394,8 +470,8 @@ function	PictureList(props) {
 	const	isShift = useKeyPress('Shift');
 	const	[lastCheck, set_lastCheck] = useState(-1);
 	const	[infiniteListHeight, set_infiniteListHeight] = useState(0);
-	const	imgref = React.useRef(null);
 	const	uploaderRef = React.useRef(null);
+	const	modalsRef = React.useRef(null);
 
 	const	domElements = [];
 
@@ -432,11 +508,11 @@ function	PictureList(props) {
 	if (!isReady)
 		return (null);
 
-	function	onDeletePicture(_selectedPictures = selectedPictures) {
+	function	onDeletePicture(_selectedPictures = selectedPicturesKeys) {
 		API.DeletePictures({picturesID: _selectedPictures}).then(() => {
 			const	_pictureList = pictureList.filter(item => _selectedPictures.findIndex(elem => elem === item.uri) == -1)
 			props.set_pictureList(_pictureList);
-			set_selectedPictures([]);
+			set_selectedPicturesKeys([]);
 			set_selectedDays({});
 			set_selectMode(false);
 		});
@@ -444,10 +520,10 @@ function	PictureList(props) {
 	function	onSetAlbumCover() {
 		API.SetAlbumCover({
 			albumID: props.albumID,
-			coverPicture: selectedPictures[0] || '',
+			coverPicture: selectedPicturesKeys[0] || '',
 		}).then((e) => {
 			set_successToast(true);
-			set_selectedPictures([]);
+			set_selectedPicturesKeys([]);
 			set_selectedDays({});
 			set_selectMode(false);
 		})
@@ -471,7 +547,7 @@ function	PictureList(props) {
 	**	and the selected days to update the checkboxes
 	**************************************************************************/
 	function	updateSelectedPicture(element) {
-		const	_selectedPictures = selectedPictures;
+		const	_selectedPictures = selectedPicturesKeys;
 		const	pictureSelected = _selectedPictures.indexOf(element.uri);
 		const	daysToRecheck = {};
 
@@ -482,11 +558,11 @@ function	PictureList(props) {
 
 		daysToRecheck[element.day] = true;
 		updateDaysCheckBox(daysToRecheck, _selectedPictures);
-		set_selectedPictures(_selectedPictures);
+		set_selectedPicturesKeys(_selectedPictures);
 		set_selectMode(_selectedPictures.length > 0);
 	}
 	function	batchUpdateSelectedPictures(element, elemIndex) {
-		const	_selectedPictures = selectedPictures;
+		const	_selectedPictures = selectedPicturesKeys;
 		const	pictureSelected = _selectedPictures.indexOf(element.uri);
 		const	daysToRecheck = {};
 		const	batchFirst = lastCheck > elemIndex ? elemIndex : lastCheck;
@@ -510,7 +586,7 @@ function	PictureList(props) {
 			}
 		}
 		updateDaysCheckBox(daysToRecheck, _selectedPictures)
-		set_selectedPictures(_selectedPictures);
+		set_selectedPicturesKeys(_selectedPictures);
 		set_selectMode(_selectedPictures.length > 0);
 		set_update(update + 1);
 	}
@@ -534,40 +610,40 @@ function	PictureList(props) {
 	}
 	function	onDayToggleClick(day) {
 		const	dayPictures = pictureList.filter(elem => elem.dateAsKey === day).map(e => e.uri);
-		const	selectedDayPictures = selectedPictures.filter(elem => dayPictures.indexOf(elem) > -1);
+		const	selectedDayPictures = selectedPicturesKeys.filter(elem => dayPictures.indexOf(elem) > -1);
 		
 		if (selectedDayPictures.length === 0) {
 			/* SHOULD SELECT ALL */
-			const	_selectedPictures = [...selectedPictures, ...dayPictures];
+			const	_selectedPictures = [...selectedPicturesKeys, ...dayPictures];
 			const	_selectedDays = selectedDays;
 			_selectedDays[day] = `FULL`
 
 			// console.log(pictureList.find(e => e.uri === dayPictures[dayPictures.length - 1]).originalIndex)
-			set_selectedPictures(_selectedPictures);
+			set_selectedPicturesKeys(_selectedPictures);
 			set_selectedDays(_selectedDays);
 			set_selectMode(true);
 			set_lastCheck(pictureList.find(e => e.uri === dayPictures[dayPictures.length - 1]).originalIndex)
 		} else if (selectedDayPictures.length === dayPictures.length) {
 			/* SHOULD UNSELECT ALL */
-			const	_selectedPictures = selectedPictures.filter(elem => dayPictures.indexOf(elem) === -1);
+			const	_selectedPictures = selectedPicturesKeys.filter(elem => dayPictures.indexOf(elem) === -1);
 			const	_selectedDays = selectedDays;
 
 			_selectedDays[day] = `NONE`
 			
 			set_lastCheck(-1);
-			set_selectedPictures(_selectedPictures);
+			set_selectedPicturesKeys(_selectedPictures);
 			set_selectedDays(_selectedDays);
 			set_selectMode(_selectedPictures.length > 0);
 		} else {
 			/* SHOULD SELECT SOME */
 			const	toSelect = dayPictures.filter(elem => selectedDayPictures.indexOf(elem) === -1);
-			const	_selectedPictures = [...selectedPictures, ...toSelect];
+			const	_selectedPictures = [...selectedPicturesKeys, ...toSelect];
 			const	_selectedDays = selectedDays;
 			
 			_selectedDays[day] = `FULL`
 
 			set_lastCheck(pictureList.find(e => e.uri === dayPictures[dayPictures.length - 1]).originalIndex)
-			set_selectedPictures(_selectedPictures);
+			set_selectedPicturesKeys(_selectedPictures);
 			set_selectedDays(_selectedDays);
 			set_selectMode(true);
 		}
@@ -579,19 +655,21 @@ function	PictureList(props) {
 		pictureList.map(e => _selectedDays[e.dateAsKey] = `FULL`)
 
 		set_lastCheck(-1);
-		set_selectedPictures(_selectedPictures);
+		set_selectedPicturesKeys(_selectedPictures);
 		set_selectedDays(_selectedDays);
 		set_update(update + 1);
 	}
 	function	onUnselectAll() {
 		set_lastCheck(-1);
-		set_selectedPictures([]);
+		set_selectedPicturesKeys([]);
 		set_selectedDays({});
 		set_selectMode(false);
 		set_update(update + 1);
 	}
 	function	onRotate(direction) {
-		selectedPictures.forEach(async (each) => {
+		uploaderRef.current.SetUploader()
+
+		selectedPicturesKeys.forEach(async (each) => {
 			let		image = await API.GetImage(each, null, 'original')
 			let		imageToRotate = new Image();
 
@@ -618,24 +696,13 @@ function	PictureList(props) {
 				}
 				c.restore();
 
-				// imageToRotate = null;
-				image = null;
-
 				canvas.convertToBlob({type: 'image/jpeg', quality: 1}).then((blob) => {
-					// imgref.current.src = URL.createObjectURL(blob);
-					// imgref.current.onload = null
-
 					const	file = new File([blob], '');
 					file.width = imageToRotate.height
 					file.height = imageToRotate.width
-
 					uploaderRef.current.Reupload(null, 0, [file], each)
-
-
-
-					// blob.arrayBuffer().then((arrayBuffer) => {
-					// 	console.log({data: arrayBuffer, width: imageToRotate.width, height: imageToRotate.height});
-					// })
+					imageToRotate = null;
+					image = null;
 				})
 			}
 			imageToRotate.src = image
@@ -652,7 +719,7 @@ function	PictureList(props) {
 				originalWidth={element.originalWidth}
 				originalHeight={element.originalHeight}
 				isSelectMode={selectMode}
-				isSelected={selectedPictures.indexOf(element.uri) > -1}
+				isSelected={selectedPicturesKeys.indexOf(element.uri) > -1}
 				onToggle={() => {
 					if (isShift && lastCheck > -1)
 						batchUpdateSelectedPictures(element, elemIndex);
@@ -686,95 +753,111 @@ function	PictureList(props) {
 		)
 	}
 
-	return (
-		<div>
-			<div style={{width: 500, maxHeight: 500}}>
-				<img id={'image'} ref={imgref} style={{opacity: 1, pointerEvent: 'none', objectFit: 'cover', overflow: 'scroll'}} />
-				</div>
-			<ActionBar
-				isEnabled={selectMode}
-				allPictureSelected={selectMode && pictureList.length === selectedPictures.length}
-				albumID={props.albumID}
-				onCancel={() => {
-					set_selectedPictures([]);
+	function	renderModals() {
+		return (
+			<Modals
+				ref={modalsRef}
+				modals={{
+					confirmation: {
+						enabled: true,
+						onConfirm: function(data) {
+							if (data && data.action)
+								data.action();
+							modalsRef.current.Close('confirmation');
+						},
+					},
+					albums: {
+						enabled: true,
+						onConfirm: function(action, data) {
+							if (action === 'appendToAlbum') {
+								API.SetPicturesAlbum({
+									albumID: data.albumID,
+									groupIDs: selectedPicturesKeys,
+								}).then(() => {
+									//TODO: ADD SUCCESS TOAST
+								}).finally(() => {
+									modalsRef.current.Close('albums');
+								});
+							}
+							else if (action === 'createAlbum') {
+								API.CreateAlbum({
+									name: data.albumName,
+									coverPicture: selectedPicturesKeys[0],
+									pictures: selectedPicturesKeys,
+								}).then(() => {
+									//TODO: ADD SUCCESS TOAST
+								}).finally(() => {
+									modalsRef.current.Close('albums');
+								});
+							}
+						},
+					},
+					dayPicker: {
+						enabled: true,
+						onConfirm: function(confirmedDate) {
+							const	newDate = formatDate(new Date(confirmedDate));
+							API.SetPicturesDate({newDate, groupIDs: selectedPicturesKeys})
+							.then(() => {
+								const	_mappedPictureList = [];
+								const	_pictureList = pictureList.map((each) => {
+									if (selectedPicturesKeys.includes(each.uri)) {
+										each.originalTime = newDate;
+										each.dateAsKey = convertToMoment(newDate)
+									}
+									_mappedPictureList[each.uri] = each
+									return (each);
+								});
+								set_mappedPictureList(_mappedPictureList);
+								set_pictureList(_pictureList);
+							}).finally(() => {
+								modalsRef.current.Close('dayPicker');
+							});
+						},
+					}
+				}}
+				onClose={() => {
+					set_selectedPicturesKeys([]);
 					set_selectedDays({});
 					set_selectMode(false);
 				}}
-				onAddToAlbum={() => set_albumSelectionModal(true)}
-				onChangeDate={() => set_changeDateModal(true)}
+				selectedObject={pictureList.filter(e => selectedPicturesKeys.includes(e.uri))}
+			/>
+		);
+	}
+
+	return (
+		<>
+			<ActionBar
+				isEnabled={selectMode}
+				allPictureSelected={selectMode && pictureList.length === selectedPicturesKeys.length}
+				albumID={props.albumID}
+				onCancel={() => {
+					set_selectedPicturesKeys([]);
+					set_selectedDays({});
+					set_selectMode(false);
+				}}
+				onAddToAlbum={() => modalsRef.current.Open('albums', {albumList: props.albumList})}
+				onChangeDate={() => modalsRef.current.Open('dayPicker')}
 				onDeletePicture={onDeletePicture}
 				onSetCover={onSetAlbumCover}
 				onSelectAll={onSelectAll}
 				onUnselectAll={onUnselectAll}
-				onRotate={(direction) => {
-					set_pendingAction(() => () => onRotate(direction));
-					set_modalConfirmationStatus(true)
-				}}
-				len={selectedPictures.length} />
-			<InfiniteList
-				set_infiniteListHeight={set_infiniteListHeight}
+				onRotate={(direction) => modalsRef.current.Open('confirmation', {action: () => onRotate(direction), direction})}
+				len={selectedPicturesKeys.length} />
+			{renderModals()}
+			<Row>
+				<Col xs={2} sm={4} md={12} lg={12}>
+					<InfiniteList
+						set_infiniteListHeight={set_infiniteListHeight}
 				renderChildren={renderImage}
 				renderDaySeparator={renderDaySeparator}
 				childrenContainer={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: 16}}
-				pictureList={pictureList} />
-			<ModalAlbumSelection
-				isOpen={albumSelectionModal}
-				onClose={() => {
-					set_albumSelectionModal(false);
-					set_selectedPictures([]);
-					set_selectedDays({});
-					set_selectMode(false);
-				}}
-				albumList={props.albumList}
-				selected={selectedPictures} />
-			<ModalDayPicker
-				isOpen={changeDateModal}
-				onConfirm={(newDate) => {
-					const	_mappedPictureList = [];
-					const	_pictureList = pictureList.map((each) => {
-						if (selectedPictures.includes(each.uri)) {
-							each.originalTime = newDate;
-							each.dateAsKey = convertToMoment(newDate)
-						}
-						_mappedPictureList[each.uri] = each
-						return (each);
-					});
+						pictureList={pictureList} />
+				</Col>
+			</Row>
 
-					set_changeDateModal(false);
-					set_selectedPictures([]);
-					set_selectedDays({});
-					set_selectMode(false);
-					set_mappedPictureList(_mappedPictureList);
-					set_pictureList(_pictureList);
-				}}
-				onClose={() => {
-					set_changeDateModal(false);
-					set_selectedPictures([]);
-					set_selectedDays({});
-					set_selectMode(false);
-				}}
-				selectedObject={mappedPictureList[selectedPictures[0]]}
-				selected={selectedPictures} />
-			<ModalConfirmation
-				isOpen={true || modalConfirmationStatus}
-				onClose={() => {
-					set_selectedPictures([]);
-					set_selectedDays({});
-					set_selectMode(false);
-					set_pendingAction(undefined);
-				}}
-				onConfirm={() => {
-					set_modalConfirmationStatus(false);
-					pendingAction();
-					set_selectedPictures([]);
-					set_selectedDays({});
-					set_selectMode(false);
-				}}
-				text={'Are you sure you want to rotate these 5 images?'}
-			/>
 			<Timebar
-				data={timelineData}
-			/>
+				data={timelineData} />
 			<ToastSuccess
 				isOpen={successToast}
 				onClose={() => set_successToast(false)}
@@ -792,7 +875,7 @@ function	PictureList(props) {
 				list={pictureList}
 				originalIndex={lightRoomIndex} />
 			}
-		</div>
+		</>
 	);
 }
 

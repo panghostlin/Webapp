@@ -5,7 +5,7 @@
 ** @Filename:				PhotoCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 23 March 2020 - 19:48:48
+** @Last modified time:		Tuesday 14 April 2020 - 14:37:56
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef}	from	'react';
@@ -100,7 +100,7 @@ function	Picture(props) {
 	const	pictureRef = useRef();
 
 	useEffect(() => {
-		if (props.visible) {
+		if (props.visible && !pictureData) {
 			fetchPicture()
 		}
 	}, [props.visible])
@@ -184,7 +184,10 @@ function	PhotoCardWidth(props) {
 				onClick={(e) => {e.stopPropagation(); props.onToggle()}}
 				isSelected={props.isSelected} />
 			<PhotoContainer ref={imageRef} height={height}>
-				{shouldDisplay && <Picture visible={visible} height={height} signal={signal} {...props} />}
+				{shouldDisplay && <Picture
+					visible={visible}
+					height={height}
+					signal={signal} {...props} />}
 			</PhotoContainer>
 			<Background isSelectMode={props.isSelectMode} />
 		</CardContainer>

@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 12:16:57
+** @Last modified time:		Monday 30 March 2020 - 15:05:01
 *******************************************************************************/
 
 import	styled, {css, keyframes}		from	'styled-components';
@@ -158,6 +158,15 @@ function	ToastUploadProgress(props) {
 	}
 	if (!props.open)
 		return (null);
+	if (props.current === -1) {
+		return (
+			<ToastUploadContainer>
+				<ToastUploadElement>
+					{'Préparation'}
+				</ToastUploadElement>
+			</ToastUploadContainer>
+		)
+	}
 	return (
 		<ToastUploadContainer>
 			<ToastUploadElement>

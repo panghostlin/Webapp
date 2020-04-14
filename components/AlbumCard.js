@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 10 March 2020 - 11:19:11
+** @Last modified time:		Tuesday 14 April 2020 - 14:46:26
 *******************************************************************************/
 
 
@@ -27,7 +27,6 @@ const	AlbumFake = styled.div`
     height: 100%;
     left: 0;
 	object-fit: cover;
-	border: 2px dashed #B5B7DF;
 	color: #FFFFFF;
 	font-size: 16px;
 	display: flex;
@@ -35,9 +34,8 @@ const	AlbumFake = styled.div`
 	align-items: center;
 	transition: 0.2s;
 	&:hover {
-		background-color: #B5B7DF80;
+		background-color: ${props => props.theme.colors['neutral-darker']};
 		cursor: pointer;
-		border: 2px dashed transparent;
 	}
 
 `;
@@ -94,7 +92,9 @@ const	AlbumInner = styled.div`
 	border-radius: 6px;
 	overflow: hidden;
 	transition: all .1s ease-in-out;
-	background: #242a3b;
+	background: ${props => props.theme.colors.neutral};
+	border: 2px solid ${props => props.theme.colors['neutral-darker']};
+
 `;
 
 function	Picture(props) {
@@ -147,6 +147,32 @@ function	AlbumsCard(props) {
 		);
 	}
 
+	if (!props.album.NumberOfPictures || props.album.NumberOfPictures === 0) {
+		return (
+			<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
+				<AlbumContainer>
+					<AlbumImages>
+						{rendeCover()}
+					</AlbumImages>
+					<AlbumTitle>{props.album.name}</AlbumTitle>
+					<AlbumDescription>{`No picture - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
+				</AlbumContainer>
+			</Link>
+		);
+	}
+	else if (props.album.NumberOfPictures === 1) {
+		return (
+			<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
+				<AlbumContainer>
+					<AlbumImages>
+						{rendeCover()}
+					</AlbumImages>
+					<AlbumTitle>{props.album.name}</AlbumTitle>
+					<AlbumDescription>{`1 picture - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
+				</AlbumContainer>
+			</Link>
+		);
+	}
 	return (
 		<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
 			<AlbumContainer>
@@ -154,7 +180,7 @@ function	AlbumsCard(props) {
 					{rendeCover()}
 				</AlbumImages>
 				<AlbumTitle>{props.album.name}</AlbumTitle>
-				<AlbumDescription>{`${props.album.NumberOfPictures || 0} photos - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
+				<AlbumDescription>{`${props.album.NumberOfPictures} pictures - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
 			</AlbumContainer>
 		</Link>
 	);
@@ -165,7 +191,7 @@ function	AlbumsCardPreviewFake(props) {
 			<AlbumImages>
 				<AlbumInner>
 					<AlbumFake>
-						{'Créer un album +'}
+						{'Create new album'}
 					</AlbumFake>
 				</AlbumInner>
 			</AlbumImages>
