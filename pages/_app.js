@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 12:38:53
+** @Last modified time:		Wednesday 15 April 2020 - 13:25:00
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef, forwardRef, useImperativeHandle}		from	'react';
@@ -208,6 +208,7 @@ const	Uploader = forwardRef((props, ref) => {
 		const	page = element.page;
 		const	index = element.index;
 		const	fileUUID = element.UUID;
+		const	albumID = (page.current.pageInformations && page.current.pageInformations.albumID) || '';
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
@@ -230,7 +231,7 @@ const	Uploader = forwardRef((props, ref) => {
 			(UUID) => {
 				const	options = {
 					fileUUID: UUID,
-					fileAlbumID: (props.router.pathname === '/albums/[albumID]' && props.router.query.albumID) || '',
+					fileAlbumID: albumID,
 					cryptoPublicKey,
 					name: file.name,
 					lastModified: file.lastModified,
