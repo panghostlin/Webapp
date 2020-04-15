@@ -5,7 +5,7 @@
 ** @Filename:				[albumID].js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 01:44:36
+** @Last modified time:		Wednesday 15 April 2020 - 13:27:30
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -14,6 +14,7 @@ import	styled							from	'styled-components';
 import	ToastSuccess					from	'../../components/ToastSuccess';
 import	PictureList						from	'../../components/PictureList';
 import	* as API						from	'../../utils/API';
+import	{convertToMoment}				from	'../../utils/ConvertDate';
 import	GgCheck							from	'../../Icons/Check';
 
 const	Container = styled.div`
@@ -76,22 +77,6 @@ const	TextButton = styled.p`
 		border-bottom: 1px solid #858ea180;
 	}
 `;
-
-function	convertToMoment(each) {
-	const	date = each ? new Date(each) : new Date();
-
-	const	year = date.getFullYear();
-	let		day = date.getDate();
-	let		month = date.getMonth() + 1;
-	if (month < 10) {
-		month = `0${month}`
-	}
-	if (day < 10) {
-		day = `0${day}`
-	}
-
-	return `${year}-${month}-${day}`;
-}
 
 const	Albums = React.forwardRef((props, ref) => {
 	React.useImperativeHandle(ref, () => ({

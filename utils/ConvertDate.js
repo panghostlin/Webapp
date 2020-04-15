@@ -5,11 +5,11 @@
 ** @Filename:				ConvertDate.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 31 March 2020 - 14:59:30
+** @Last modified time:		Wednesday 15 April 2020 - 13:29:29
 *******************************************************************************/
 
 
-export function	convertToMoment(each) {
+export function	convertToMoment(each, separator = '-') {
 	const	date = each ? new Date(each) : new Date();
 
 	const	year = date.getFullYear();
@@ -22,7 +22,17 @@ export function	convertToMoment(each) {
 		day = `0${day}`
 	}
 
-	return `${year}-${month}-${day}`;
+	return `${year}${separator}${month}${separator}${day}`;
+}
+
+export function	convertToDay(each) {
+	const	date = each ? new Date(each) : new Date();
+	const	months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+
+	const	day = date.getDate();
+	const	month = months[date.getMonth()];
+	const	year = date.getFullYear();
+	return (`${day} ${month} ${year}`);
 }
 
 export function	convertDate(day) {

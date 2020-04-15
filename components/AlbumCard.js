@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 01:26:56
+** @Last modified time:		Wednesday 15 April 2020 - 13:29:37
 *******************************************************************************/
 
 
@@ -13,6 +13,7 @@ import	React, {useState, useEffect, useRef}	from	'react';
 import	Link							from	'next/link';
 import	styled							from	'styled-components';
 import	* as API						from	'../utils/API'
+import	{convertToDay}					from	'../utils/ConvertDate';
 
 const	FullPicture = styled.img`
 	contain: layout;
@@ -126,16 +127,6 @@ function	Picture(props) {
 };
 
 function	AlbumsCard(props) {
-	function	convertToMoment(toConvert) {
-		const	date = toConvert ? new Date(toConvert) : new Date();
-		const	months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-
-		const	day = date.getDate();
-		const	month = months[date.getMonth()];
-		const	year = date.getFullYear();
-		return (`${day} ${month} ${year}`);
-	}
-
 	function	rendeCover() {
 		if (props.album.coverPicture === undefined) {
 			return (<AlbumInner />);
@@ -155,7 +146,7 @@ function	AlbumsCard(props) {
 						{rendeCover()}
 					</AlbumImages>
 					<AlbumTitle>{props.album.name}</AlbumTitle>
-					<AlbumDescription>{`No picture - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
+					<AlbumDescription>{`No picture - ${convertToDay(props.album.creationTime)}`}</AlbumDescription>
 				</AlbumContainer>
 			</Link>
 		);
@@ -168,7 +159,7 @@ function	AlbumsCard(props) {
 						{rendeCover()}
 					</AlbumImages>
 					<AlbumTitle>{props.album.name}</AlbumTitle>
-					<AlbumDescription>{`1 picture - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
+					<AlbumDescription>{`1 picture - ${convertToDay(props.album.creationTime)}`}</AlbumDescription>
 				</AlbumContainer>
 			</Link>
 		);
@@ -180,7 +171,7 @@ function	AlbumsCard(props) {
 					{rendeCover()}
 				</AlbumImages>
 				<AlbumTitle>{props.album.name}</AlbumTitle>
-				<AlbumDescription>{`${props.album.NumberOfPictures} pictures - ${convertToMoment(props.album.creationTime)}`}</AlbumDescription>
+				<AlbumDescription>{`${props.album.NumberOfPictures} pictures - ${convertToDay(props.album.creationTime)}`}</AlbumDescription>
 			</AlbumContainer>
 		</Link>
 	);
