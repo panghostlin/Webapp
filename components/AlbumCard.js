@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 14:46:26
+** @Last modified time:		Wednesday 15 April 2020 - 01:26:56
 *******************************************************************************/
 
 
@@ -149,7 +149,7 @@ function	AlbumsCard(props) {
 
 	if (!props.album.NumberOfPictures || props.album.NumberOfPictures === 0) {
 		return (
-			<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
+			<Link href={'/albums/[albumID]'} as={`/albums/${props.album.albumID}`}>
 				<AlbumContainer>
 					<AlbumImages>
 						{rendeCover()}
@@ -162,7 +162,7 @@ function	AlbumsCard(props) {
 	}
 	else if (props.album.NumberOfPictures === 1) {
 		return (
-			<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
+			<Link href={'/albums/[albumID]'} as={`/albums/${props.album.albumID}`}>
 				<AlbumContainer>
 					<AlbumImages>
 						{rendeCover()}
@@ -174,7 +174,7 @@ function	AlbumsCard(props) {
 		);
 	}
 	return (
-		<Link href={'/albums/[album]'} as={`/albums/${props.album.albumID}`}>
+		<Link href={'/albums/[albumID]'} as={`/albums/${props.album.albumID}`}>
 			<AlbumContainer>
 				<AlbumImages>
 					{rendeCover()}

@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 01:21:52
+** @Last modified time:		Wednesday 15 April 2020 - 11:10:30
 *******************************************************************************/
 
 import	React, {useState, useRef, forwardRef, useImperativeHandle}		from	'react';
@@ -48,7 +48,16 @@ const	Toaster = forwardRef((props, ref) => {
 const	Uploader = forwardRef((props, ref) => {
 	useImperativeHandle(ref, () => ({
 		Reupload(oldWorker, index, files, fileUUID) {
-			onUploadFile(oldWorker, index, files, fileUUID);
+			const	currentPage = Object.assign({}, props.componentRef);
+			const	filesWithOptions = [];
+			const	filesLength = event.dataTransfer.files.length;
+			for (var i = 0; i < filesLength; i++) {
+				filesWithOptions.push({
+					file: event.dataTransfer.files[i],
+					page: currentPage
+				});
+			}
+			onUploadFile(oldWorker, index, filesWithOptions, fileUUID)
 		},
 		SetUploader() {
 			SetUploader();
@@ -180,7 +189,9 @@ const	Uploader = forwardRef((props, ref) => {
 		}
 
 		const	currentWorker = Worker.register();
-		const	file = files[index];
+		const	currentFileInformations = files[index];
+		const	file = currentFileInformations.file;
+		const	page = currentFileInformations.page;
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
@@ -218,11 +229,11 @@ const	Uploader = forwardRef((props, ref) => {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
 
-						props.onUploaded(_prev => [..._prev, response.Picture])
-						onUploadFile(currentWorker, index + 1, files);
+						props.onUploaded(_prev => [..._prev, response.Picture], page)
+						onUploadFile(currentWorker, index + 1, files, fileUUID);
 					} else {
 						console.error(`ERROR WITH ${index}`);
-						onUploadFile(currentWorker, index + 1, files) //SKIP THE FAILURE
+						onUploadFile(currentWorker, index + 1, files, fileUUID) //SKIP THE FAILURE
 					}
 				} else {
 					props.toasterRef.current.toggleToast(true, {
@@ -248,7 +259,16 @@ const	Uploader = forwardRef((props, ref) => {
 				onDragLeave={() => props.set_isDragNDrop(false)}
 				onDrop={(event) => {
 					props.set_isDragNDrop(false);
-					onUploadFile(undefined, 0, event.dataTransfer.files)
+					const	currentPage = Object.assign({}, props.componentRef);
+					const	filesWithOptions = [];
+					const	filesLength = event.dataTransfer.files.length;
+					for (var i = 0; i < filesLength; i++) {
+						filesWithOptions.push({
+							file: event.dataTransfer.files[i],
+							page: currentPage
+						});
+					}
+					onUploadFile(undefined, 0, filesWithOptions, undefined)
 				}} />
 		</>
 	);
@@ -280,10 +300,24 @@ function	MyApp(props) {
 			<Uploader
 				ref={uploaderRef}
 				toasterRef={toasterRef}
-				router={router}
+				componentRef={componentRef}
 				isDragNDrop={isDragNDrop}
 				set_isDragNDrop={set_isDragNDrop}
-				onUploaded={data => componentRef.current.onUploaded(data)} />
+				router={router}
+				onUploaded={(data, objCopy) => {
+					if (objCopy.current && componentRef.current) {
+						const	onUploadPageInformation = JSON.stringify(objCopy.current.pageInformations);
+						const	currentPageInformation = JSON.stringify(componentRef.current.pageInformations);
+
+						if (onUploadPageInformation === currentPageInformation) {
+							//Same page, we can perform the onUploaded callback
+							componentRef.current.onUploaded(data)
+						} else if (currentPageInformation === '{"page":"gallery"}') {
+							//Main page -> we can still append the picture to the page
+							componentRef.current.onUploaded(data)
+						}
+					}
+				}} />
 		</WithTheme>
 	);
 }

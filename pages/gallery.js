@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 01:12:58
+** @Last modified time:		Wednesday 15 April 2020 - 01:44:32
 *******************************************************************************/
 
 import	React, {useState, useEffect}		from	'react';
@@ -17,6 +17,9 @@ import	{PageContainer, Section, Container}	from	'../style/Frame';
 
 const	Gallery = React.forwardRef((props, ref) => {
 	React.useImperativeHandle(ref, () => ({
+		pageInformations: {
+			page: `gallery`
+		},
 		onUploaded(e) {
 			set_pictureList(e);
 		}

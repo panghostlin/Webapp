@@ -5,7 +5,7 @@
 ** @Filename:				[albumID].js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 01:14:28
+** @Last modified time:		Wednesday 15 April 2020 - 01:44:36
 *******************************************************************************/
 
 import	React, {useState, useEffect}	from	'react';
@@ -95,6 +95,10 @@ function	convertToMoment(each) {
 
 const	Albums = React.forwardRef((props, ref) => {
 	React.useImperativeHandle(ref, () => ({
+		pageInformations: {
+			page: `Albums`,
+			albumID: props.albumID
+		},
 		onUploaded(e) {
 			set_pictureList(e);
 		}
