@@ -5,7 +5,7 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 11:10:30
+** @Last modified time:		Wednesday 15 April 2020 - 11:18:11
 *******************************************************************************/
 
 import	React, {useState, useRef, forwardRef, useImperativeHandle}		from	'react';
@@ -50,7 +50,7 @@ const	Uploader = forwardRef((props, ref) => {
 		Reupload(oldWorker, index, files, fileUUID) {
 			const	currentPage = Object.assign({}, props.componentRef);
 			const	filesWithOptions = [];
-			const	filesLength = event.dataTransfer.files.length;
+			const	filesLength = files.length;
 			for (var i = 0; i < filesLength; i++) {
 				filesWithOptions.push({
 					file: event.dataTransfer.files[i],
