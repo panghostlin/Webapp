@@ -5,7 +5,7 @@
 ** @Filename:				Check.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 04 February 2020 - 18:29:19
+** @Last modified time:		Wednesday 15 April 2020 - 18:33:25
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -19,11 +19,10 @@ const	GgCheck = styled.div`
     height: 22px;
     border: ${props => props.outline ? '2px solid transparent' : '2px solid'};
     border-radius: 100px;
-	color: ${props => props.color || '#FFFFFF'};
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
 	cursor: ${props => props.disable ? 'default' : 'pointer'};
-
 	&:hover {
-		color: ${props => props.hoverColor || '#FFFFFF'};
+		color: ${props => props.hoverColor || props.theme.colors[props.theme.mode].secondary};
 	}
 
 	&::after {

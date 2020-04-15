@@ -5,13 +5,12 @@
 ** @Filename:				Buttons.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 24 March 2020 - 19:04:01
+** @Last modified time:		Wednesday 15 April 2020 - 15:42:14
 *******************************************************************************/
 
 import	styled			from	'styled-components';
 
 const	DefaultButton = styled.button`
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-style: normal;
 	font-weight: 500;
 	font-size: 16px;

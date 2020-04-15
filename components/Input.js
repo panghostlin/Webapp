@@ -5,23 +5,23 @@
 ** @Filename:				Input.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 20:21:25
+** @Last modified time:		Wednesday 15 April 2020 - 17:08:58
 *******************************************************************************/
 
 import styled from 'styled-components';
 
 const	Input = styled.input`
-	color: #FFFFFF;
+	color: ${props => (props.theme.colors[props.theme.mode].secondary)};
 	cursor: pointer;
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-size: 18px;
 	width: 100%;
 	margin-bottom: 16px;
 	display: block;
 	min-width: 0;
 	outline: none;
-	background: ${props => props.theme.colors['neutral-darker']};
+	background: ${props => props.theme.mode === 'dark' ? props.theme.colors.dark['neutral-darker'] : props.theme.colors[props.theme.mode]['white']};
 	border: none;
+	border: 1px solid ${props => props.theme.colors[props.theme.mode]['neutral-darker']};
 	box-shadow: unset;
 	border-radius: 4px;
 	padding: 12px;
@@ -30,16 +30,15 @@ const	Input = styled.input`
 	box-sizing: border-box;
 `;
 const	FakeInput = styled.div`
-	color: #FFFFFF;
+	color: ${props => (props.theme.colors[props.theme.mode].secondary)};
 	cursor: pointer;
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-size: ${props => props.font || '18px'};
 	width: 100%;
 	margin-bottom: 16px;
 	display: block;
 	min-width: 0;
 	outline: none;
-	background: ${props => props.theme.colors['neutral-darker']};
+	background: ${props => props.theme.mode === 'dark' ? props.theme.colors.dark['neutral-darker'] : props.theme.colors.light['white']};
 	border: none;
 	box-shadow: unset;
 	border-radius: 4px;
@@ -50,8 +49,11 @@ const	FakeInput = styled.div`
 	word-break: break-word;
 `;
 const	InputLabel = styled.p`
-	color: ${props => props.isOk === false && props.value.length > 0 ? '#EF5350' : '#FFFFFF'};
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	color: ${props => (
+		(props.isOk === false && props.value.length > 0) && '#EF5350' ||
+		(props.theme.mode === 'light' && props.theme.colors.light['neutral']) ||
+		(props.theme.mode === 'dark' && props.theme.colors.dark['secondary-40'])
+	)};
 	font-size: 14px;
 	margin-top: 0px;
 	margin-bottom: 8px;

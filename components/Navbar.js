@@ -5,16 +5,14 @@
 ** @Filename:				Navbar.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 14:24:31
+** @Last modified time:		Wednesday 15 April 2020 - 18:36:46
 *******************************************************************************/
 
 import	React, {useState, useRef}	from	'react';
 import	styled						from	'styled-components';
 import	{useRouter}					from	'next/router';
 import	useIntersectionObserver		from	'../hooks/useIntersectionObserver';
-
-import	GgImage						from	'../Icons/Image';
-import	GgAlbum						from	'../Icons/Album';
+import	{P, H5}						from	'../style/Typo';
 import	GgUpload					from	'../Icons/Upload';
 import	GgClose						from	'../Icons/Cross';
 import	GgAdd						from	'../Icons/Add';
@@ -30,17 +28,17 @@ const	StyledNavbar = styled.header`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: 76px;
+	height: 72px;
 	width: 100%;
-	position: sticky;
+	position: fixed;
 	top: 0;
 	left: 0%;
 	z-index: 500;
 	padding: 0px 8.33%;
-	border-bottom: 2px solid ${props => props.theme.colors['neutral-darker']};
-	background-color: ${props => props.theme.colors['neutral-90']};
+	background-color: ${props => props.theme.colors[props.theme.mode]['neutral-90']};
 	backdrop-filter: blur(12px);
 	contain: layout;
+    box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12);
 
 `;
 const	Menu = styled.menu`
@@ -61,7 +59,7 @@ const	MenuItem = styled.div`
 	${props => props.noSpaceLeft && 'margin-left: 0'};
 	&::after {
 		cursor: pointer;
-		content: '${props => props.content}';
+		content: ${props => props.content ? `"${props.content}"` : 'none'};
 		display: flex;
 		background: #FFFFFF;
 		position: absolute;
@@ -71,7 +69,7 @@ const	MenuItem = styled.div`
 		z-index: -1000;
 	}
 	&:hover::after {
-		content: '${props => props.content}';
+		content: ${props => props.content ? `"${props.content}"` : 'none'};
 		display: flex;
 		background: #FFFFFF;
 		position: absolute;
@@ -93,6 +91,7 @@ const	SearchBar = styled.input`
 	padding-left: 8px;
 	padding-right: 8px;
 	font-size: 14px;
+	background: ${props => props.theme.colors[props.theme.mode]['secondary-10']};
 `;
 const	Text = styled.p`
 	font-size: 16px;
@@ -100,7 +99,7 @@ const	Text = styled.p`
 `;
 const	StyledActionbar = styled(StyledNavbar)`
 	z-index: ${props => props.isEnabled ? 500 : -1};
-	background-color: ${props => props.theme.colors['neutral']};
+	background-color: ${props => props.theme.colors[props.theme.mode]['neutral']};
 	position: fixed;
 `;
 
@@ -124,13 +123,14 @@ function	NavBar(props) {
 	return (
 		<>
 			<div ref={navbarRef} />
-			<StyledNavbar style={{borderBottom: isSticky && 'transparent'}}>
+			<StyledNavbar style={{boxShadow: isSticky && 'none'}}>
+				{/* <img src={'/logo.svg'} height={61} /> */}
 				<Menu>
-					<MenuItem content={'Mes albums'} onClick={() => Router.push(`/albums`)}>
-						<GgAlbum />
+					<MenuItem onClick={() => Router.push(`/albums`)}>
+						<H5>{'Albums'}</H5>
 					</MenuItem>
-					<MenuItem content={'Ma galerie'} onClick={() => Router.push(`/gallery`)}>
-						<GgImage />
+					<MenuItem onClick={() => Router.push(`/gallery`)}>
+						<H5>{'Galerie'}</H5>
 					</MenuItem>
 
 					<SearchBar placeholder={'Rechercher des photos'} />
@@ -150,6 +150,7 @@ function	NavBar(props) {
 }
 
 function	ActionBar(props) {
+	return null
 	return (
 		<StyledActionbar isEnabled={props.isEnabled}>
 			<Menu>

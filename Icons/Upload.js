@@ -5,7 +5,7 @@
 ** @Filename:				Upload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 16:58:10
+** @Last modified time:		Wednesday 15 April 2020 - 18:29:23
 *******************************************************************************/
 
 import	styled						from	'styled-components';
@@ -21,7 +21,7 @@ const	GgUpload = styled.div`
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     margin-top: 8px;
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
 
 	&::after {
 		content: "";

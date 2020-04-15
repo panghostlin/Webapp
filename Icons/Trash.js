@@ -5,7 +5,7 @@
 ** @Filename:				Add.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 17:37:11
+** @Last modified time:		Wednesday 15 April 2020 - 18:33:08
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -25,7 +25,7 @@ const	GgTrash = styled.div`
     border-bottom-left-radius: 1px;
     border-bottom-right-radius: 1px;
     margin-top: 4px;
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
 	&::after, &::before {
 		content: "";
 		display: block;

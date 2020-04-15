@@ -5,26 +5,27 @@
 ** @Filename:				index.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 13:40:42
+** @Last modified time:		Wednesday 15 April 2020 - 18:39:23
 *******************************************************************************/
 
 import	React, {useState}		from	'react';
 import	{useRouter}				from	'next/router';
-import	Router						from	'next/router'
+import	Router					from	'next/router'
 
 import	styled					from	'styled-components';
 import	{PageContainer, Container, Row, Col}			from	'../style/Frame';
 import	{Button, TextButton}	from	'../style/Button';
-import	{H1}					from	'../style/Typo';
+import	{H1, Label}				from	'../style/Typo';
 
-import	Input, {InputLabel}		from	'../components/Input';
+import	{GalleryFakeBrowser}	from	'../components/FakeBrowsers';
+import	Input					from	'../components/Input';
 import	* as API				from	'../utils/API';
 import	* as Crypto				from	'../utils/Crypto';
 import	validateEmail			from	'../utils/ValidateEmail';
 
 const	PageRow = styled(Row)`
 	background-image: radial-gradient(rgba(255,255,255,.05) 1px,transparent 0),radial-gradient(rgba(255,255,255,.05) 1px,transparent 0);
-    background: radial-gradient(${props => props.theme.colors['neutral-darker']} 1px,transparent 0),radial-gradient(${props => props.theme.colors['neutral-darker']} 1px,transparent 0),linear-gradient(180deg,${props => props.theme.colors['neutral-darker']} 0%,${props => props.theme.colors['neutral-lighter']} 100%);
+    background: radial-gradient(${props => props.theme.colors[props.theme.mode]['neutral-darker']} 1px,transparent 0),radial-gradient(${props => props.theme.colors[props.theme.mode]['neutral-darker']} 1px,transparent 0),linear-gradient(180deg,${props => props.theme.colors[props.theme.mode]['neutral-darker']} 0%,${props => props.theme.colors[props.theme.mode]['neutral-lighter']} 100%);
     background-size: 40px 40px,40px 40px,100%,100%;
     background-position: 0 0,20px 20px,center;
 	min-height: 100vh;
@@ -44,7 +45,7 @@ const	ContainerBackground = styled.div`
 	z-index: 0;
 	pointer-events: none;
 	& > div:first-child {
-		background: linear-gradient(20deg, ${props => props.theme.colors['neutral-darker']} 2%, transparent 60%);
+		background: linear-gradient(20deg, ${props => props.theme.colors[props.theme.mode]['neutral-darker']} 2%, transparent 60%);
 		width: 100%;
 		height: 80%;
 		display: flex;
@@ -57,7 +58,7 @@ const	ContainerBackground = styled.div`
 		top: 0;
 	}
 	& > div:last-child {
-		background: linear-gradient(150deg,transparent 0%, ${props => props.theme.colors['neutral-darker']} 100%);
+		background: linear-gradient(150deg,transparent 0%, ${props => props.theme.colors[props.theme.mode]['neutral-darker']} 100%);
 		width: 80%;
 		height: 40%;
 		transform: rotate(-30deg) translate(20%, 100%) scale(1.8);
@@ -73,13 +74,6 @@ const	BoxMessage = styled.div`
 	padding: 16px;
 	${props => props.error ? 'opacity: 1' : 'opacity: 0'}
 `;
-const	FakeLogo = styled.div`
-	width: 112px;
-	height: 112px;
-	border-radius: 56px;
-	background-color: ${props => props.theme.colors['neutral-darker']};
-`;
-
 function	setSessionsKey(decryptedPrivateKey, encodedPublicKey) {
 	window.crypto.subtle.exportKey("jwk", decryptedPrivateKey).then((privateKey) => {
 		sessionStorage.setItem(`Priv`, JSON.stringify(privateKey))
@@ -133,7 +127,7 @@ function	CreateForm(props) {
 		return (
 			<Row justify={'center'}>
 				<Col xs={2} sm={4} md={8} lg={8} align={'center'}>
-					<FakeLogo />
+					<H1>{'Panghostlin'}</H1>
 				</Col>
 			</Row>
 		);
@@ -142,7 +136,9 @@ function	CreateForm(props) {
 		return (
 			<Row justify={'center'} marginTop={3}>
 				<Col xs={2} sm={4} md={8} lg={8}>
-					<InputLabel value={email} isOk={emailIsValid}>{'Email'}</InputLabel>
+					<Label style={(emailIsValid === false && email.length > 0) ? {color: '#E4475F'} : {}}>
+						{'Email'}
+					</Label>
 				</Col>
 				<Col xs={2} sm={4} md={8} lg={8}>
 					<Input
@@ -158,7 +154,9 @@ function	CreateForm(props) {
 		return (
 			<Row justify={'center'} marginTop={1}>
 				<Col xs={2} sm={4} md={8} lg={8}>
-					<InputLabel value={password} isOk={passwordIsValid}>{'Password'}</InputLabel>
+					<Label style={(passwordIsValid === false && password.length > 0) ? {color: '#E4475F'} : {}}>
+						{'Password'}
+					</Label>
 				</Col>
 				<Col xs={2} sm={4} md={8} lg={8}>
 					<Input
@@ -185,7 +183,7 @@ function	CreateForm(props) {
 				<Col xs={2} sm={4} md={8} lg={8} align={'center'}>
 					<TextButton
 						primary
-						color={'white-40'}
+						color={'secondary-40'}
 						onClick={props.onSwitch}>
 						{'Already an account ? Login instead'}
 					</TextButton>
@@ -249,7 +247,7 @@ function	LoginForm(props) {
 		return (
 			<Row justify={'center'}>
 				<Col xs={2} sm={4} md={8} lg={8} align={'center'}>
-					<FakeLogo />
+					<H1>{'Panghostlin'}</H1>
 				</Col>
 			</Row>
 		);
@@ -258,7 +256,9 @@ function	LoginForm(props) {
 		return (
 			<Row justify={'center'} marginTop={3}>
 				<Col xs={2} sm={4} md={8} lg={8}>
-					<InputLabel value={email} isOk={emailIsValid}>{'Email'}</InputLabel>
+					<Label style={(emailIsValid === false && email.length > 0) ? {color: '#E4475F'} : {}}>
+						{'Email'}
+					</Label>
 				</Col>
 				<Col xs={2} sm={4} md={8} lg={8}>
 					<Input
@@ -274,7 +274,9 @@ function	LoginForm(props) {
 		return (
 			<Row justify={'center'} marginTop={1}>
 				<Col xs={2} sm={4} md={8} lg={8}>
-					<InputLabel value={password} isOk={passwordIsValid}>{'Password'}</InputLabel>
+					<Label style={(passwordIsValid === false && password.length > 0) ? {color: '#E4475F'} : {}}>
+						{'Password'}
+					</Label>
 				</Col>
 				<Col xs={2} sm={4} md={8} lg={8}>
 					<Input
@@ -301,7 +303,7 @@ function	LoginForm(props) {
 				<Col xs={2} sm={4} md={8} lg={8} align={'center'}>
 					<TextButton
 						primary
-						color={'white-40'}
+						color={'secondary-40'}
 						onClick={props.onSwitch}>
 						{'Create an account'}
 					</TextButton>
@@ -335,7 +337,9 @@ function	Login() {
 				<PageRow>
 					<Col xs={2} sm={4} md={8} lg={8} style={{position: 'relative'}} paddingVertical={9} align={'center'}>
 						<ContainerBackground><div /><div /></ContainerBackground>
-						{/* <H1 color={'white-80'} style={{zIndex: 1}}>{form}</H1> */}
+						{/* <H1 color={'secondary-80'} style={{zIndex: 1}}>{form}</H1> */}
+						<GalleryFakeBrowser style={{transform: 'scale(0.8)'}} />
+
 					</Col>
 					<Col xs={2} sm={4} md={4} lg={4} background={'neutral-lighter'} paddingVertical={9}>
 						{form === 'Login' ?

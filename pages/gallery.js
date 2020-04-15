@@ -5,7 +5,7 @@
 ** @Filename:				albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 01:44:32
+** @Last modified time:		Wednesday 15 April 2020 - 17:58:25
 *******************************************************************************/
 
 import	React, {useState, useEffect}		from	'react';
@@ -52,7 +52,7 @@ const	Gallery = React.forwardRef((props, ref) => {
 
 	return (
 		<PageContainer fluid>
-			<Section fluid background={'neutral'} paddingBottom={2}>
+			<Section fluid>
 				<Container>
 					<PictureList
 						pictureList={pictureList}

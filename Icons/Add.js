@@ -5,7 +5,7 @@
 ** @Filename:				Add.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 18:43:18
+** @Last modified time:		Wednesday 15 April 2020 - 18:29:50
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -20,7 +20,8 @@ const	GgAdd = styled.div`
     transform: scale(var(--ggs,1));
     width: 16px;
     height: 2px;
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].neutral};
+
 	&::after {
 		display: block;
 		box-sizing: border-box;

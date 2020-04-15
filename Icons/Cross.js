@@ -5,7 +5,7 @@
 ** @Filename:				Cross.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 09 February 2020 - 13:49:30
+** @Last modified time:		Wednesday 15 April 2020 - 18:33:20
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -19,7 +19,7 @@ const	GgClose = styled.div`
     height: 22px;
     border: 2px solid transparent;
     border-radius: 40px;
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
 	&::after, &::before {
 		content: "";
 		display: block;

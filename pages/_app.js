@@ -5,12 +5,13 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 13:25:00
+** @Last modified time:		Wednesday 15 April 2020 - 18:38:50
 *******************************************************************************/
 
 import	React, {useState, useEffect, useRef, forwardRef, useImperativeHandle}		from	'react';
 import	{useRouter}							from	'next/router';
 import	WithTheme							from 	'../style/StyledTheme';
+import	{Div}								from	'../style/Frame';
 import	NavBar								from	'../components/Navbar';
 import	ToastUpload							from	'../components/ToastUpload';
 import	DragNDrop							from	'../components/DragNDrop';
@@ -279,7 +280,7 @@ const	Uploader = forwardRef((props, ref) => {
 
 	return (
 		<>
-			<img id={'image'} ref={imgref} style={{opacity: 0, pointerEvent: 'none'}} />
+			<img id={'image'} ref={imgref} style={{opacity: 0, pointerEvent: 'none', position: 'absolute'}} />
 			<DragNDrop
 				isOpen={props.isDragNDrop}
 				onDragLeave={() => props.set_isDragNDrop(false)}
@@ -315,9 +316,10 @@ function	MyApp(props) {
 	return (
 		<WithTheme>
 			{router.route !== '/' && <NavBar />}
-			<div
+			<Div
 				onDragEnter={() => set_isDragNDrop(true)}
-				style={{width: '100%', minHeight: '100vh'}}>
+				background={'neutral'}
+				style={{width: '100%', padding: 0, paddingTop: router.route !== '/' ? '72px' : 0}}>
 				<Component
 					ref={componentRef}
 					isDragNDrop={isDragNDrop}
@@ -325,7 +327,7 @@ function	MyApp(props) {
 					element={props.element}
 					toasterRef={toasterRef}
 					{...pageProps} />
-			</div>
+			</Div>
 			<Toaster ref={toasterRef} />
 			<Uploader
 				ref={uploaderRef}

@@ -5,14 +5,17 @@
 ** @Filename:				next.config.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 18:58:48
+** @Last modified time:		Wednesday 15 April 2020 - 16:06:43
 *******************************************************************************/
 
 const	{PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD} = require('next/constants')
 const	withCSS = require('@zeit/next-css');
 const	UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-
-module.exports = phase => withCSS({
+const	withOptimizedImages = require('next-optimized-images');
+module.exports = phase => withCSS(withOptimizedImages({
+	test: /\.(eot|svg|ttf|woff|woff2|otf)$/,
+	loader: 'file-loader',
+	optimizeImagesInDev: true,
 	enableSvg: true,
 	target: 'serverless',
 	optimization: {
@@ -33,4 +36,5 @@ module.exports = phase => withCSS({
 	webpack(config, options) {
 		return config;
 	}
-});
+}));
+

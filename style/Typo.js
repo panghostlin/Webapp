@@ -5,14 +5,14 @@
 ** @Filename:				Typo.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 30 March 2020 - 14:44:15
+** @Last modified time:		Wednesday 15 April 2020 - 17:29:52
 *******************************************************************************/
 
 import	styled					from	'styled-components';
 import	{Default}				from	'./Global';
 
 const	DefaultTypo = Default.withComponent(styled.p`
-	color: ${props => props.theme.colors[props.color] || props.color || props.theme.colors.neutral};
+	color: ${props => props.theme.colors[props.theme.mode][props.color] || props.color || props.theme.colors[props.theme.mode].secondary};
 	text-align: ${props => props.align || 'inherit'};
 	text-decoration: ${props => props.as === 'a' ? 'underline' : 'unset'};
 	cursor: ${props => props.as === 'a' ? 'pointer' : 'unset'};
@@ -63,6 +63,14 @@ export const	PSmall = styled(DefaultTypo).attrs(props => ({as: props.as || 'p'})
 	font-weight: normal;
 	line-height: 160%;
 `;
+export const	Label = styled(DefaultTypo).attrs(props => ({as: props.as || 'p'}))`
+	font-size: ${props => `${props.theme.pixelRemRatio * 10}rem;`};
+	font-weight: normal;
+	line-height: 160%;
+	font-weight: 600;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+`;
 export const	Blockquote = styled(DefaultTypo).attrs(props => ({as: props.as || 'p'}))`
 	font-size: ${props => `${props.theme.pixelRemRatio * 14}rem;`};
 	font-style: italic;
@@ -79,5 +87,5 @@ export const	FooterH5 = styled(DefaultTypo).attrs(props => ({as: props.as || 'h5
 `;
 export const	FooterPSmall = styled(DefaultTypo).attrs(props => ({as: props.as || 'p'}))`
 	font-size: ${props => `${props.theme.pixelRemRatio * 16}rem;`};
-	color: ${props => props.theme.colors[props.color] || props.color || props.theme.colors['neutral-80']};
+	color: ${props => props.theme.colors[props.theme.mode][props.color] || props.color || props.theme.colors[props.theme.mode]['neutral-80']};
 `;

@@ -5,7 +5,7 @@
 ** @Filename:				ModalDayPicker.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 31 March 2020 - 15:11:53
+** @Last modified time:		Wednesday 15 April 2020 - 15:31:46
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -117,7 +117,7 @@ function ModalDayPicker(props) {
 				<ModalContent background={'neutral-lighter'} padding={2}>
 					<Row justify={'space-between'} align={'center'}>
 						<Col xs={2} sm={4} md={8} lg={8}>
-							<H4 color={'white'}>{'Change taken date'}</H4>
+							<H4 color={'secondary'}>{'Change taken date'}</H4>
 						</Col>
 						<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
 							<GgClose onClick={onCancel} />
@@ -130,8 +130,8 @@ function ModalDayPicker(props) {
 					</Row>
 					<Row marginTop={1} paddingVertical={2} background={'neutral-darker'}>
 						<Col xs={2} sm={4} md={12} lg={12}>
-							<PSmall color={'white-80'}>{'How does this work ?'}</PSmall>
-							<Blockquote color={'white-60'}>{'Since all your data and photos are encrypted by your secret key, we cannot modify them directly. Your browser will download each photo, make the changes, and send an encrypted version back to our servers in a secure manner. This process takes longer, but ensures the security of each of your photos.'}</Blockquote>
+							<PSmall color={'secondary-80'}>{'How does this work ?'}</PSmall>
+							<Blockquote color={'secondary-60'}>{'Since all your data and photos are encrypted by your secret key, we cannot modify them directly. Your browser will download each photo, make the changes, and send an encrypted version back to our servers in a secure manner. This process takes longer, but ensures the security of each of your photos.'}</Blockquote>
 						</Col>
 					</Row>
 					<Row marginTop={1}>

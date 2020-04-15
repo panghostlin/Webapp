@@ -5,7 +5,7 @@
 ** @Filename:				RotateLeft.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Saturday 14 March 2020 - 12:45:37
+** @Last modified time:		Wednesday 15 April 2020 - 18:33:15
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -20,7 +20,7 @@ const	GgRotateLeft = styled.div`
     border-left-color: transparent;
     border-radius: 100px;
     transform: scale(${props => props.size || 1});
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
 	&::before {
 		content: "";
 		display: block;

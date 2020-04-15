@@ -5,7 +5,7 @@
 ** @Filename:				ToastUpload.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 05 March 2020 - 13:57:22
+** @Last modified time:		Wednesday 15 April 2020 - 15:42:25
 *******************************************************************************/
 
 import	react, {useEffect, useState}	from	'react';
@@ -57,7 +57,6 @@ const	ToastUploadMeta = styled.div`
     padding: 8px 16px;
 	font-size: 14px;
 	color: #3C4043;
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	position: relative;
 	width: 100%;
 `;
@@ -66,7 +65,6 @@ const	UploadStatus = styled.p`
 	margin: 0;
 	font-size: 14px;
 	color: #3C4043;
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-weight: 700;
 	width: 100%;
 `;

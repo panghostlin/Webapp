@@ -5,7 +5,7 @@
 ** @Filename:				ModalAlbumSelection.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 14 April 2020 - 14:44:09
+** @Last modified time:		Wednesday 15 April 2020 - 15:32:07
 *******************************************************************************/
 
 import	React, {useState}				from	'react';
@@ -180,7 +180,7 @@ function ModalAlbumSelection(props) {
 					<ModalContent background={'neutral-lighter'} padding={2}>
 						<Row justify={'space-between'} align={'center'}>
 							<Col xs={2} sm={4} md={8} lg={8}>
-								<H4 color={'white'}>{'Add to album'}</H4>
+								<H4 color={'secondary'}>{'Add to album'}</H4>
 							</Col>
 							<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
 								<GgClose onClick={() => props.onClose()} />
@@ -189,8 +189,8 @@ function ModalAlbumSelection(props) {
 
 						<Row marginTop={1} paddingVertical={2} background={'neutral-darker'}>
 							<Col xs={2} sm={4} md={12} lg={12}>
-								<PSmall color={'white-80'}>{'How does this work ?'}</PSmall>
-								<Blockquote color={'white-60'}>{'Since all your data and photos are encrypted by your secret key, we cannot modify them directly. Your browser will download each photo, make the changes, and send an encrypted version back to our servers in a secure manner. This process takes longer, but ensures the security of each of your photos.'}</Blockquote>
+								<PSmall color={'secondary-80'}>{'How does this work ?'}</PSmall>
+								<Blockquote color={'secondary-60'}>{'Since all your data and photos are encrypted by your secret key, we cannot modify them directly. Your browser will download each photo, make the changes, and send an encrypted version back to our servers in a secure manner. This process takes longer, but ensures the security of each of your photos.'}</Blockquote>
 							</Col>
 						</Row>
 
@@ -214,7 +214,7 @@ function ModalAlbumSelection(props) {
 					<ModalContent background={'neutral-lighter'} padding={2}>
 						<Row justify={'space-between'} align={'center'}>
 							<Col xs={2} sm={4} md={8} lg={8}>
-								<H4 color={'white'}>{'Create album'}</H4>
+								<H4 color={'secondary'}>{'Create album'}</H4>
 							</Col>
 							<Col xs={2} sm={4} md={2} lg={2} align={'flex-end'} style={{cursor: 'pointer'}}>
 								<GgClose onClick={() => props.onClose()} />

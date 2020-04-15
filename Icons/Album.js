@@ -5,7 +5,7 @@
 ** @Filename:				Albums.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Monday 03 February 2020 - 18:28:30
+** @Last modified time:		Wednesday 15 April 2020 - 17:43:16
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -24,7 +24,7 @@ const	GgAlbum = styled.div`
 		inset 4px 2px 0 -2px,
 		inset -4px 2px 0 -2px;
 	border-radius: 2px;
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].neutral};
 
 	&::after, &::before {
 		content: "";

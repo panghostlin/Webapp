@@ -5,7 +5,7 @@
 ** @Filename:				Input.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 17:31:35
+** @Last modified time:		Wednesday 15 April 2020 - 15:42:22
 *******************************************************************************/
 
 import styled from 'styled-components';
@@ -13,7 +13,6 @@ import styled from 'styled-components';
 const	TextArea = styled.textarea`
 	color: #FFFFFF;
 	cursor: pointer;
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-size: 18px;
 	width: 100%;
 	margin-bottom: 16px;

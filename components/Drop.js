@@ -5,13 +5,12 @@
 ** @Filename:				Drop.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Sunday 12 January 2020 - 15:35:28
+** @Last modified time:		Wednesday 15 April 2020 - 15:42:16
 *******************************************************************************/
 
 import styled from 'styled-components';
 
 const	DropContainer = styled.div`
-	font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	font-style: normal;
 	font-weight: 500;
 	font-size: 16px;

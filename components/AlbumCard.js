@@ -5,7 +5,7 @@
 ** @Filename:				AlbumCard.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 13:29:37
+** @Last modified time:		Wednesday 15 April 2020 - 15:37:52
 *******************************************************************************/
 
 
@@ -35,7 +35,7 @@ const	AlbumFake = styled.div`
 	align-items: center;
 	transition: 0.2s;
 	&:hover {
-		background-color: ${props => props.theme.colors['neutral-darker']};
+		background-color: ${props => props.theme.colors[props.theme.mode]['neutral-darker']};
 		cursor: pointer;
 	}
 
@@ -93,8 +93,8 @@ const	AlbumInner = styled.div`
 	border-radius: 6px;
 	overflow: hidden;
 	transition: all .1s ease-in-out;
-	background: ${props => props.theme.colors.neutral};
-	border: 2px solid ${props => props.theme.colors['neutral-darker']};
+	background: ${props => props.theme.colors[props.theme.mode].neutral};
+	border: 2px solid ${props => props.theme.colors[props.theme.mode]['neutral-darker']};
 
 `;
 

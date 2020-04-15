@@ -5,7 +5,7 @@
 ** @Filename:				Button.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Tuesday 31 March 2020 - 13:21:04
+** @Last modified time:		Wednesday 15 April 2020 - 15:55:48
 *******************************************************************************/
 
 import	styled					from	'styled-components';
@@ -31,58 +31,58 @@ export const	Button = Default.withComponent(styled.button`
 	letter-spacing: 1.1px;
 	
 	background-color: ${props => (
-		props.primary && props.theme.colors.primary ||
-		props.secondary && props.theme.colors.white
+		props.primary && props.theme.colors[props.theme.mode].accent ||
+		props.secondary && props.theme.colors[props.theme.mode].secondary
 	)};
 	color: ${props => (
-		props.primary && props.theme.colors.white ||
-		props.secondary && props.theme.colors.neutral
+		props.primary && props.theme.colors[props.theme.mode].white ||
+		props.secondary && props.theme.colors[props.theme.mode].neutral
 	)};
 	border: ${props => (
-		props.primary && `1px solid ${props.primary && props.theme.colors.primary}` ||
-		props.secondary && `1px solid ${props.theme.colors['neutral-20']}`
+		props.primary && `1px solid ${props.primary && props.theme.colors[props.theme.mode].accent}` ||
+		props.secondary && `1px solid ${props.theme.colors[props.theme.mode]['neutral-20']}`
 	)};
 
 	&:hover {
 		background-color: ${props => (
-			props.primary && props.theme.colors['primary-80'] ||
-			props.secondary && props.theme.colors.white
+			props.primary && props.theme.colors[props.theme.mode]['accent-80'] ||
+			props.secondary && props.theme.colors[props.theme.mode].secondary
 		)};
 		color: ${props => (
-			props.primary && props.theme.colors.white ||
-			props.secondary && props.theme.colors.primary
+			props.primary && props.theme.colors[props.theme.mode].secondary ||
+			props.secondary && props.theme.colors[props.theme.mode].accent
 		)};
 		border: ${props => (
-			props.primary && `1px solid ${props.primary && props.theme.colors['primary-80']}` ||
-			props.secondary && `1px solid ${props.theme.colors.primary}`
+			props.primary && `1px solid ${props.primary && props.theme.colors[props.theme.mode]['accent-80']}` ||
+			props.secondary && `1px solid ${props.theme.colors[props.theme.mode].accent}`
 		)};
 	}
 	&:focus {
 		background-color: ${props => (
-			props.primary && props.theme.colors.primary ||
-			props.secondary && props.theme.colors.white
+			props.primary && props.theme.colors[props.theme.mode].accent ||
+			props.secondary && props.theme.colors[props.theme.mode].secondary
 		)};
 		color: ${props => (
-			props.primary && props.theme.colors.white ||
-			props.secondary && props.theme.colors.neutral
+			props.primary && props.theme.colors[props.theme.mode].secondary ||
+			props.secondary && props.theme.colors[props.theme.mode].neutral
 		)};
 		border: ${props => (
-			props.primary && `1px solid ${props.primary && props.theme.colors.primary}` ||
-			props.secondary && `1px solid ${props.theme.colors['neutral-20']}`
+			props.primary && `1px solid ${props.primary && props.theme.colors[props.theme.mode].accent}` ||
+			props.secondary && `1px solid ${props.theme.colors[props.theme.mode]['neutral-20']}`
 		)};
 	}
 	&:disabled {
 		background-color: ${props => (
-			props.primary && props.theme.colors['neutral-disable'] ||
-			props.secondary && props.theme.colors['neutral-40']
+			props.primary && props.theme.colors[props.theme.mode]['accent-40'] ||
+			props.secondary && props.theme.colors[props.theme.mode]['neutral-40']
 		)};
 		border-color: ${props => (
-			props.primary && props.theme.colors['neutral-disable'] ||
-			props.secondary && props.theme.colors['neutral-40']
+			props.primary && 'transparent' ||
+			props.secondary && props.theme.colors[props.theme.mode]['neutral-40']
 		)};
 		color: ${props => (
-			props.primary && props.theme.colors['white-40'] ||
-			props.secondary && props.theme.colors['neutral-40']
+			props.primary && props.theme.colors[props.theme.mode]['white-80'] ||
+			props.secondary && props.theme.colors[props.theme.mode]['neutral-40']
 		)};
 	}
 `);
@@ -105,28 +105,28 @@ export const	TextButton  = Default.withComponent(styled.button`
 	font-variant: all-small-caps;
 
 	color: ${props => (
-		props.theme.colors[props.color] ||
-		props.primary && props.theme.colors.white ||
-		props.secondary && props.theme.colors['neutral-darker']
+		props.theme.colors[props.theme.mode][props.color] ||
+		props.primary && props.theme.colors[props.theme.mode].secondary ||
+		props.secondary && props.theme.colors[props.theme.mode]['neutral-darker']
 	)};
 
 	&:hover {
 		color: ${props => (
-			props.primary && props.theme.colors.white ||
-			props.secondary && props.theme.colors.white
+			props.primary && props.theme.colors[props.theme.mode].secondary ||
+			props.secondary && props.theme.colors[props.theme.mode].secondary
 		)};
 	}
 	&:focus {
 		color: ${props => (
-			props.theme.colors[props.color] ||
-			props.primary && props.theme.colors.white ||
-			props.secondary && props.theme.colors['neutral-darker']
+			props.theme.colors[props.theme.mode][props.color] ||
+			props.primary && props.theme.colors[props.theme.mode].secondary ||
+			props.secondary && props.theme.colors[props.theme.mode]['neutral-darker']
 		)};
 	}
 	&:disabled {
 		color: ${props => (
-			props.primary && props.theme.colors['neutral-40'] ||
-			props.secondary && props.theme.colors['neutral-40']
+			props.primary && props.theme.colors[props.theme.mode]['neutral-40'] ||
+			props.secondary && props.theme.colors[props.theme.mode]['neutral-40']
 		)};
 	}
 `);

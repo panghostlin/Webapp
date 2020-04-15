@@ -5,7 +5,7 @@
 ** @Filename:				Profile.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Friday 14 February 2020 - 16:09:50
+** @Last modified time:		Wednesday 15 April 2020 - 18:33:18
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -20,7 +20,7 @@ const	GgProfile = styled.div`
     height: 22px;
     position: relative;
     transform: scale(${props => props.size || 1});
-	color: ${props => props.color || '#FFFFFF'};
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
 	&::after {
 		content: "";
 		position: absolute;

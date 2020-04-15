@@ -5,7 +5,7 @@
 ** @Filename:				Time.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Thursday 12 March 2020 - 13:09:16
+** @Last modified time:		Wednesday 15 April 2020 - 18:33:10
 *******************************************************************************/
 
 import	styled							from	'styled-components';
@@ -20,7 +20,8 @@ const	GgTime = styled.div`
     border-radius: 100%;
     border: 2px solid transparent;
     box-shadow: 0 0 0 2px currentColor;
-	color: #FFFFFF;
+	color: ${props => props.theme.colors[props.theme.mode].secondary};
+
 	&::after {
 		content: "";
 		display: block;
