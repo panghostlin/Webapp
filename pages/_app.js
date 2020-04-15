@@ -5,10 +5,10 @@
 ** @Filename:				_app.js
 **
 ** @Last modified by:		Tbouder
-** @Last modified time:		Wednesday 15 April 2020 - 11:18:11
+** @Last modified time:		Wednesday 15 April 2020 - 12:38:53
 *******************************************************************************/
 
-import	React, {useState, useRef, forwardRef, useImperativeHandle}		from	'react';
+import	React, {useState, useEffect, useRef, forwardRef, useImperativeHandle}		from	'react';
 import	{useRouter}							from	'next/router';
 import	WithTheme							from 	'../style/StyledTheme';
 import	NavBar								from	'../components/Navbar';
@@ -48,25 +48,44 @@ const	Toaster = forwardRef((props, ref) => {
 const	Uploader = forwardRef((props, ref) => {
 	useImperativeHandle(ref, () => ({
 		Reupload(oldWorker, index, files, fileUUID) {
+			props.set_isDragNDrop(false);
 			const	currentPage = Object.assign({}, props.componentRef);
 			const	filesWithOptions = [];
 			const	filesLength = files.length;
+
 			for (var i = 0; i < filesLength; i++) {
 				filesWithOptions.push({
-					file: event.dataTransfer.files[i],
-					page: currentPage
+					file: files[i],
+					page: currentPage,
+					UUID: fileUUID,
 				});
 			}
-			onUploadFile(oldWorker, index, filesWithOptions, fileUUID)
+			uploadStack.current = [...uploadStack.current, ...filesWithOptions];
+			uploadQueue.current = [...uploadQueue.current, ...filesWithOptions];
+			set_stackVersion(_stackVersion => _stackVersion + 1);
 		},
 		SetUploader() {
 			SetUploader();
 		}
 	}));
 
+	const	uploadStack = useRef([]);
+	const	uploadQueue = useRef([]);
+	// const	[uploadStack, set_uploadStack] = useState([]);
+	const	[stackVersion, set_stackVersion] = useState(0);
+	const	[isUploading, set_isUploading] = useState(false);
+
 	const	quality = 1; //0.8
 	const	imgref = React.useRef(null);
 	let		cryptoPublicKey = null;
+
+	useEffect(() => {
+		if (isUploading === false) {
+			set_isUploading(true);
+			onUploadStack(uploadStack, 0);
+		}
+	}, [stackVersion])
+
 
 	function	CreateOriginalImage(objectURL) {
 		return new Promise((resolve) => {
@@ -169,18 +188,14 @@ const	Uploader = forwardRef((props, ref) => {
 		}
 		recursiveWorkerUpload(currentWorker, [1000, 500], 0, options, versions);
 	}
-	async function	onUploadFile(oldWorker, index, files, fileUUID = undefined) {
-		if (oldWorker)
-			Worker.terminate(oldWorker)
-
-		if (index >= files.length) {
-			props.toasterRef.current.toggleToast(false, {
-				preview: null,
-				total: 0,
-				current: 0,
-				step: 0
-			});
-			return;
+	async function	onUploadStack() {
+		const	element = uploadQueue.current[0];
+		if (!element) {
+			set_isUploading(false);
+			uploadStack.current = []
+			uploadQueue.current = []
+			props.toasterRef.current.toggleToast(false, {preview: null, total: 0, current: 0, step: 0});
+			return null;
 		}
 
 		if (cryptoPublicKey === null) {
@@ -189,9 +204,10 @@ const	Uploader = forwardRef((props, ref) => {
 		}
 
 		const	currentWorker = Worker.register();
-		const	currentFileInformations = files[index];
-		const	file = currentFileInformations.file;
-		const	page = currentFileInformations.page;
+		const	file = element.file;
+		const	page = element.page;
+		const	index = element.index;
+		const	fileUUID = element.UUID;
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
@@ -204,8 +220,8 @@ const	Uploader = forwardRef((props, ref) => {
 		******************************************************************** */
 		props.toasterRef.current.toggleToast(true, {
 			preview: imgObject,
-			total: files.length,
-			current: index,
+			total: uploadStack.current.length,
+			current: uploadStack.current.length - uploadQueue.current.length,
 			step: 0
 		});
 
@@ -229,17 +245,26 @@ const	Uploader = forwardRef((props, ref) => {
 					if (response.Picture && response.Picture.uri !== '' && response.IsSuccess === true) {
 						response.Picture.dateAsKey = convertToMoment(response.Picture.originalTime)
 
-						props.onUploaded(_prev => [..._prev, response.Picture], page)
-						onUploadFile(currentWorker, index + 1, files, fileUUID);
+						props.onUploaded(_prev => [..._prev, response.Picture], page);
+						Worker.terminate(currentWorker);
+						const	_uploadQueue = uploadQueue.current;
+						_uploadQueue.shift();
+						uploadQueue.current = _uploadQueue
+						onUploadStack();
+						
 					} else {
 						console.error(`ERROR WITH ${index}`);
-						onUploadFile(currentWorker, index + 1, files, fileUUID) //SKIP THE FAILURE
+						Worker.terminate(currentWorker);
+						const	_uploadQueue = uploadQueue.current;
+						_uploadQueue.shift();
+						uploadQueue.current = _uploadQueue
+						onUploadStack();
 					}
 				} else {
 					props.toasterRef.current.toggleToast(true, {
 						preview: imgObject,
-						total: files.length,
-						current: index,
+						total: uploadStack.current.length,
+						current: uploadStack.current.length - uploadQueue.current.length,
 						step: response.Step
 					})
 				}	
@@ -262,13 +287,17 @@ const	Uploader = forwardRef((props, ref) => {
 					const	currentPage = Object.assign({}, props.componentRef);
 					const	filesWithOptions = [];
 					const	filesLength = event.dataTransfer.files.length;
+
 					for (var i = 0; i < filesLength; i++) {
 						filesWithOptions.push({
 							file: event.dataTransfer.files[i],
-							page: currentPage
+							page: currentPage,
+							UUID: undefined,
 						});
 					}
-					onUploadFile(undefined, 0, filesWithOptions, undefined)
+					uploadStack.current = [...uploadStack.current, ...filesWithOptions];
+					uploadQueue.current = [...uploadQueue.current, ...filesWithOptions];
+					set_stackVersion(_stackVersion => _stackVersion + 1);
 				}} />
 		</>
 	);
