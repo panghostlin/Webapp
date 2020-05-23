@@ -13,6 +13,10 @@ import	styled									from	'styled-components';
 import	* as API								from	'../utils/API';
 import	useEffectOnce							from	'../hooks/useEffectOnce';
 import	useIntersectionObserver					from	'../hooks/useIntersectionObserver';
+import { Blurhash } from "react-blurhash";
+
+import { decode } from "blurhash";
+
 
 const	Toggle = styled.div`
 	cursor: pointer;
@@ -78,6 +82,18 @@ const	FullPicture = styled.img`
 	contain: strict;
 	position: absolute;
 	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	transition: opacity 500ms ease 0ms;
+	object-fit: cover;
+	&::selection {background: transparent;}
+`;
+const	Preview = styled(Blurhash)`
+	contain: strict;
+	position: absolute;
+	left: 0;
+	top: 0;
 	width: 100%;
 	height: 100%;
 	transition: opacity 500ms ease 0ms;
@@ -97,6 +113,7 @@ const	PhotoContainer = styled.div`
 function	Picture(props) {
 	const	[isLoaded, set_isLoaded] = useState(false);
 	const	[pictureData, set_pictureData] = useState(null);
+	const	[previewHash, set_previewHash] = useState('');
 	const	pictureRef = useRef();
 
 	useEffect(() => {
@@ -106,24 +123,35 @@ function	Picture(props) {
 	}, [props.visible])
 
 	async function	fetchPicture() {
-		const	image = await API.GetImage(props.uri, props.signal, 'max500')
+		API.GetPreview(props.uri, props.signal, 'max500').then((preview) => {
+			set_previewHash(preview);
+		})
+		const	[image, _] = await API.GetImage(props.uri, props.signal, 'max500')
 		set_pictureData(image);
 	}
 
-	if (!pictureData) {
-		return (null);
-	}
 	return (
-		<FullPicture
-			ref={pictureRef}
-			onLoad={(e) => {
-				set_isLoaded(true);
-				URL.revokeObjectURL(pictureData);
-				URL.revokeObjectURL(e.target.src);
-			}}
-			style={{opacity: isLoaded ? 1 : 0}}
-			alt={props.alt}
-			src={pictureData} />
+		<>
+			{previewHash && <Preview
+				style={{opacity: !isLoaded ? 1 : 0, position: 'absolute'}}
+				hash={previewHash}
+				width={props.width}
+				height={props.height}
+				resolutionX={32}
+				resolutionY={32}
+				punch={1} />}
+
+		{pictureData && <FullPicture
+				ref={pictureRef}
+				onLoad={(e) => {
+					set_isLoaded(true);
+					URL.revokeObjectURL(pictureData);
+					URL.revokeObjectURL(e.target.src);
+				}}
+				style={{opacity: isLoaded ? 1 : 0}}
+				alt={props.alt}
+				src={pictureData} />}
+		</>
 	)
 };
 
@@ -177,7 +205,7 @@ function	PhotoCardWidth(props) {
 	return (
 		<CardContainer
 			key={props.uri}
-			style={{width: width - 4, height: height -4}}
+			style={{width: width - 4, height: height - 4}}
 			onClick={props.isSelectMode ? props.onToggle : props.onClick}>
 			<Toggle
 				isSelectMode={props.isSelectMode}
@@ -187,6 +215,7 @@ function	PhotoCardWidth(props) {
 				{shouldDisplay && <Picture
 					visible={visible}
 					height={height}
+					width={width}
 					signal={signal} {...props} />}
 			</PhotoContainer>
 			<Background isSelectMode={props.isSelectMode} />

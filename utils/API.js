@@ -59,6 +59,7 @@ function	send(url, chunk, chunkID, parts, file, UUID, albumID) {
 	formData.append('encryptionKey', file.Key);
 	formData.append('encryptionIV', file.IV);
 	formData.append('isLast', file.IsLast);
+	formData.append('preview', file.Preview);
 
 	return (
 		fetch(`${API}/${url}`, {
@@ -193,7 +194,35 @@ export const	GetImage = async (uri, signal, size = 'max500') =>
 				Crypto.FromBase64(buffer.IV),
 				buffer.Key
 			);
-			return (encryptionData);
+			return ([encryptionData, buffer.Preview]);
+		})
+		.catch((err) => {
+			console.warn(`${API}/${uri}`, err)
+		})
+	);
+};
+export const	GetPreview = async (uri, signal) =>
+{
+	if (cryptoPrivateKey === null) {
+		const	privateKey = JSON.parse(sessionStorage.getItem(`Priv`))
+		cryptoPrivateKey = await window.crypto.subtle.importKey("jwk", privateKey, {name: "RSA-OAEP", hash: "SHA-512"}, true, ["decrypt"])
+	}
+
+	return (
+		fetch(`${API}/downloadPreview/${uri}`, {
+			signal,
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			credentials: 'include'
+		})
+		.then(async (response) =>
+		{
+			const	buffer = await response.json();
+			//WILL NEED A DECRYPT
+			console.warn(`PREVIEW IS NOT E2E ENCRYPTED`)
+			return (buffer.preview);
 		})
 		.catch((err) => {
 			console.warn(`${API}/${uri}`, err)

@@ -367,7 +367,7 @@ function	PictureList(props) {
 		uploaderRef.current.SetUploader()
 
 		selectedPicturesKeys.forEach(async (each) => {
-			let		image = await API.GetImage(each, null, 'original')
+			let		[image, preview] = await API.GetImage(each, null, 'original')
 			let		imageToRotate = new Image();
 
 			imageToRotate.onload = function() {

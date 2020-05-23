@@ -108,7 +108,7 @@ function	Picture(props) {
 	}, [])
 
 	async function	fetchPicture() {
-		const	image = await API.GetImage(props.uri, null, 'max500')
+		const	[image, preview] = await API.GetImage(props.uri, null, 'max500')
 		set_pictureData(image);
 	}
 

@@ -151,18 +151,18 @@ function	PictureLightroom(props) {
 	//create mapping with blobs uri
 
 	async function	fetchPicture() {
-		const	_currentPicture = await API.GetImage(props.list[index].uri, null, 'original')
+		const	[_currentPicture, _currentPreview] = await API.GetImage(props.list[index].uri, null, 'original')
 		set_currentPicture(_currentPicture);
 		mapping.push(_currentPicture);
 
 		if (hasNext()) {
-			const	_nextPicture = await API.GetImage(props.list[index + 1].uri, null, 'original')
+			const	[_nextPicture, _nextPreview] = await API.GetImage(props.list[index + 1].uri, null, 'original')
 			set_nextPicture(_nextPicture);
 			mapping.push(_nextPicture);
 		}
 
 		if (hasPrevious()) {
-			const	_previousPicture = await API.GetImage(props.list[index - 1].uri, null, 'original')
+			const	[_previousPicture, _previousPreview] = await API.GetImage(props.list[index - 1].uri, null, 'original')
 			set_previousPicture(_previousPicture);
 			mapping.push(_previousPicture);
 		}
@@ -170,14 +170,14 @@ function	PictureLightroom(props) {
 	}
 	async function	fetchPrevious() {
 		if (hasPrevious()) {
-			const	_previousPicture = await API.GetImage(props.list[index - 1].uri, null, 'original')
+			const	[_previousPicture, _previousPreview] = await API.GetImage(props.list[index - 1].uri, null, 'original')
 			set_previousPicture(_previousPicture);
 			mapping.push(_previousPicture);
 		}
 	}
 	async function	fetchNext() {
 		if (hasNext()) {
-			const	_nextPicture = await API.GetImage(props.list[index + 1].uri, null, 'original')
+			const	[_nextPicture, _nextPreview] = await API.GetImage(props.list[index + 1].uri, null, 'original')
 			set_nextPicture(_nextPicture);
 			mapping.push(_nextPicture);
 		}

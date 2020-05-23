@@ -10,6 +10,7 @@
 
 import	React, {useState, useEffect, useRef, forwardRef, useImperativeHandle}		from	'react';
 import	{useRouter}							from	'next/router';
+import	{encode}							from	'blurhash';
 import	WithTheme							from 	'../style/StyledTheme';
 import	{Div}								from	'../style/Frame';
 import	NavBar								from	'../components/Navbar';
@@ -101,6 +102,18 @@ const	Uploader = forwardRef((props, ref) => {
 			img.src = objectURL
 		});
 	};
+	function	CreatePreview(image) {
+		return new Promise((resolve) => {
+			const	ratio = Math.min(32 / image.width, 32 / image.height);
+			const	rWidth = Math.round(image.width * ratio);
+			const	rHeight = Math.round(image.height * ratio);
+			const	canvas = new OffscreenCanvas(rWidth, rHeight);
+			const	c = canvas.getContext('2d');
+
+			c.drawImage(image, 0, 0, image.width, image.height, 0, 0, rWidth, rHeight);
+			resolve (c.getImageData(0, 0, rWidth, rHeight));
+		});
+	}
 	function	CreateThumbnailImage(image, target) {
 		return new Promise((resolve) => {
 			const	ratio = Math.min(target / image.width, target / image.height);
@@ -189,6 +202,7 @@ const	Uploader = forwardRef((props, ref) => {
 		}
 		recursiveWorkerUpload(currentWorker, [1000, 500], 0, options, versions);
 	}
+
 	async function	onUploadStack() {
 		const	element = uploadQueue.current[0];
 		if (!element) {
@@ -213,6 +227,8 @@ const	Uploader = forwardRef((props, ref) => {
 		const	fileAsArrayBuffer = await Worker.postMessage(currentWorker, {file, type: 'file'})
 		const	imgObject = URL.createObjectURL(new Blob([file], {type: file.type}));
 		const	fileAsImg = await CreateOriginalImage(imgObject);
+		const	previewImageData = await CreatePreview(fileAsImg)
+		const	preview = encode(previewImageData.data, previewImageData.width, previewImageData.height, 4, 4);
 
 		/* ********************************************************************
 		**	Now, for each image, we need to :
@@ -237,7 +253,8 @@ const	Uploader = forwardRef((props, ref) => {
 					name: file.name,
 					lastModified: file.lastModified,
 					type: file.type,
-					isReupload: fileUUID !== undefined
+					isReupload: fileUUID !== undefined,
+					preview: preview,
 				};
 				const	versions = {file, arrayBuffer: fileAsArrayBuffer, image: fileAsImg};
 				performWorkerUpload(currentWorker, options, versions)

@@ -65,9 +65,9 @@ function	GetImage(image, options) {
 	return new Promise((resolve) => {
 		c.putImageData(image, 0, 0, 0, 0, originalImageWidth, originalImageHeight);
 		c.scale(newWidth, newHeight);
-		c.getImageData(0, 0, thumbSize, thumbSize);
-		canvas.convertToBlob({type: options.type, quality: 0.8}).then((blob) => {
-			resolve({blob, width: rWidth, height: rHeight})
+		const imageData = c.getImageData(0, 0, thumbSize, thumbSize);
+		canvas.convertToBlob({type: options.type, quality: 1}).then((blob) => {
+			resolve({blob, width: rWidth, height: rHeight, imageData})
 		})
 	});
 }
@@ -90,6 +90,7 @@ function	ChunckSender(API, chunk, chunkID, parts, file, options) {
 	formData.append('encryptionIV', file.IV);
 	formData.append('isLast', file.IsLast);
 	formData.append('isReupload', options.isReupload);
+	formData.append('preview', file.Preview);
 
 	return (
 		fetch(`${API}/uploadPicture/`, {
@@ -136,6 +137,7 @@ async function	UploadPicture(API, image, options, eventPort) {
 	encryptionData.Key = encryptionData.encodedSecretKey;
 	encryptionData.IV = _arrayBufferToBase64(encryptionData.IV);
 	encryptionData.IsLast = options.isLast
+	encryptionData.Preview = options.preview
 
 	ChunkUploader(API, encryptionData, options, eventPort)
 }

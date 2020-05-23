@@ -150,7 +150,7 @@ function	NavBar(props) {
 }
 
 function	ActionBar(props) {
-	return null
+	// return null
 	return (
 		<StyledActionbar isEnabled={props.isEnabled}>
 			<Menu>
