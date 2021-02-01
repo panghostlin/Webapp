@@ -16,7 +16,7 @@
     "fslightbox-react": "^1.4.9",
     "imagemin-svgo": "^7.1.0",
     "isomorphic-unfetch": "^3.0.0",
-    "next": "^9.4.2",
+    "next": "^10.0.6",
     "next-optimized-images": "^2.6.0",
     "react": "^16.13.1",
     "react-awesome-styled-grid": "^3.0.7",
